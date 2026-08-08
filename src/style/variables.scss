@@ -1,0 +1,19 @@
+$mg_fonts: 'Arial, sans-serif';
+
+$rs_small: 6px;
+$rs_medium: 8px;
+$rs_normal: 10px;
+$rs_large: 15px;
+
+$primary_color: var(--captlc-primary-text);
+$primary_color_hover: var(--captlc-primary-hover);
+$secondary_color: var(--captlc-secondary);
+$black_color: var(--captlc-text-primary);
+$desc_color: var(--captlc-text-secondary);
+
+$white_color: var(--captlc-bg-card);
+$white_hover: var(--captlc-bg-secondary);
+$grey_color: var(--captlc-bg-secondary);
+$border_color: var(--captlc-border);
+$component_bg: var(--captlc-text-muted);
+$transition: 0.3s all linear;

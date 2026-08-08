@@ -1,0 +1,26 @@
+@use '/src/style/variables.scss' as *;
+
+.captlc-primary-button {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 6px;
+	background-color: var(--captlc-primary);
+	color: var(--captlc-text-inverse);
+	padding: 10px 18px;
+	border: none;
+	border-radius: $rs_medium;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: $transition;
+
+	&:hover:not(:disabled) {
+		background-color: var(--captlc-primary-hover);
+	}
+
+	&:disabled {
+		opacity: 0.7;
+		cursor: not-allowed;
+	}
+}

@@ -1,0 +1,50 @@
+@use '/src/style/variables.scss' as *;
+
+.captlc-switcher {
+	position: relative;
+	display: inline-block;
+	width: 40px;
+	height: 22px;
+	flex-shrink: 0;
+	cursor: pointer;
+}
+
+.captlc-switcher-input {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.captlc-switcher-slider {
+	position: absolute;
+	inset: 0;
+	background: var(--captlc-toggle-bg);
+	border-radius: 999px;
+	transition: $transition;
+
+	&::before {
+		content: '';
+		position: absolute;
+		top: 2px;
+		left: 2px;
+		width: 18px;
+		height: 18px;
+		border-radius: 50%;
+		background: var(--captlc-toggle-knob);
+		transition: $transition;
+	}
+}
+
+.captlc-switcher-input:checked + .captlc-switcher-slider {
+	background: var(--captlc-primary);
+
+	&::before {
+		transform: translateX(18px);
+	}
+}
+
+.captlc-switcher-input:focus-visible + .captlc-switcher-slider {
+	outline: 2px solid var(--captlc-primary);
+	outline-offset: 2px;
+}

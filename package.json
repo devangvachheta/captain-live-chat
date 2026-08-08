@@ -1,0 +1,30 @@
+{
+  "name": "captain-live-chat",
+  "version": "1.0.0",
+  "description": "Lightweight, self-hosted live chat plugin for WordPress. No monthly subscription, no external servers.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "wp-scripts build",
+    "start": "wp-scripts start"
+  },
+  "keywords": [
+    "wordpress",
+    "plugin",
+    "live-chat",
+    "support"
+  ],
+  "author": "Bharti",
+  "license": "GPL-3.0-or-later",
+  "devDependencies": {
+    "@wordpress/scripts": "^32.4.0"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.12.0",
+    "@wordpress/i18n": "^6.21.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-redux": "^9.3.0",
+    "react-router-dom": "^6.30.4"
+  }
+}

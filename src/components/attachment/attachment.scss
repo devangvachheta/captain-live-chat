@@ -1,0 +1,90 @@
+@use '/src/style/variables.scss' as *;
+
+.captlc-attachment {
+	position: relative;
+	flex-shrink: 0;
+}
+
+.captlc-attachment__input {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+	pointer-events: none;
+}
+
+.captlc-attachment__btn {
+	background: transparent;
+	border: none;
+	color: var(--captlc-text-muted);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	border-radius: $rs_medium;
+	transition: $transition;
+	padding: 0;
+
+	&:hover:not(:disabled) {
+		background: var(--captlc-bg-hover);
+		color: var(--captlc-text-primary);
+	}
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	&.is-uploading {
+		color: var(--captlc-primary);
+	}
+}
+
+.captlc-attachment__spinner {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	border: 2px solid var(--captlc-border);
+	border-top-color: var(--captlc-primary);
+	border-radius: 50%;
+	animation: captlc-spin 0.7s linear infinite;
+}
+
+@keyframes captlc-spin {
+	to { transform: rotate(360deg); }
+}
+
+// ── Attachment preview inside message bubbles ────────────────────────────
+.captlc-msg__attachment {
+	display: block;
+	margin-top: 6px;
+	text-decoration: none;
+
+	&--image {
+		img {
+			max-width: 200px;
+			max-height: 180px;
+			border-radius: $rs_medium;
+			display: block;
+			object-fit: cover;
+			border: 1px solid rgba(255, 255, 255, 0.1);
+		}
+	}
+
+	&--file {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		background: rgba(0, 0, 0, 0.12);
+		border-radius: $rs_medium;
+		padding: 6px 10px;
+		font-size: 12px;
+		color: inherit;
+		max-width: 200px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+}

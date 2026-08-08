@@ -1,0 +1,23 @@
+@use '/src/style/variables.scss' as *;
+
+.captlc-input-field {
+	width: 100%;
+	background: var(--captlc-bg-input);
+	border: 1px solid var(--captlc-border);
+	border-radius: $rs_medium;
+	padding: 10px 12px;
+	color: var(--captlc-text-primary);
+	font-size: 13px;
+	font-family: inherit;
+	transition: $transition;
+
+	&:focus {
+		outline: none;
+		border-color: var(--captlc-primary);
+		background: var(--captlc-bg-primary);
+	}
+
+	&::placeholder {
+		color: var(--captlc-text-muted);
+	}
+}

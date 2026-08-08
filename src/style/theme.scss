@@ -1,0 +1,169 @@
+// ============================================================
+//  Captain Live Chat — Theme CSS Variables
+//  One place to change = entire dashboard updates
+//  Usage: var(--captlc-bg-primary) etc.
+// ============================================================
+
+// ── LIGHT MODE (default) ──────────────────────────────────────
+:root,
+[data-captlc-theme="light"] {
+	// Backgrounds
+	--captlc-bg-app:           #ffffff;
+	--captlc-bg-primary:       #ffffff;
+	--captlc-bg-secondary:     #f8f8f8;
+	--captlc-bg-hover:         #f4f6f8;
+	--captlc-bg-input:         #f5f5f5;
+	--captlc-bg-active:        #e8f0fe;
+	--captlc-bg-component:     #f0f0f0;
+	--captlc-bg-card:          #ffffff;
+
+	// Text
+	--captlc-text-primary:     #2C3338;
+	--captlc-text-secondary:   #6b7280;
+	--captlc-text-muted:       #a7a7a7;
+	--captlc-text-inverse:     #ffffff;
+
+	// Borders
+	--captlc-border:           #dfdfdf;
+	--captlc-border-hover:     #c4c4c4;
+
+	// Brand
+	--captlc-primary:          #2f6ef0;
+	--captlc-primary-hover:    #1f5adf;
+	--captlc-primary-light:    #e8f0fe;
+	--captlc-primary-text:     #2f6ef0;
+	--captlc-secondary:        #9F5E00;
+
+	// Status colors
+	--captlc-success-bg:       #dcfce7;
+	--captlc-success-border:   #bbf7d0;
+	--captlc-success-text:     #166534;
+	--captlc-warning-bg:       #fffbeb;
+	--captlc-warning-border:   #fde68a;
+	--captlc-warning-text:     #92400e;
+	--captlc-info-bg:          #eff6ff;
+	--captlc-info-border:      #bfdbfe;
+	--captlc-info-text:        #1e40af;
+	--captlc-error-bg:         #fee2e2;
+	--captlc-error-text:       #b91c1c;
+
+	// Shadows
+	--captlc-shadow-sm:        0 1px 4px rgba(0,0,0,0.08);
+	--captlc-shadow-md:        0 4px 16px rgba(0,0,0,0.10);
+	--captlc-shadow-footer:    0 4px 24px rgba(0,0,0,0.10);
+
+	// Toggle button
+	--captlc-toggle-bg:        #e2e8f0;
+	--captlc-toggle-knob:      #ffffff;
+
+	// Skeleton
+	--captlc-skeleton-from:    #e0e0e0;
+	--captlc-skeleton-to:      #f0f0f0;
+
+	// Chat bubble colors
+	--captlc-bubble-agent-bg:   var(--captlc-primary);
+	--captlc-bubble-agent-text: #ffffff;
+	--captlc-bubble-visitor-bg: #f0f2f5;
+	--captlc-bubble-visitor-text: var(--captlc-text-primary);
+}
+
+// ── DARK MODE ─────────────────────────────────────────────────
+[data-captlc-theme="dark"] {
+	// Backgrounds
+	--captlc-bg-app:           #0c1120;
+	--captlc-bg-primary:       #131a2c;
+	--captlc-bg-secondary:     #161d30;
+	--captlc-bg-hover:         #1c2438;
+	--captlc-bg-input:         #0c1120;
+	--captlc-bg-active:        rgba(47, 110, 240, 0.15);
+	--captlc-bg-component:     #1c2438;
+	--captlc-bg-card:          #161d30;
+
+	// Text
+	--captlc-text-primary:     #e6e9f2;
+	--captlc-text-secondary:   #94a3b8;
+	--captlc-text-muted:       #8992ab;
+	--captlc-text-inverse:     #ffffff;
+
+	// Borders
+	--captlc-border:           #232b40;
+	--captlc-border-hover:     #3d4a6b;
+
+	// Brand
+	--captlc-primary:          #4e9de0;
+	--captlc-primary-hover:    #3a8acc;
+	--captlc-primary-light:    #1e2d4a;
+	--captlc-primary-text:     #7bb8f0;
+	--captlc-secondary:        #f0a940;
+
+	// Status colors
+	--captlc-success-bg:       #0f2d1f;
+	--captlc-success-border:   #166534;
+	--captlc-success-text:     #4ade80;
+	--captlc-warning-bg:       #2d1f00;
+	--captlc-warning-border:   #92400e;
+	--captlc-warning-text:     #fbbf24;
+	--captlc-info-bg:          #0f1e3d;
+	--captlc-info-border:      #1e40af;
+	--captlc-info-text:        #60a5fa;
+	--captlc-error-bg:         #2d0f0f;
+	--captlc-error-text:       #f87171;
+
+	// Shadows
+	--captlc-shadow-sm:        0 1px 4px rgba(0,0,0,0.4);
+	--captlc-shadow-md:        0 4px 16px rgba(0,0,0,0.5);
+	--captlc-shadow-footer:    0 4px 24px rgba(0,0,0,0.5);
+
+	// Toggle
+	--captlc-toggle-bg:        #4e9de0;
+	--captlc-toggle-knob:      #ffffff;
+
+	// Skeleton
+	--captlc-skeleton-from:    #1c2438;
+	--captlc-skeleton-to:      #232b40;
+
+	// Chat bubble colors
+	--captlc-bubble-agent-bg:   var(--captlc-primary);
+	--captlc-bubble-agent-text: #ffffff;
+	--captlc-bubble-visitor-bg: rgba(255, 255, 255, 0.06);
+	--captlc-bubble-visitor-text: var(--captlc-text-primary);
+}
+
+// ── Dark-mode icon overrides for the theme toggle button ─────────────────
+[data-captlc-theme="dark"] {
+	.captlc-dm-toggle {
+		.captlc-dm-moon { display: none; }
+		.captlc-dm-sun  { display: block; }
+	}
+}
+
+// ── Dark-mode native form control overrides ───────────────────────────────
+[data-captlc-theme="dark"] {
+	input[type="number"],
+	input[type="text"],
+	input[type="email"],
+	input[type="password"],
+	textarea,
+	select {
+		color-scheme: dark;
+	}
+}
+
+// ── Beat WordPress .wp-core-ui specificity in dark mode ───────────────────
+.wp-core-ui [data-captlc-theme="dark"] select {
+	background: var(--captlc-bg-input) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23e2e8f0' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 10px center !important;
+	color: var(--captlc-text-primary) !important;
+	border-color: var(--captlc-border) !important;
+	-webkit-text-fill-color: var(--captlc-text-primary) !important;
+	color-scheme: dark;
+}
+.wp-core-ui [data-captlc-theme="dark"] input[type="number"],
+.wp-core-ui [data-captlc-theme="dark"] input[type="text"],
+.wp-core-ui [data-captlc-theme="dark"] input[type="email"],
+.wp-core-ui [data-captlc-theme="dark"] textarea {
+	background: var(--captlc-bg-input) !important;
+	color: var(--captlc-text-primary) !important;
+	border-color: var(--captlc-border) !important;
+	-webkit-text-fill-color: var(--captlc-text-primary) !important;
+	color-scheme: dark;
+}

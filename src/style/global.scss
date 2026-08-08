@@ -1,0 +1,251 @@
+@use '/src/style/variables.scss' as *;
+@use '/src/style/theme.scss';
+
+* {
+	box-sizing: border-box;
+}
+
+/* ── Hide WP notices/footer inside our app ────────────────────────────── */
+.csp-notice, .pa-notice-wrap, .pa-new-feature-notice,
+.pa-review-notice, .gt-admin-notice, .is-dismissible,
+.notice, .notice-errors, .notice-warning,
+#wpfooter {
+	display: none !important;
+}
+
+#wpbody-content {
+	padding-bottom: 0 !important;
+}
+
+#wpcontent {
+	padding-left: 0 !important;
+}
+
+/* ── App shell ────────────────────────────────────────────────────────── */
+.captain-app {
+	display: flex;
+	align-items: flex-start;
+	min-height: calc(100vh - var(--captlc-adminbar-h, 32px));
+	background-color: var(--captlc-bg-app);
+	color: var(--captlc-text-primary);
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	transition: background-color 0.3s ease;
+	--captlc-sidebar-w: 240px;
+	--captlc-adminbar-h: var(--wp-admin--admin-bar--height, 32px);
+
+	@media screen and (max-width: 782px) {
+		--captlc-adminbar-h: var(--wp-admin--admin-bar--height, 46px);
+	}
+}
+
+.captlc-app-main-content {
+	flex: 1;
+	padding: 32px 36px;
+	background-color: var(--captlc-bg-app);
+	transition: background-color 0.3s ease;
+	overflow-y: auto;
+	min-height: calc(100vh - var(--captlc-adminbar-h, 32px));
+	min-width: 0;
+}
+
+/* ── Skeleton loading animation ───────────────────────────────────────── */
+@keyframes captlc-skeleton-effect {
+	0%   { background-color: var(--captlc-skeleton-from); opacity: 1; }
+	50%  { background-color: var(--captlc-skeleton-to);   opacity: 0.7; }
+	100% { background-color: var(--captlc-skeleton-from); opacity: 1; }
+}
+
+/* ── Shared card ──────────────────────────────────────────────────────── */
+.captlc-card {
+	background: var(--captlc-bg-card);
+	border: 1px solid var(--captlc-border);
+	border-radius: 12px;
+	padding: 24px;
+	margin-bottom: 20px;
+	box-shadow: var(--captlc-shadow-sm);
+}
+
+.captlc-card__title {
+	font-size: 15px;
+	font-weight: 600;
+	margin: 0 0 4px;
+	color: var(--captlc-text-primary);
+}
+
+.captlc-card__desc {
+	font-size: 13px;
+	color: var(--captlc-text-secondary);
+	margin: 0 0 16px;
+}
+
+/* ── Shared notice ────────────────────────────────────────────────────── */
+.captlc-notice {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 16px;
+	border-radius: 10px;
+	margin-bottom: 20px;
+	font-weight: 500;
+	font-size: 13px;
+}
+
+.captlc-notice--success {
+	background: var(--captlc-success-bg);
+	border: 1px solid var(--captlc-success-border);
+	color: var(--captlc-success-text);
+}
+
+.captlc-notice--error {
+	background: var(--captlc-error-bg);
+	color: var(--captlc-error-text);
+	border: 1px solid var(--captlc-error-text);
+}
+
+/* ── Page header ──────────────────────────────────────────────────────── */
+.captlc-main__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 24px;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+
+.captlc-main__title {
+	font-size: 22px;
+	font-weight: 700;
+	color: var(--captlc-text-primary);
+	margin: 0;
+}
+
+.captlc-main__subtitle {
+	font-size: 13px;
+	color: var(--captlc-text-secondary);
+	margin: 4px 0 0;
+}
+
+/* ── Shared form fields ───────────────────────────────────────────────── */
+.captlc-field {
+	margin-bottom: 16px;
+
+	&:last-child { margin-bottom: 0; }
+}
+
+.captlc-field__label {
+	display: block;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--captlc-text-secondary);
+	margin-bottom: 6px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.captlc-textarea {
+	width: 100%;
+	background: var(--captlc-bg-input);
+	border: 1px solid var(--captlc-border);
+	border-radius: $rs_medium;
+	padding: 10px 12px;
+	color: var(--captlc-text-primary);
+	font-size: 13px;
+	font-family: inherit;
+	resize: vertical;
+	transition: $transition;
+
+	&:focus {
+		outline: none;
+		border-color: var(--captlc-primary);
+		background: var(--captlc-bg-primary);
+	}
+
+	&::placeholder { color: var(--captlc-text-muted); }
+}
+
+/* ── Shared buttons ───────────────────────────────────────────────────── */
+.captlc-primary-button {
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	gap: 6px;
+	background: var(--captlc-primary);
+	color: #fff !important;
+	padding: 10px 20px;
+	border: none;
+	border-radius: $rs_medium;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: $transition;
+	font-family: inherit;
+	white-space: nowrap;
+	text-decoration: none;
+
+	&:hover:not(:disabled) { background: var(--captlc-primary-hover); }
+	&:disabled { opacity: 0.65; cursor: not-allowed; }
+}
+
+.captlc-secondary-button {
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	gap: 6px;
+	background: transparent;
+	color: var(--captlc-text-primary) !important;
+	padding: 9px 18px;
+	border: 1.5px solid var(--captlc-border);
+	border-radius: $rs_medium;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: $transition;
+	font-family: inherit;
+	white-space: nowrap;
+	text-decoration: none;
+
+	&:hover:not(:disabled) {
+		background: var(--captlc-bg-hover);
+		border-color: var(--captlc-border-hover);
+	}
+
+	&:disabled { opacity: 0.65; cursor: not-allowed; }
+
+	&.is-loading { opacity: 0.7; cursor: not-allowed; }
+}
+
+.captlc-form-actions {
+	display: flex;
+	justify-content: flex-end;
+}
+
+/* ── Toggle row ───────────────────────────────────────────────────────── */
+.captlc-toggle-row {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	cursor: pointer;
+	user-select: none;
+	font-size: 13px;
+	color: var(--captlc-text-primary);
+}
+
+/* ── Select input ─────────────────────────────────────────────────────── */
+.captlc-select {
+	width: 100%;
+	background: var(--captlc-bg-input);
+	border: 1px solid var(--captlc-border);
+	border-radius: $rs_medium;
+	padding: 10px 12px;
+	color: var(--captlc-text-primary);
+	font-size: 13px;
+	font-family: inherit;
+	cursor: pointer;
+	transition: $transition;
+	appearance: none;
+
+	&:focus {
+		outline: none;
+		border-color: var(--captlc-primary);
+	}
+}
