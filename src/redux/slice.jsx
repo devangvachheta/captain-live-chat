@@ -22,6 +22,8 @@ const initialState = {
 	plugin_info: {},
 	theme: getSavedTheme(),
 	sidebarCollapsed: getSavedSidebarCollapsed(),
+	currentUser: ( typeof captlc_data !== 'undefined' && captlc_data?.current_user ) || null,
+	agentOnline: ( typeof captlc_data !== 'undefined' && !! captlc_data?.agent_online ) || false,
 };
 
 const Slice = createSlice( {
@@ -49,8 +51,14 @@ const Slice = createSlice( {
 				localStorage.setItem( 'captlc_sidebar_collapsed', state.sidebarCollapsed ? '1' : '0' );
 			} catch {}
 		},
+		setCurrentUser: ( state, action ) => {
+			state.currentUser = action.payload;
+		},
+		setAgentOnline: ( state, action ) => {
+			state.agentOnline = action.payload;
+		},
 	},
 } );
 
-export const { handlePluginInfo, toggleTheme, setTheme, toggleSidebar } = Slice.actions;
+export const { handlePluginInfo, toggleTheme, setTheme, toggleSidebar, setCurrentUser, setAgentOnline } = Slice.actions;
 export default Slice.reducer;

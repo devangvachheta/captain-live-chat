@@ -87,8 +87,8 @@ const CannedReplies = () => {
 		<div className="captlc-canned">
 			<div className="captlc-main__header">
 				<div>
-					<h1 className="captlc-main__title">{ __( 'Canned Replies', 'captain-live-chat' ) }</h1>
-					<p className="captlc-main__subtitle">{ __( 'Type "/" in the chat reply box to quickly insert a canned reply.', 'captain-live-chat' ) }</p>
+					<h1 className="captlc-main__title">{ __( 'Canned Responses', 'captain-live-chat' ) }</h1>
+					<p className="captlc-main__subtitle">{ __( 'Type "/" in the chat reply box to quickly insert a canned response.', 'captain-live-chat' ) }</p>
 				</div>
 			</div>
 

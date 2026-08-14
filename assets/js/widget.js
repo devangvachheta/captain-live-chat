@@ -1,7 +1,6 @@
 /**
  * Captain Live Chat — Frontend widget behaviour.
- * Vanilla JS only. Uses AJAX polling (no WebSocket) as decided for
- * shared-hosting compatibility.
+ * Vanilla JS only.
  *
  * @package Captain_Live_Chat
  */
@@ -16,51 +15,190 @@
 	var STORAGE_KEY_VISITOR = 'captlc_visitor_id';
 	var STORAGE_KEY_THREAD  = 'captlc_thread_id';
 
-	var widget       = document.getElementById( 'captlc-widget' );
-	var toggleBtn    = document.getElementById( 'captlc-widget-toggle' );
-	var titleEl      = document.getElementById( 'captlc-widget-title' );
-	var statusDot    = document.getElementById( 'captlc-widget-status-dot' );
-	var statusText   = document.getElementById( 'captlc-widget-status-text' );
-	var prechatForm  = document.getElementById( 'captlc-prechat-form' );
-	var nameInput    = document.getElementById( 'captlc-input-name' );
-	var emailInput   = document.getElementById( 'captlc-input-email' );
-	var messageInput = document.getElementById( 'captlc-input-message' );
-	var submitBtn    = document.getElementById( 'captlc-prechat-submit' );
-	var threadBox    = document.getElementById( 'captlc-widget-thread' );
-	var messagesBox  = document.getElementById( 'captlc-widget-messages' );
-	var typingBox    = document.getElementById( 'captlc-widget-typing' );
-	var seenBox      = document.getElementById( 'captlc-widget-seen' );
-	var closedNotice = document.getElementById( 'captlc-widget-closed-notice' );
-	var replyForm    = document.getElementById( 'captlc-reply-form' );
-	var replyInput   = document.getElementById( 'captlc-reply-input' );
+	// Screen views
+	var widget          = document.getElementById( 'captlc-widget' );
+	var toggleBtn       = document.getElementById( 'captlc-widget-toggle' );
+	
+	// Welcome Screen Elements
+	var welcomeScreen   = document.getElementById( 'captlc-screen-welcome' );
+	var welcomeTitle    = document.getElementById( 'captlc-welcome-title' );
+	var welcomeSubtitle = document.getElementById( 'captlc-welcome-subtitle' );
+	var welcomeAvatar   = document.getElementById( 'captlc-welcome-avatar' );
+	var welcomeStatusDot   = welcomeScreen ? welcomeScreen.querySelector( '.captlc-widget__welcome-status-dot' ) : null;
+	var welcomeStatusLabel = document.getElementById( 'captlc-welcome-status-label' );
+	var welcomeMessage  = document.getElementById( 'captlc-welcome-message' );
+	var startChatBtn    = document.getElementById( 'captlc-btn-start-chat' );
+	var resumeChatBtn   = document.getElementById( 'captlc-btn-resume-chat' );
+
+	// Pre-chat Form Elements
+	var prechatScreen   = document.getElementById( 'captlc-screen-prechat' );
+	var prechatForm     = document.getElementById( 'captlc-prechat-form' );
+	var prechatBack     = document.getElementById( 'captlc-prechat-back' );
+	var nameInput       = document.getElementById( 'captlc-input-name' );
+	var emailInput      = document.getElementById( 'captlc-input-email' );
+	var messageInput    = document.getElementById( 'captlc-input-message' );
+	var submitBtn       = document.getElementById( 'captlc-prechat-submit' );
+
+	// Active Chat Elements
+	var chatScreen      = document.getElementById( 'captlc-screen-chat' );
+	var chatBack        = document.getElementById( 'captlc-chat-back' );
+	var chatHeaderAvatar = document.getElementById( 'captlc-chat-header-avatar' );
+	var chatAgentName   = document.getElementById( 'captlc-chat-agent-name' );
+	var statusDot       = document.getElementById( 'captlc-widget-status-dot' );
+	var statusText      = document.getElementById( 'captlc-widget-status-text' );
+	var threadBox       = document.getElementById( 'captlc-widget-thread' );
+	var messagesBox     = document.getElementById( 'captlc-widget-messages' );
+	var typingBox       = document.getElementById( 'captlc-widget-typing' );
+	var seenBox         = document.getElementById( 'captlc-widget-seen' );
+	var closedNotice    = document.getElementById( 'captlc-widget-closed-notice' );
+	var replyForm       = document.getElementById( 'captlc-reply-form' );
+	var replyInput      = document.getElementById( 'captlc-reply-input' );
 
 	if ( ! widget ) {
 		return;
 	}
 
-	var pollTimer   = null;
+	// Apply saved widget design settings (from Widget Designer page).
+	var design = captlcData.widgetDesign || {};
+	if ( design.accent_color ) {
+		widget.style.setProperty( '--captlcw-accent', design.accent_color );
+		widget.style.setProperty( '--captlcw-accent-hover', design.accent_color );
+		widget.style.setProperty( '--captlcw-bubble-visitor-bg', design.visitor_bubble_color || design.accent_color );
+	}
+	if ( design.agent_bubble_color ) {
+		widget.style.setProperty( '--captlcw-bubble-agent-bg', design.agent_bubble_color );
+		widget.style.setProperty( '--captlcw-bubble-agent-text', '#1c2233' );
+	}
+
+	// Position: left or right.
+	if ( design.position === 'left' ) {
+		widget.classList.add( 'captlc-widget--left' );
+		widget.style.left  = '24px';
+		widget.style.right = 'auto';
+	} else {
+		widget.style.right = '24px';
+		widget.style.left  = 'auto';
+	}
+
+	var pollTimer     = null;
 	var presenceTimer = null;
-	var lastMsgId   = 0;
+	var lastMsgId     = 0;
 	var lastTypingSent = 0;
-	var currentTid  = getStored( STORAGE_KEY_THREAD );
-	var visitorId   = getStored( STORAGE_KEY_VISITOR ) || generateUuid();
+	var currentTid    = getStored( STORAGE_KEY_THREAD );
+	var visitorId     = getStored( STORAGE_KEY_VISITOR ) || generateUuid();
 
 	setStored( STORAGE_KEY_VISITOR, visitorId );
 
-	// Static text from localized data.
-	titleEl.textContent           = captlcData.widgetTitle;
-	nameInput.placeholder         = captlcData.i18n.namePlaceholder;
-	emailInput.placeholder        = captlcData.i18n.emailPlaceholder;
-	messageInput.placeholder      = captlcData.i18n.messagePlaceholder;
-	submitBtn.textContent         = captlcData.i18n.startChat;
-	replyInput.placeholder        = captlcData.i18n.typeMessage;
+	// Set launcher icon
+	var iconWrap = document.getElementById( 'captlc-toggle-icon-chat' );
+	if ( iconWrap ) {
+		iconWrap.setAttribute( 'data-icon', design.button_icon || 'chat1' );
+	}
 
-	/**
-	 * Reads a value from localStorage, tolerating unavailable storage.
-	 *
-	 * @param {string} key Storage key.
-	 * @return {string|null}
-	 */
+	// Populate welcome text content
+	if ( welcomeTitle ) {
+		welcomeTitle.textContent = design.welcome_title || '👋 Our team is here for you';
+	}
+	if ( welcomeSubtitle ) {
+		welcomeSubtitle.textContent = design.welcome_subtitle || 'We typically reply in a few minutes.';
+	}
+	if ( welcomeMessage ) {
+		welcomeMessage.textContent = design.welcome_message || 'Hi, how can we help?';
+	}
+
+	// Localize strings on forms
+	if ( nameInput ) nameInput.placeholder         = captlcData.i18n.namePlaceholder;
+	if ( emailInput ) emailInput.placeholder        = captlcData.i18n.emailPlaceholder;
+	if ( messageInput ) messageInput.placeholder      = captlcData.i18n.messagePlaceholder;
+	if ( submitBtn ) submitBtn.textContent         = captlcData.i18n.startChat;
+	if ( replyInput ) replyInput.placeholder        = captlcData.i18n.typeMessage;
+	if ( chatAgentName ) chatAgentName.textContent  = captlcData.i18n.supportAgent || 'Support Agent';
+
+	// Render avatars
+	if ( design.show_avatar ) {
+		if ( welcomeAvatar ) renderAvatar( welcomeAvatar, design );
+		if ( chatHeaderAvatar ) renderAvatar( chatHeaderAvatar, design );
+	} else {
+		if ( welcomeAvatar ) welcomeAvatar.style.display = 'none';
+		if ( chatHeaderAvatar ) chatHeaderAvatar.style.display = 'none';
+	}
+
+	// Quick reply buttons — render inside pre-chat form if configured.
+	var quickReplies = design.quick_replies || [];
+	if ( ! quickReplies.length && captlcData.settings && captlcData.settings.quick_replies ) {
+		quickReplies = captlcData.settings.quick_replies;
+	}
+
+	if ( quickReplies && quickReplies.length && prechatForm ) {
+		var qrWrap = document.createElement( 'div' );
+		qrWrap.className = 'captlc-widget-quick-replies';
+
+		quickReplies.forEach( function ( label ) {
+			var btn = document.createElement( 'button' );
+			btn.type = 'button';
+			btn.className = 'captlc-widget-qr-btn';
+			btn.textContent = label;
+
+			btn.addEventListener( 'click', function () {
+				messageInput.value = label;
+				messageInput.focus();
+			} );
+
+			qrWrap.appendChild( btn );
+		} );
+
+		prechatForm.insertBefore( qrWrap, messageInput );
+	}
+
+	// Screen Transition Helper
+	function showScreen( screenId ) {
+		var screens = [ welcomeScreen, prechatScreen, chatScreen ];
+		screens.forEach( function ( scr ) {
+			if ( scr ) {
+				scr.style.display = 'none';
+				scr.classList.remove( 'is-active' );
+			}
+		} );
+
+		var target = document.getElementById( screenId );
+		if ( target ) {
+			target.style.display = 'flex';
+			target.classList.add( 'is-active' );
+		}
+	}
+
+	function renderAvatar( containerEl, design ) {
+		containerEl.innerHTML = '';
+		var isHeader = containerEl.classList.contains( 'captlc-widget__header-agent-avatar' );
+		var size = isHeader ? 32 : 44;
+		
+		var avatar = document.createElement( 'div' );
+		avatar.style.width = size + 'px';
+		avatar.style.height = size + 'px';
+		avatar.style.borderRadius = '50%';
+		avatar.style.background = design.avatar_bg_color || '#9ca3af';
+		avatar.style.display = 'flex';
+		avatar.style.alignItems = 'center';
+		avatar.style.justifyContent = 'center';
+		avatar.style.color = '#fff';
+		avatar.style.fontWeight = '700';
+		avatar.style.fontSize = ( size * 0.4 ) + 'px';
+		avatar.style.overflow = 'hidden';
+		avatar.style.flexShrink = '0';
+
+		if ( design.avatar_image_url ) {
+			var img = document.createElement( 'img' );
+			img.src = design.avatar_image_url;
+			img.style.width = '100%';
+			img.style.height = '100%';
+			img.style.objectFit = 'cover';
+			avatar.appendChild( img );
+		} else {
+			avatar.textContent = ( design.avatar_initials || 'A' ).charAt( 0 ).toUpperCase();
+		}
+		containerEl.appendChild( avatar );
+	}
+
 	function getStored( key ) {
 		try {
 			return window.localStorage.getItem( key );
@@ -69,26 +207,13 @@
 		}
 	}
 
-	/**
-	 * Writes a value to localStorage, tolerating unavailable storage.
-	 *
-	 * @param {string} key   Storage key.
-	 * @param {string} value Value to store.
-	 * @return {void}
-	 */
 	function setStored( key, value ) {
 		try {
 			window.localStorage.setItem( key, value );
 		} catch ( e ) {
-			// Storage unavailable (private mode etc.) — degrade silently.
 		}
 	}
 
-	/**
-	 * Generates a UUID v4 without external dependencies.
-	 *
-	 * @return {string}
-	 */
 	function generateUuid() {
 		return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace( /[xy]/g, function ( c ) {
 			var r = ( Math.random() * 16 ) | 0;
@@ -97,13 +222,6 @@
 		} );
 	}
 
-	/**
-	 * Performs a POST request against admin-ajax.php.
-	 *
-	 * @param {string} action Ajax action name (without captlc_ prefix already included by caller).
-	 * @param {Object} data   Key/value form data.
-	 * @return {Promise<Object>}
-	 */
 	function ajax( action, data ) {
 		var body = new URLSearchParams(
 			Object.assign(
@@ -126,12 +244,6 @@
 		} );
 	}
 
-	/**
-	 * Shows an inline error notice inside the widget panel. Auto-clears after 5s.
-	 *
-	 * @param {string} msg Error message text.
-	 * @return {void}
-	 */
 	function showWidgetError( msg ) {
 		var existing = document.getElementById( 'captlc-widget-error' );
 		if ( existing ) existing.remove();
@@ -142,24 +254,17 @@
 		el.innerHTML = '<span>' + msg + '</span><button type="button" class="captlc-widget__error-close" aria-label="Dismiss">✕</button>';
 		el.querySelector( '.captlc-widget__error-close' ).addEventListener( 'click', function () { el.remove(); } );
 
-		// Insert before the reply form if thread is open, else before the submit button.
 		var replyF = document.getElementById( 'captlc-reply-form' );
-		if ( replyF ) {
+		if ( replyF && chatScreen && chatScreen.style.display !== 'none' ) {
 			replyF.parentNode.insertBefore( el, replyF );
 		} else {
-			var panel = document.getElementById( 'captlc-widget-panel' );
-			if ( panel ) panel.appendChild( el );
+			var activePanel = welcomeScreen.style.display !== 'none' ? welcomeScreen : prechatScreen;
+			activePanel.appendChild( el );
 		}
 
 		setTimeout( function () { if ( el.parentNode ) el.remove(); }, 5000 );
 	}
 
-	/**
-	 * Appends a single message bubble to the thread view.
-	 *
-	 * @param {Object} msg Message object {sender_type, message}.
-	 * @return {void}
-	 */
 	function appendMessage( msg ) {
 		var bubble = document.createElement( 'div' );
 		bubble.className = 'captlc-msg captlc-msg--' + ( 'agent' === msg.sender_type ? 'agent' : 'visitor' );
@@ -205,21 +310,6 @@
 		}
 	}
 
-	/**
-	 * Switches the widget UI from pre-chat form to the active thread view.
-	 *
-	 * @return {void}
-	 */
-	function showThreadView() {
-		prechatForm.hidden = true;
-		threadBox.hidden = false;
-	}
-
-	/**
-	 * Starts (or resumes) polling for new messages on the current thread.
-	 *
-	 * @return {void}
-	 */
 	function startPolling() {
 		if ( pollTimer ) {
 			clearInterval( pollTimer );
@@ -229,11 +319,6 @@
 		pollTimer = setInterval( poll, captlcData.pollInterval || 3000 );
 	}
 
-	/**
-	 * Single poll tick — fetches new messages since lastMsgId.
-	 *
-	 * @return {void}
-	 */
 	function poll() {
 		if ( ! currentTid ) {
 			return;
@@ -261,11 +346,6 @@
 		} );
 	}
 
-	/**
-	 * Sends a "visitor is typing" ping, throttled to once every 2 seconds.
-	 *
-	 * @return {void}
-	 */
 	function sendTypingPing() {
 		if ( ! currentTid ) {
 			return;
@@ -280,11 +360,6 @@
 		ajax( 'captlc_update_typing', { thread_id: currentTid } );
 	}
 
-	/**
-	 * Starts a periodic heartbeat that reports the visitor's current page URL.
-	 *
-	 * @return {void}
-	 */
 	function startPresenceHeartbeat() {
 		if ( presenceTimer ) {
 			clearInterval( presenceTimer );
@@ -300,36 +375,90 @@
 		presenceTimer = setInterval( send, 10000 );
 	}
 
-	/**
-	 * Checks whether any agent is online and updates the status dot.
-	 *
-	 * @return {void}
-	 */
 	function refreshAgentStatus() {
 		ajax( 'captlc_widget_status', {} ).then( function ( res ) {
 			var online = !! ( res && res.success && res.data.online );
-			statusDot.classList.toggle( 'is-online', online );
-			statusText.textContent = online ? captlcData.i18n.online : captlcData.i18n.offline;
+			
+			// Update active chat header status
+			if ( statusDot ) statusDot.classList.toggle( 'is-online', online );
+			if ( statusText ) statusText.textContent = online ? captlcData.i18n.online : captlcData.i18n.offline;
+
+			// Update welcome screen card status
+			if ( welcomeStatusDot ) welcomeStatusDot.classList.toggle( 'is-online', online );
+			if ( welcomeStatusLabel ) welcomeStatusLabel.textContent = online ? captlcData.i18n.online : captlcData.i18n.offline;
 		} );
 	}
 
-	// Toggle open/close.
+	function setupButtonsState() {
+		if ( currentTid ) {
+			if ( startChatBtn ) startChatBtn.style.display = 'none';
+			if ( resumeChatBtn ) resumeChatBtn.style.display = 'flex';
+		} else {
+			if ( startChatBtn ) startChatBtn.style.display = 'flex';
+			if ( resumeChatBtn ) resumeChatBtn.style.display = 'none';
+		}
+	}
+
+	// Toggle panel open/close
 	toggleBtn.addEventListener( 'click', function () {
 		var isOpen = 'open' === widget.getAttribute( 'data-state' );
 		widget.setAttribute( 'data-state', isOpen ? 'closed' : 'open' );
 
 		if ( ! isOpen ) {
 			refreshAgentStatus();
+			setupButtonsState();
+			
+			// Always start at welcome screen or direct to active thread if preferred?
+			// The user wants a Welcome screen that offers Start vs Resume options, so show Welcome Screen.
+			showScreen( 'captlc-screen-welcome' );
 
 			if ( currentTid ) {
-				showThreadView();
+				// Keep polling messages in background if thread exists
 				startPolling();
 				startPresenceHeartbeat();
 			}
 		}
 	} );
 
-	// Pre-chat form submit -> creates thread + first message.
+	// Close panel buttons inside screens
+	var closeButtons = widget.querySelectorAll( '.captlc-widget__panel-close' );
+	closeButtons.forEach( function ( btn ) {
+		btn.addEventListener( 'click', function () {
+			widget.setAttribute( 'data-state', 'closed' );
+		} );
+	} );
+
+	// Action button: Start new chat
+	if ( startChatBtn ) {
+		startChatBtn.addEventListener( 'click', function () {
+			showScreen( 'captlc-screen-prechat' );
+		} );
+	}
+
+	// Action button: Resume existing chat
+	if ( resumeChatBtn ) {
+		resumeChatBtn.addEventListener( 'click', function () {
+			showScreen( 'captlc-screen-chat' );
+			// Scroll to bottom
+			if ( messagesBox ) {
+				messagesBox.scrollTop = messagesBox.scrollHeight;
+			}
+		} );
+	}
+
+	// Back navigations
+	if ( prechatBack ) {
+		prechatBack.addEventListener( 'click', function () {
+			showScreen( 'captlc-screen-welcome' );
+		} );
+	}
+	if ( chatBack ) {
+		chatBack.addEventListener( 'click', function () {
+			showScreen( 'captlc-screen-welcome' );
+		} );
+	}
+
+	// Pre-chat form submit
 	prechatForm.addEventListener( 'submit', function ( e ) {
 		e.preventDefault();
 
@@ -361,7 +490,7 @@
 			setStored( STORAGE_KEY_THREAD, String( currentTid ) );
 
 			appendMessage( { sender_type: 'visitor', message: message, id: res.data.message_id } );
-			showThreadView();
+			showScreen( 'captlc-screen-chat' );
 			startPolling();
 			startPresenceHeartbeat();
 		} ).catch( function () {
@@ -370,11 +499,10 @@
 		} );
 	} );
 
-	// Typing ping while the visitor types a reply.
+	// Typing ping
 	replyInput.addEventListener( 'input', sendTypingPing );
 
-	// ── Emoji picker (vanilla) ───────────────────────────────────────────
-
+	// Emoji picker
 	var EMOJI_LIST = [
 		'😀','😃','😄','😁','😆','😅','🤣','😂','🙂','😉',
 		'😊','😇','🥰','😍','😘','😋','😛','😜','🤪','😝',
@@ -389,11 +517,6 @@
 	var emojiPickerEl   = null;
 	var emojiOpenState  = false;
 
-	/**
-	 * Creates and toggles the lightweight emoji picker inside the widget.
-	 *
-	 * @return {void}
-	 */
 	function toggleEmojiPicker() {
 		if ( emojiOpenState ) {
 			if ( emojiPickerEl ) emojiPickerEl.remove();
@@ -427,7 +550,6 @@
 		replyForm.parentNode.insertBefore( emojiPickerEl, replyForm );
 		emojiOpenState = true;
 
-		// Close on outside click.
 		setTimeout( function () {
 			document.addEventListener( 'click', function closeEmoji( e ) {
 				if ( emojiPickerEl && ! emojiPickerEl.contains( e.target ) ) {
@@ -440,14 +562,7 @@
 		}, 10 );
 	}
 
-	// ── Attachment upload (vanilla) ──────────────────────────────────────
-
-	/**
-	 * Handles file selection for attachment upload in the widget.
-	 *
-	 * @param {File} file Selected file object.
-	 * @return {void}
-	 */
+	// Attachment Upload
 	function handleWidgetAttachment( file ) {
 		if ( ! currentTid ) return;
 
@@ -483,7 +598,6 @@
 					return;
 				}
 
-				// Send message with attachment_url only.
 				return ajax( 'captlc_send_message', {
 					thread_id: currentTid,
 					message: '',
@@ -499,7 +613,6 @@
 			} );
 	}
 
-	// ── Wire up emoji + attachment buttons ───────────────────────────────
 	var emojiBtn  = document.getElementById( 'captlc-widget-emoji-btn' );
 	var attachBtn = document.getElementById( 'captlc-widget-attach-btn' );
 	var attachInput = document.getElementById( 'captlc-widget-attach-input' );
@@ -521,7 +634,7 @@
 		} );
 	}
 
-	// Reply form submit -> sends a follow-up message on an existing thread.
+	// Reply submit
 	replyForm.addEventListener( 'submit', function ( e ) {
 		e.preventDefault();
 
@@ -546,8 +659,12 @@
 		} );
 	} );
 
-	// If a thread already exists from a previous visit, jump straight to it.
+	// When opening, if there is a thread, load history messages
 	if ( currentTid ) {
-		showThreadView();
+		ajax( 'captlc_get_messages', { thread_id: currentTid, since_id: 0 } ).then( function ( res ) {
+			if ( res && res.success ) {
+				res.data.messages.forEach( appendMessage );
+			}
+		} );
 	}
 } )();

@@ -1,0 +1,88 @@
+@use '/src/style/variables.scss' as *;
+
+.captlc-schedule-loading {
+	padding: 48px;
+	text-align: center;
+	color: var(--captlc-text-muted);
+}
+
+.captlc-schedule__enable-row {
+	padding-bottom: 20px;
+	border-bottom: 1px solid var(--captlc-border);
+	margin-bottom: 20px;
+}
+
+.captlc-schedule__timezone {
+	margin-bottom: 24px;
+}
+
+.captlc-schedule__tz-input {
+	max-width: 280px;
+}
+
+.captlc-field__hint {
+	font-size: 11px;
+	color: var(--captlc-text-muted);
+	margin: 5px 0 0;
+}
+
+.captlc-schedule__days {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.captlc-schedule__day {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 14px 16px;
+	background: var(--captlc-bg-secondary);
+	border: 1px solid var(--captlc-border);
+	border-radius: $rs_normal;
+	transition: $transition;
+	flex-wrap: wrap;
+
+	&.is-active {
+		background: var(--captlc-bg-active);
+		border-color: var(--captlc-primary);
+	}
+}
+
+.captlc-schedule__day-toggle {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	cursor: pointer;
+	user-select: none;
+	min-width: 160px;
+}
+
+.captlc-schedule__day-name {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--captlc-text-primary);
+}
+
+.captlc-schedule__time-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.captlc-schedule__time-input {
+	width: 120px;
+	cursor: pointer;
+}
+
+.captlc-schedule__time-sep {
+	font-size: 13px;
+	color: var(--captlc-text-muted);
+}
+
+.captlc-schedule__day-off {
+	font-size: 12px;
+	color: var(--captlc-text-muted);
+	font-weight: 500;
+}

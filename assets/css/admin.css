@@ -23,3 +23,20 @@
 	margin: 0;
 	padding: 0;
 }
+
+/* ── Extra specificity kill for theme reset.css on widget toggle ───────── */
+/* Some themes apply button:focus { outline: ... box-shadow: ... color: ... }
+   These rules override with maximum specificity so our widget always wins.  */
+#captlc-widget button.captlc-widget__toggle,
+#captlc-widget button.captlc-widget__toggle:hover,
+#captlc-widget button.captlc-widget__toggle:focus,
+#captlc-widget button.captlc-widget__toggle:active,
+#captlc-widget button.captlc-widget__toggle:focus-visible,
+#captlc-widget button.captlc-widget__toggle:focus-within {
+	background: var(--captlcw-accent) !important;
+	border: none !important;
+	outline: none !important;
+	box-shadow: 0 8px 24px rgba(47, 110, 240, 0.35) !important;
+	border-radius: 50% !important;
+	color: #fff !important;
+}

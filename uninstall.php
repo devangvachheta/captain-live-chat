@@ -37,6 +37,9 @@ $options = array(
 	'captlc_canned_replies',
 	'captlc_ai_providers',
 	'captlc_ai_general',
+	'captlc_widget_design',
+	'captlc_agent_schedule',
+	'captlc_tags',
 );
 
 foreach ( $options as $option ) {

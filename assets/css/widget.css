@@ -4,12 +4,7 @@
  *
  * SPECIFICITY STRATEGY:
  * Every single rule is nested inside `.captlc-widget` so our specificity
- * always beats theme reset.css rules like:
- *   [type=button], button { border: 1px solid #c36; ... }
- * Our selectors become `.captlc-widget button` which wins over plain `button`.
- *
- * Widget-scoped CSS custom properties (--captlcw-*) never conflict with
- * the admin React theme vars (--captlc-*).
+ * always beats theme reset.css rules.
  */
 
 /* ── Design tokens — defined on the root widget wrapper ─────────────────── */
@@ -58,33 +53,41 @@
 
 /* ── Toggle button ─────────────────────────────────────────────────────── */
 .captlc-widget .captlc-widget__toggle {
-	/* Hard-reset everything a theme reset.css might set on `button` */
 	all: unset;
 	box-sizing: border-box;
 
 	width: 58px;
 	height: 58px;
-	border-radius: 50%;
-	background: var(--captlcw-accent);
-	color: #fff;
-	border: none;
+	border-radius: 50% !important;
+	background: var(--captlcw-accent) !important;
+	color: #fff !important;
+	border: none !important;
+	outline: none !important;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	position: relative;
-	box-shadow: var(--captlcw-toggle-shadow);
+	box-shadow: var(--captlcw-toggle-shadow) !important;
 	transition: background-color 0.15s ease, transform 0.15s ease;
+
+	-webkit-appearance: none;
+	appearance: none;
+}
+
+.captlc-widget .captlc-widget__toggle:hover,
+.captlc-widget .captlc-widget__toggle:focus,
+.captlc-widget .captlc-widget__toggle:active {
+	background: var(--captlcw-accent-hover) !important;
+	color: #fff !important;
+	border: none !important;
+	outline: none !important;
+	box-shadow: var(--captlcw-toggle-shadow) !important;
+	border-radius: 50% !important;
 }
 
 .captlc-widget .captlc-widget__toggle:hover {
-	background: var(--captlcw-accent-hover);
 	transform: scale(1.05);
-}
-
-.captlc-widget .captlc-widget__toggle:focus-visible {
-	outline: 2px solid var(--captlcw-accent);
-	outline-offset: 3px;
 }
 
 .captlc-widget .captlc-widget__icon {
@@ -93,6 +96,8 @@
 	position: absolute;
 	transition: opacity 0.15s ease, transform 0.15s ease;
 	display: block;
+	color: #fff !important;
+	fill: #fff;
 }
 
 .captlc-widget .captlc-widget__icon--close {
@@ -110,13 +115,14 @@
 	transform: rotate(0deg);
 }
 
-/* ── Panel ─────────────────────────────────────────────────────────────── */
+/* ── Panel — default (right-side widget) ──────────────────────────────── */
 .captlc-widget .captlc-widget__panel {
 	position: absolute;
 	bottom: 74px;
 	right: 0;
+	left: auto;
 	width: 340px;
-	max-height: 520px;
+	max-height: 540px;
 	background: var(--captlcw-bg);
 	border-radius: var(--captlcw-radius);
 	box-shadow: var(--captlcw-shadow);
@@ -129,13 +135,32 @@
 	transition: opacity 0.18s ease, transform 0.18s ease;
 }
 
+.captlc-widget--left .captlc-widget__panel {
+	right: auto !important;
+	left: 0 !important;
+}
+
 .captlc-widget[data-state="open"] .captlc-widget__panel {
 	opacity: 1;
 	transform: translateY(0) scale(1);
 	pointer-events: auto;
 }
 
-/* ── Header ────────────────────────────────────────────────────────────── */
+/* ── Screen States ────────────────────────────────────────────────────── */
+.captlc-widget .captlc-widget__screen {
+	display: none;
+	flex-direction: column;
+	flex-grow: 1;
+	height: 100%;
+	min-height: 0;
+	background: var(--captlcw-bg);
+}
+
+.captlc-widget .captlc-widget__screen.is-active {
+	display: flex;
+}
+
+/* ── Headers ───────────────────────────────────────────────────────────── */
 .captlc-widget .captlc-widget__header {
 	background: var(--captlcw-accent);
 	color: #fff;
@@ -146,29 +171,223 @@
 	flex-shrink: 0;
 }
 
-.captlc-widget .captlc-widget__header-title {
-	font-weight: 600;
-	font-size: 15px;
+/* Welcome Header (Overlap styling) */
+.captlc-widget .captlc-widget__header--welcome {
+	padding: 32px 20px 48px;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: flex-start;
+	border-radius: var(--captlcw-radius) var(--captlcw-radius) 0 0;
+	position: relative;
+	gap: 6px;
+}
+
+.captlc-widget .captlc-widget__header--welcome h2 {
+	font-size: 19px;
+	font-weight: 700;
+	margin: 0;
+	line-height: 1.3;
+	color: #fff;
+	max-width: 90%;
+}
+
+.captlc-widget .captlc-widget__header--welcome p {
+	font-size: 12.5px;
+	margin: 0;
+	opacity: 0.85;
 	color: #fff;
 }
 
-.captlc-widget .captlc-widget__status {
+/* Sub-Headers (Prechat & Active Chat headers) */
+.captlc-widget .captlc-widget__header--sub,
+.captlc-widget .captlc-widget__header--agent {
+	background: var(--captlcw-accent);
+	color: #fff;
+	padding: 14px 18px;
 	display: flex;
 	align-items: center;
-	gap: 6px;
-	font-size: 12px;
-	opacity: 0.9;
-	color: #fff;
+	gap: 12px;
+	flex-shrink: 0;
+	border-radius: var(--captlcw-radius) var(--captlcw-radius) 0 0;
+}
+
+.captlc-widget button.captlc-widget__back-btn {
+	background: transparent !important;
+	border: none !important;
+	color: #fff !important;
+	font-size: 20px !important;
+	cursor: pointer !important;
+	padding: 0 4px !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	line-height: 1 !important;
+	opacity: 0.85 !important;
+	transition: opacity 0.15s;
+	box-shadow: none !important;
+	outline: none !important;
+}
+
+.captlc-widget button.captlc-widget__back-btn:hover,
+.captlc-widget button.captlc-widget__back-btn:focus,
+.captlc-widget button.captlc-widget__back-btn:active,
+.captlc-widget button.captlc-widget__back-btn:focus-visible {
+	opacity: 1 !important;
+	background: transparent !important;
+	color: #fff !important;
+	box-shadow: none !important;
+	outline: none !important;
+}
+
+.captlc-widget button.captlc-widget__panel-close {
+	background: transparent !important;
+	border: none !important;
+	color: #fff !important;
+	font-size: 14px !important;
+	cursor: pointer !important;
+	margin-left: auto !important;
+	opacity: 0.8 !important;
+	box-shadow: none !important;
+	outline: none !important;
+}
+
+.captlc-widget button.captlc-widget__panel-close:hover,
+.captlc-widget button.captlc-widget__panel-close:focus,
+.captlc-widget button.captlc-widget__panel-close:active,
+.captlc-widget button.captlc-widget__panel-close:focus-visible {
+	opacity: 1 !important;
+	background: transparent !important;
+	color: #fff !important;
+	box-shadow: none !important;
+	outline: none !important;
+}
+
+/* ── Welcome screen body ────────────────────────────────────────────────── */
+.captlc-widget .captlc-widget__welcome-body {
+	padding: 18px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin-top: -24px;
+	border-radius: var(--captlcw-radius) var(--captlcw-radius) 0 0;
+	background: var(--captlcw-bg);
+	z-index: 2;
+	flex-grow: 1;
+}
+
+.captlc-widget .captlc-widget__welcome-agent-card {
+	display: flex;
+	gap: 12px;
+	background: var(--captlcw-bg-soft);
+	border-radius: var(--captlcw-radius-sm);
+	padding: 14px;
+	border: 1px solid var(--captlcw-border);
+	margin-bottom: 8px;
+	align-items: center;
+}
+
+.captlc-widget .captlc-widget__welcome-avatar {
+	flex-shrink: 0;
+}
+
+.captlc-widget .captlc-widget__welcome-agent-info {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.captlc-widget .captlc-widget__welcome-status-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 9.5px;
+	font-weight: 700;
+	text-transform: uppercase;
+	color: var(--captlcw-text-muted);
+	background: rgba(0,0,0,0.06);
+	padding: 2px 6px;
+	border-radius: 4px;
+	width: fit-content;
+}
+
+.captlc-widget .captlc-widget__welcome-status-dot {
+	width: 5px;
+	height: 5px;
+	border-radius: 50%;
+	background: #94a3b8;
+}
+
+.captlc-widget .captlc-widget__welcome-status-dot.is-online {
+	background: var(--captlcw-success);
+}
+
+.captlc-widget .captlc-widget__welcome-status-dot.is-online + #captlc-welcome-status-label {
+	color: var(--captlcw-success);
+}
+
+.captlc-widget #captlc-welcome-message {
+	font-size: 13px;
+	color: var(--captlcw-text);
+	line-height: 1.4;
+	margin: 0;
+}
+
+/* Action Large buttons */
+.captlc-widget .captlc-widget__large-btn {
+	all: unset;
+	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	background: var(--captlcw-accent);
+	color: #fff !important;
+	font-weight: 600;
+	font-size: 13.5px;
+	padding: 12px;
+	border-radius: var(--captlcw-radius-sm);
+	cursor: pointer;
+	text-align: center;
+	width: 100%;
+	transition: background-color 0.15s ease, transform 0.1s ease;
+	box-shadow: 0 4px 12px rgba(47, 110, 240, 0.15);
+}
+
+.captlc-widget .captlc-widget__large-btn:hover {
+	background: var(--captlcw-accent-hover);
+	transform: translateY(-1px);
+}
+
+/* Active chat header specifics */
+.captlc-widget .captlc-widget__header-agent-avatar {
+	flex-shrink: 0;
+}
+
+.captlc-widget .captlc-widget__header-agent-meta {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.captlc-widget .captlc-widget__header-agent-name {
+	font-size: 13.5px;
+	font-weight: 600;
+}
+
+.captlc-widget .captlc-widget__header-agent-status {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 11px;
+	opacity: 0.85;
 }
 
 .captlc-widget .captlc-widget__status-dot {
-	width: 7px;
-	height: 7px;
+	width: 6px;
+	height: 6px;
 	border-radius: 50%;
 	background: rgba(255,255,255,0.4);
 	flex-shrink: 0;
-	transition: background-color 0.3s ease;
-	display: inline-block;
 }
 
 .captlc-widget .captlc-widget__status-dot.is-online {
@@ -186,7 +405,6 @@
 
 .captlc-widget .captlc-widget__input,
 .captlc-widget .captlc-widget__textarea {
-	/* Hard-reset theme styles */
 	all: unset;
 	box-sizing: border-box;
 	display: block;
@@ -220,7 +438,6 @@
 }
 
 .captlc-widget .captlc-widget__send-btn {
-	/* Hard-reset theme styles */
 	all: unset;
 	box-sizing: border-box;
 	display: flex;
@@ -245,7 +462,6 @@
 	background: var(--captlcw-accent-hover);
 }
 
-.captlc-widget .captlc-widget__send-btn[disabled],
 .captlc-widget .captlc-widget__send-btn:disabled {
 	opacity: 0.6;
 	cursor: not-allowed;
@@ -432,10 +648,66 @@
 	background: var(--captlcw-accent-hover);
 }
 
-.captlc-widget .captlc-widget__reply-send[disabled],
 .captlc-widget .captlc-widget__reply-send:disabled {
 	opacity: 0.5;
 	cursor: not-allowed;
+}
+
+/* ── Footer Tab Menu & Branding ─────────────────────────────────────────── */
+.captlc-widget .captlc-widget__footer-tabs {
+	display: flex;
+	border-top: 1px solid var(--captlcw-border);
+	background: var(--captlcw-bg);
+	padding: 4px;
+	gap: 4px;
+	justify-content: center;
+}
+
+.captlc-widget button.captlc-widget__footer-tab {
+	all: unset;
+	box-sizing: border-box;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 3px;
+	padding: 6px;
+	border-radius: var(--captlcw-radius-sm) !important;
+	cursor: pointer !important;
+	color: var(--captlcw-text-muted) !important;
+	background: transparent !important;
+	border: none !important;
+	outline: none !important;
+	box-shadow: none !important;
+	font-size: 10px !important;
+	font-weight: 600 !important;
+	transition: background-color 0.15s, color 0.15s;
+}
+
+.captlc-widget button.captlc-widget__footer-tab:hover,
+.captlc-widget button.captlc-widget__footer-tab:focus,
+.captlc-widget button.captlc-widget__footer-tab:active,
+.captlc-widget button.captlc-widget__footer-tab:focus-visible {
+	background: var(--captlcw-bg-soft) !important;
+	color: var(--captlcw-text) !important;
+	border: none !important;
+	outline: none !important;
+	box-shadow: none !important;
+}
+
+.captlc-widget button.captlc-widget__footer-tab.is-active {
+	color: var(--captlcw-accent) !important;
+	background: rgba(47, 110, 240, 0.05) !important;
+}
+
+.captlc-widget .captlc-widget__branding {
+	font-size: 10px;
+	text-align: center;
+	color: var(--captlcw-text-muted);
+	padding: 6px 12px;
+	background: var(--captlcw-bg);
+	border-top: 1px solid var(--captlcw-border);
 }
 
 /* ── Responsive ────────────────────────────────────────────────────────── */
@@ -446,13 +718,22 @@
 	}
 
 	.captlc-widget .captlc-widget__panel {
-		width: calc(100vw - 32px);
-		max-height: 75vh;
+		position: fixed !important;
+		right: 12px !important;
+		left: 12px !important;
+		bottom: 90px !important;
+		width: auto !important;
+		max-height: 78vh;
+	}
+
+	.captlc-widget--left {
+		right: auto !important;
+		left: 16px !important;
 	}
 }
 
 /* ── Emoji + Attachment action buttons ─────────────────────────────────── */
-.captlc-widget .captlc-widget__action-btn {
+.captlc-widget button.captlc-widget__action-btn {
 	all: unset;
 	box-sizing: border-box;
 	display: flex;
@@ -460,17 +741,28 @@
 	justify-content: center;
 	width: 30px;
 	height: 30px;
-	border-radius: 6px;
-	cursor: pointer;
-	font-size: 16px;
-	color: var(--captlcw-text-muted);
+	border-radius: 6px !important;
+	cursor: pointer !important;
+	font-size: 16px !important;
+	color: var(--captlcw-text-muted) !important;
+	background: transparent !important;
+	border: none !important;
+	outline: none !important;
+	box-shadow: none !important;
 	flex-shrink: 0;
 	transition: background-color 0.15s ease;
 }
 
-.captlc-widget .captlc-widget__action-btn:hover {
-	background: var(--captlcw-bg-soft);
-	color: var(--captlcw-text);
+.captlc-widget button.captlc-widget__action-btn:hover,
+.captlc-widget button.captlc-widget__action-btn:focus,
+.captlc-widget button.captlc-widget__action-btn:active,
+.captlc-widget button.captlc-widget__action-btn:focus-within,
+.captlc-widget button.captlc-widget__action-btn:focus-visible {
+	background: var(--captlcw-bg-soft) !important;
+	color: var(--captlcw-text) !important;
+	border: none !important;
+	outline: none !important;
+	box-shadow: none !important;
 }
 
 /* ── Widget inline emoji picker ────────────────────────────────────────── */
@@ -512,4 +804,84 @@
 .captlc-widget .captlc-widget-emoji-picker__btn:hover {
 	background: var(--captlcw-bg-soft);
 	transform: scale(1.2);
+}
+
+/* ── Quick Reply buttons ─────────────────────────────────────────────── */
+.captlc-widget .captlc-widget-quick-replies {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 7px;
+	padding: 0 0 4px;
+}
+
+.captlc-widget .captlc-widget-qr-btn {
+	all: unset;
+	box-sizing: border-box;
+	display: inline-flex;
+	align-items: center;
+	background: var(--captlcw-bg);
+	border: 1.5px solid var(--captlcw-accent);
+	color: var(--captlcw-accent);
+	border-radius: 999px;
+	padding: 6px 14px;
+	font-size: 12px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.15s ease, color 0.15s ease;
+	font-family: inherit;
+}
+
+.captlc-widget .captlc-widget-qr-btn:hover {
+	background: var(--captlcw-accent);
+	color: #fff;
+}
+
+/* ── Scope-wide general buttons reset to override parent theme focus leaks ── */
+.captlc-widget button,
+.captlc-widget button:focus,
+.captlc-widget button:active,
+.captlc-widget button:focus-visible,
+.captlc-widget button:focus-within {
+	outline: none !important;
+	border: none;
+	box-shadow: none !important;
+}
+
+.captlc-widget .captlc-widget__large-btn:focus,
+.captlc-widget .captlc-widget__large-btn:active,
+.captlc-widget .captlc-widget__large-btn:focus-visible {
+	background: var(--captlcw-accent-hover) !important;
+	color: #fff !important;
+	transform: translateY(-1px) !important;
+	box-shadow: 0 4px 12px rgba(47, 110, 240, 0.25) !important;
+}
+
+.captlc-widget .captlc-widget__send-btn:focus,
+.captlc-widget .captlc-widget__send-btn:active,
+.captlc-widget .captlc-widget__send-btn:focus-visible {
+	background: var(--captlcw-accent-hover) !important;
+	color: #fff !important;
+}
+
+.captlc-widget .captlc-widget__reply-send:focus,
+.captlc-widget .captlc-widget__reply-send:active,
+.captlc-widget .captlc-widget__reply-send:focus-visible {
+	background: var(--captlcw-accent-hover) !important;
+	color: #fff !important;
+}
+
+/* Toggle correct active launcher icon based on set configuration */
+.captlc-widget .captlc-widget__toggle-icon-wrap {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+.captlc-widget .captlc-widget__toggle-icon-wrap svg {
+	display: none !important;
+}
+.captlc-widget .captlc-widget__toggle-icon-wrap[data-icon="chat1"] svg.captlc-widget__icon--chat1,
+.captlc-widget .captlc-widget__toggle-icon-wrap[data-icon="chat2"] svg.captlc-widget__icon--chat2,
+.captlc-widget .captlc-widget__toggle-icon-wrap[data-icon="chat3"] svg.captlc-widget__icon--chat3,
+.captlc-widget .captlc-widget__toggle-icon-wrap[data-icon="chat4"] svg.captlc-widget__icon--chat4 {
+	display: block !important;
 }

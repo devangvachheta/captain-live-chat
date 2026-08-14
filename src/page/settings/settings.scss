@@ -153,3 +153,78 @@
 	align-items: center;
 	gap: 8px;
 }
+
+// ── Quick Reply chips ─────────────────────────────────────────────────
+.captlc-qr-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 12px;
+	min-height: 32px;
+}
+
+.captlc-qr-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	background: var(--captlc-bg-component);
+	border: 1px solid var(--captlc-border);
+	border-radius: 999px;
+	padding: 5px 12px;
+	font-size: 13px;
+	color: var(--captlc-text-primary);
+}
+
+.captlc-qr-chip__remove {
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	font-size: 15px;
+	color: var(--captlc-text-muted);
+	line-height: 1;
+	padding: 0;
+
+	&:hover { color: var(--captlc-error-text); }
+}
+
+.captlc-qr-add {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+}
+
+/* ── Settings tabs ────────────────────────────────────────────────────── */
+.captlc-settings-tabs {
+	display: flex;
+	align-items: center;
+	gap: 28px;
+	border-bottom: 1px solid var(--captlc-border);
+	margin-bottom: 20px;
+}
+
+.captlc-settings-tab {
+	background: transparent;
+	border: none;
+	border-bottom: 2px solid transparent;
+	cursor: pointer;
+	padding: 10px 2px;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--captlc-text-muted);
+	font-family: inherit;
+	margin-bottom: -1px;
+	transition: $transition;
+
+	&:hover { color: var(--captlc-text-primary); }
+
+	&.is-active {
+		color: var(--captlc-primary-text);
+		border-bottom-color: var(--captlc-primary);
+	}
+}
+
+.captlc-settings-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}

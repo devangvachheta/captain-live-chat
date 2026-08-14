@@ -74,11 +74,43 @@ if ( ! class_exists( 'Captlc_Menu' ) ) {
 
 			add_submenu_page(
 				'captain-live-chat',
-				__( 'Dashboard', 'captain-live-chat' ),
-				__( 'Dashboard', 'captain-live-chat' ),
+				__( 'Inbox', 'captain-live-chat' ),
+				__( 'Inbox', 'captain-live-chat' ),
 				$capability,
 				'captain-live-chat',
 				array( $this, 'captlc_menu_page_template' )
+			);
+
+			add_submenu_page(
+				'captain-live-chat',
+				__( 'Template', 'captain-live-chat' ),
+				__( 'Template', 'captain-live-chat' ),
+				$capability,
+				'admin.php?page=captain-live-chat#/widget-designer'
+			);
+
+			add_submenu_page(
+				'captain-live-chat',
+				__( 'Quick Reply', 'captain-live-chat' ),
+				__( 'Quick Reply', 'captain-live-chat' ),
+				$capability,
+				'admin.php?page=captain-live-chat#/canned-replies'
+			);
+
+			add_submenu_page(
+				'captain-live-chat',
+				__( 'AI Agent', 'captain-live-chat' ),
+				__( 'AI Agent', 'captain-live-chat' ),
+				$capability,
+				'admin.php?page=captain-live-chat#/ai-settings'
+			);
+
+			add_submenu_page(
+				'captain-live-chat',
+				__( 'Analytics', 'captain-live-chat' ),
+				__( 'Analytics', 'captain-live-chat' ),
+				$capability,
+				'admin.php?page=captain-live-chat#/analytics'
 			);
 
 			add_submenu_page(
@@ -91,10 +123,10 @@ if ( ! class_exists( 'Captlc_Menu' ) ) {
 
 			add_submenu_page(
 				'captain-live-chat',
-				__( 'Canned Replies', 'captain-live-chat' ),
-				__( 'Canned Replies', 'captain-live-chat' ),
+				__( 'Agent Schedule', 'captain-live-chat' ),
+				__( 'Agent Schedule', 'captain-live-chat' ),
 				$capability,
-				'admin.php?page=captain-live-chat#/canned-replies'
+				'admin.php?page=captain-live-chat#/schedule'
 			);
 
 			add_submenu_page(
@@ -107,10 +139,10 @@ if ( ! class_exists( 'Captlc_Menu' ) ) {
 
 			add_submenu_page(
 				'captain-live-chat',
-				__( 'AI Auto-Reply', 'captain-live-chat' ),
-				__( 'AI Auto-Reply', 'captain-live-chat' ),
+				__( 'Help', 'captain-live-chat' ),
+				__( 'Help', 'captain-live-chat' ),
 				$capability,
-				'admin.php?page=captain-live-chat#/ai-settings'
+				'admin.php?page=captain-live-chat#/help'
 			);
 		}
 
@@ -173,6 +205,7 @@ if ( ! class_exists( 'Captlc_Menu' ) ) {
 			$roles         = class_exists( 'CAPTLC_Roles' )         ? CAPTLC_Roles::get_selectable_roles()     : array();
 			$users         = class_exists( 'CAPTLC_Roles' )         ? CAPTLC_Roles::get_selectable_users()     : array();
 			$canned        = class_exists( 'CAPTLC_Canned_Replies' ) ? CAPTLC_Canned_Replies::all()             : array();
+			$widget_design = class_exists( 'CAPTLC_Widget_Design' )  ? CAPTLC_Widget_Design::get_raw_option()  : array();
 
 			global $wpdb;
 			$agent_row = null;
@@ -195,6 +228,12 @@ if ( ! class_exists( 'Captlc_Menu' ) ) {
 					'roles'          => $roles,
 					'users'          => $users,
 					'agent_online'   => $agent_row ? (bool) $agent_row->is_online : false,
+					'current_user'   => array(
+						'id'         => get_current_user_id(),
+						'name'       => wp_get_current_user()->display_name,
+						'email'      => wp_get_current_user()->user_email,
+						'avatar_url' => get_avatar_url( get_current_user_id(), array( 'size' => 128 ) ),
+					),
 					'poll_interval'  => absint( isset( $settings['poll_interval_ms'] ) ? $settings['poll_interval_ms'] : 3000 ),
 					'sound_enabled'  => ! empty( $settings['sound_enabled'] ),
 					'browser_notif'  => ! empty( $settings['browser_notif'] ),
@@ -202,6 +241,9 @@ if ( ! class_exists( 'Captlc_Menu' ) ) {
 					'plugin_url'     => CAPTLC_URL,
 					'text_domain'    => 'captain-live-chat',
 					'canned_replies' => $canned,
+					'widget_design'  => $widget_design,
+					'current_user_id' => get_current_user_id(),
+					'is_admin'       => current_user_can( 'manage_options' ),
 				)
 			);
 		}

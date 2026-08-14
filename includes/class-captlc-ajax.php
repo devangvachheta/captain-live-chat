@@ -49,8 +49,30 @@ class CAPTLC_Ajax {
 		// Agent/admin-only.
 		add_action( 'wp_ajax_captlc_get_threads', array( $this, 'get_threads' ) );
 		add_action( 'wp_ajax_captlc_close_thread', array( $this, 'close_thread' ) );
+		add_action( 'wp_ajax_captlc_reopen_thread', array( $this, 'reopen_thread' ) );
 		add_action( 'wp_ajax_captlc_mark_read', array( $this, 'mark_read' ) );
 		add_action( 'wp_ajax_captlc_toggle_agent_status', array( $this, 'toggle_agent_status' ) );
+		add_action( 'wp_ajax_captlc_delete_message', array( $this, 'delete_message' ) );
+		add_action( 'wp_ajax_captlc_toggle_favorite', array( $this, 'toggle_favorite' ) );
+		add_action( 'wp_ajax_captlc_assign_agent', array( $this, 'assign_agent' ) );
+		add_action( 'wp_ajax_captlc_toggle_block', array( $this, 'toggle_block' ) );
+		add_action( 'wp_ajax_captlc_save_custom_data', array( $this, 'save_custom_data' ) );
+		add_action( 'wp_ajax_captlc_get_commerce_data', array( $this, 'get_commerce_data' ) );
+		add_action( 'wp_ajax_captlc_save_profile', array( $this, 'save_profile' ) );
+	}
+
+	/**
+	 * Safely decodes the threads.custom_data JSON column into an assoc array.
+	 *
+	 * @param string|null $raw Raw JSON string from the DB.
+	 * @return array
+	 */
+	public static function decode_custom_data( $raw ) {
+		if ( empty( $raw ) ) {
+			return array();
+		}
+		$decoded = json_decode( $raw, true );
+		return is_array( $decoded ) ? $decoded : array();
 	}
 
 	/**
@@ -230,6 +252,10 @@ class CAPTLC_Ajax {
 
 		$is_agent = is_user_logged_in() && CAPTLC_Roles::can_reply( get_current_user_id() );
 
+		if ( ! $is_agent && (int) $thread->is_blocked === 1 ) {
+			wp_send_json_error( array( 'message' => __( 'This conversation is no longer accepting messages.', 'captain-live-chat' ) ), 403 );
+		}
+
 		if ( $is_agent ) {
 			$sender_type = 'agent';
 			$sender_id   = get_current_user_id();
@@ -277,7 +303,7 @@ class CAPTLC_Ajax {
 		// Sending a message counts as "no longer typing".
 		delete_transient( 'captlc_typing_' . $thread_id . '_' . $sender_type );
 
-		wp_send_json_success( array( 'message_id' => $message_id ) );
+		wp_send_json_success( array( 'message_id' => $message_id, 'sender_id' => $sender_id ) );
 	}
 
 	/**
@@ -314,6 +340,7 @@ class CAPTLC_Ajax {
 			$messages[] = array(
 				'id'             => (int) $row->id,
 				'sender_type'    => $row->sender_type,
+				'sender_id'      => $row->sender_id ? (int) $row->sender_id : null,
 				'message'        => $row->message,
 				'attachment_url' => $row->attachment_url,
 				'created_at'     => $row->created_at,
@@ -428,16 +455,22 @@ class CAPTLC_Ajax {
 			);
 
 			$output[] = array(
-				'id'            => (int) $thread->id,
-				'visitor_name'  => $thread->visitor_name,
-				'visitor_email' => $thread->visitor_email,
-				'status'        => $thread->status,
-				'source_url'    => $thread->source_url,
-				'browser'       => $thread->browser,
-				'device'        => $thread->device,
-				'unread'        => $unread,
-				'last_message'  => $last_message ? wp_trim_words( $last_message, 10 ) : '',
-				'updated_at'    => $thread->updated_at,
+				'id'                => (int) $thread->id,
+				'visitor_name'      => $thread->visitor_name,
+				'visitor_email'     => $thread->visitor_email,
+				'status'            => $thread->status,
+				'source_url'        => $thread->source_url,
+				'browser'           => $thread->browser,
+				'device'            => $thread->device,
+				'location'          => $thread->location,
+				'language'          => $thread->language,
+				'assigned_agent_id' => $thread->assigned_agent_id ? (int) $thread->assigned_agent_id : null,
+				'is_favorite'       => (bool) $thread->is_favorite,
+				'is_blocked'        => (bool) $thread->is_blocked,
+				'custom_data'       => self::decode_custom_data( $thread->custom_data ),
+				'unread'            => $unread,
+				'last_message'      => $last_message ? wp_trim_words( $last_message, 10 ) : '',
+				'updated_at'        => $thread->updated_at,
 			);
 		}
 
@@ -462,6 +495,233 @@ class CAPTLC_Ajax {
 		CAPTLC_DB::update_thread_status( $thread_id, 'closed' );
 
 		wp_send_json_success();
+	}
+
+	/**
+	 * Reopens a previously resolved/closed thread.
+	 *
+	 * @return void
+	 */
+	public function reopen_thread() {
+		$this->verify_nonce();
+		$this->require_agent();
+
+		$thread_id = isset( $_POST['thread_id'] ) ? absint( $_POST['thread_id'] ) : 0;
+
+		if ( ! $thread_id ) {
+			wp_send_json_error( array( 'message' => __( 'Missing thread.', 'captain-live-chat' ) ) );
+		}
+
+		CAPTLC_DB::update_thread_status( $thread_id, 'open' );
+
+		wp_send_json_success();
+	}
+
+	/**
+	 * Toggles the star/favorite flag on a thread.
+	 *
+	 * @return void
+	 */
+	public function toggle_favorite() {
+		$this->verify_nonce();
+		$this->require_agent();
+
+		$thread_id = isset( $_POST['thread_id'] ) ? absint( $_POST['thread_id'] ) : 0;
+		$favorite  = isset( $_POST['favorite'] ) && '1' === sanitize_text_field( wp_unslash( $_POST['favorite'] ) );
+
+		if ( ! $thread_id ) {
+			wp_send_json_error( array( 'message' => __( 'Missing thread.', 'captain-live-chat' ) ) );
+		}
+
+		CAPTLC_DB::set_thread_favorite( $thread_id, $favorite );
+
+		wp_send_json_success();
+	}
+
+	/**
+	 * Assigns (or unassigns) an agent to a thread. Any agent may reassign —
+	 * matches the plugin's existing single-tier "agent" permission model.
+	 *
+	 * @return void
+	 */
+	public function assign_agent() {
+		$this->verify_nonce();
+		$this->require_agent();
+
+		$thread_id = isset( $_POST['thread_id'] ) ? absint( $_POST['thread_id'] ) : 0;
+		$agent_id  = isset( $_POST['agent_id'] ) ? absint( $_POST['agent_id'] ) : 0;
+
+		if ( ! $thread_id ) {
+			wp_send_json_error( array( 'message' => __( 'Missing thread.', 'captain-live-chat' ) ) );
+		}
+
+		// 0 means "assign to me" wasn't explicit — but an empty agent_id unassigns.
+		if ( $agent_id && ! CAPTLC_Roles::can_reply( $agent_id ) ) {
+			wp_send_json_error( array( 'message' => __( 'That user is not an agent.', 'captain-live-chat' ) ) );
+		}
+
+		CAPTLC_DB::assign_thread_agent( $thread_id, $agent_id ?: null );
+
+		wp_send_json_success();
+	}
+
+	/**
+	 * Toggles whether a visitor is blocked from sending further messages.
+	 *
+	 * @return void
+	 */
+	public function toggle_block() {
+		$this->verify_nonce();
+		$this->require_agent();
+
+		$thread_id = isset( $_POST['thread_id'] ) ? absint( $_POST['thread_id'] ) : 0;
+		$blocked   = isset( $_POST['blocked'] ) && '1' === sanitize_text_field( wp_unslash( $_POST['blocked'] ) );
+
+		if ( ! $thread_id ) {
+			wp_send_json_error( array( 'message' => __( 'Missing thread.', 'captain-live-chat' ) ) );
+		}
+
+		CAPTLC_DB::set_thread_blocked( $thread_id, $blocked );
+
+		wp_send_json_success();
+	}
+
+	/**
+	 * Adds/updates a single custom-data key/value pair on a thread.
+	 *
+	 * @return void
+	 */
+	public function save_custom_data() {
+		$this->verify_nonce();
+		$this->require_agent();
+
+		$thread_id = isset( $_POST['thread_id'] ) ? absint( $_POST['thread_id'] ) : 0;
+		$key       = isset( $_POST['key'] ) ? sanitize_text_field( wp_unslash( $_POST['key'] ) ) : '';
+		$value     = isset( $_POST['value'] ) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
+
+		if ( ! $thread_id || '' === $key ) {
+			wp_send_json_error( array( 'message' => __( 'Missing field name.', 'captain-live-chat' ) ) );
+		}
+
+		$data = CAPTLC_DB::set_thread_custom_data( $thread_id, $key, $value );
+
+		wp_send_json_success( array( 'custom_data' => $data ) );
+	}
+
+	/**
+	 * Returns the WooCommerce currency symbol as a plain UTF-8 character
+	 * (WooCommerce's own get_woocommerce_currency_symbol() returns an
+	 * HTML entity like "&#8377;", meant for direct HTML echo — decoding it
+	 * here keeps it correct once it round-trips through JSON into React,
+	 * which renders text as literal characters, not HTML).
+	 *
+	 * @return string
+	 */
+	private function get_currency_symbol() {
+		if ( ! function_exists( 'get_woocommerce_currency_symbol' ) ) {
+			return '$';
+		}
+
+		return html_entity_decode( get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8' );
+	}
+
+	/**
+	 * Looks up a visitor's WooCommerce order history (by billing email) and,
+	 * for visitors matched to a registered WP user, their saved persistent
+	 * cart. Returns a graceful "unavailable" shape when WooCommerce isn't
+	 * active or the visitor is a guest with no matching account.
+	 *
+	 * @return void
+	 */
+	public function get_commerce_data() {
+		$this->verify_nonce();
+		$this->require_agent();
+
+		$email = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
+
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			wp_send_json_success(
+				array(
+					'available' => false,
+					'reason'    => __( 'WooCommerce is not active.', 'captain-live-chat' ),
+				)
+			);
+		}
+
+		if ( ! $email ) {
+			wp_send_json_success(
+				array(
+					'available' => true,
+					'orders'    => array( 'count' => 0, 'total' => 0 ),
+					'cart'      => array( 'available' => false, 'reason' => __( 'No email on file for this visitor.', 'captain-live-chat' ) ),
+					'currency'  => $this->get_currency_symbol(),
+				)
+			);
+		}
+
+		$orders_count = 0;
+		$orders_total = 0.0;
+
+		if ( function_exists( 'wc_get_orders' ) ) {
+			$order_ids = wc_get_orders(
+				array(
+					'billing_email' => $email,
+					'limit'         => -1,
+					'return'        => 'ids',
+				)
+			);
+
+			$orders_count = count( $order_ids );
+
+			foreach ( $order_ids as $order_id ) {
+				$order = wc_get_order( $order_id );
+				if ( $order ) {
+					$orders_total += (float) $order->get_total();
+				}
+			}
+		}
+
+		$cart = array( 'available' => false, 'reason' => __( 'This visitor has no matching account, so their in-progress cart can\'t be read.', 'captain-live-chat' ) );
+
+		$user = get_user_by( 'email', $email );
+
+		if ( $user ) {
+			$saved_cart = get_user_meta( $user->ID, '_woocommerce_persistent_cart_' . get_current_blog_id(), true );
+
+			if ( ! empty( $saved_cart['cart'] ) && is_array( $saved_cart['cart'] ) ) {
+				$items = 0;
+				$total = 0.0;
+
+				foreach ( $saved_cart['cart'] as $line ) {
+					$qty    = isset( $line['quantity'] ) ? (int) $line['quantity'] : 1;
+					$items += $qty;
+
+					if ( ! empty( $line['product_id'] ) && function_exists( 'wc_get_product' ) ) {
+						$product = wc_get_product( $line['product_id'] );
+						if ( $product ) {
+							$total += (float) $product->get_price() * $qty;
+						}
+					}
+				}
+
+				$cart = array(
+					'available' => true,
+					'items'     => $items,
+					'total'     => $total,
+				);
+			} else {
+				$cart = array( 'available' => true, 'items' => 0, 'total' => 0 );
+			}
+		}
+
+		wp_send_json_success(
+			array(
+				'available' => true,
+				'orders'    => array( 'count' => $orders_count, 'total' => $orders_total ),
+				'cart'      => $cart,
+				'currency'  => $this->get_currency_symbol(),
+			)
+		);
 	}
 
 	/**
@@ -494,6 +754,39 @@ class CAPTLC_Ajax {
 		$is_online = isset( $_POST['is_online'] ) && '1' === sanitize_text_field( wp_unslash( $_POST['is_online'] ) );
 
 		CAPTLC_DB::set_agent_status( get_current_user_id(), $is_online );
+
+		wp_send_json_success();
+	}
+
+	/**
+	 * Deletes a single message. Agents may only delete their own agent-sent
+	 * messages (not visitor messages), keeping a visitor's original wording intact.
+	 *
+	 * @return void
+	 */
+	public function delete_message() {
+		$this->verify_nonce();
+		$this->require_agent();
+
+		$message_id = isset( $_POST['message_id'] ) ? absint( $_POST['message_id'] ) : 0;
+
+		if ( ! $message_id ) {
+			wp_send_json_error( array( 'message' => __( 'Missing message.', 'captain-live-chat' ) ) );
+		}
+
+		$message = CAPTLC_DB::get_message( $message_id );
+
+		if ( ! $message ) {
+			wp_send_json_error( array( 'message' => __( 'Message not found.', 'captain-live-chat' ) ) );
+		}
+
+		$is_admin = current_user_can( 'manage_options' );
+
+		if ( 'agent' !== $message->sender_type || ( ! $is_admin && (int) $message->sender_id !== get_current_user_id() ) ) {
+			wp_send_json_error( array( 'message' => __( 'You can only delete your own messages.', 'captain-live-chat' ) ), 403 );
+		}
+
+		CAPTLC_DB::delete_message( $message_id );
 
 		wp_send_json_success();
 	}
@@ -589,5 +882,64 @@ class CAPTLC_Ajax {
 		$saved = CAPTLC_Settings::save_settings( $raw );
 
 		wp_send_json_success( array( 'settings' => $saved ) );
+	}
+
+	/**
+	 * Saves user profile data.
+	 *
+	 * @return void
+	 */
+	public function save_profile() {
+		$this->verify_nonce();
+		$this->require_agent();
+
+		$user_id = get_current_user_id();
+		$display_name = isset( $_POST['display_name'] ) ? sanitize_text_field( wp_unslash( $_POST['display_name'] ) ) : '';
+		$user_email = isset( $_POST['user_email'] ) ? sanitize_email( wp_unslash( $_POST['user_email'] ) ) : '';
+
+		if ( empty( $display_name ) || empty( $user_email ) ) {
+			wp_send_json_error( array( 'message' => __( 'Name and email are required.', 'captain-live-chat' ) ) );
+		}
+
+		if ( ! is_email( $user_email ) ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid email address.', 'captain-live-chat' ) ) );
+		}
+
+		// Check if email is already in use by another user
+		$existing_user = get_user_by( 'email', $user_email );
+		if ( $existing_user && $existing_user->ID !== $user_id ) {
+			wp_send_json_error( array( 'message' => __( 'Email address already in use.', 'captain-live-chat' ) ) );
+		}
+
+		$userdata = array(
+			'ID'           => $user_id,
+			'display_name' => $display_name,
+			'user_email'   => $user_email,
+		);
+
+		// Optionally update first name / last name based on display name split
+		$parts = explode( ' ', $display_name, 2 );
+		if ( isset( $parts[0] ) ) {
+			$userdata['first_name'] = $parts[0];
+		}
+		if ( isset( $parts[1] ) ) {
+			$userdata['last_name'] = $parts[1];
+		}
+
+		$result = wp_update_user( $userdata );
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+		}
+
+		wp_send_json_success( array(
+			'message' => __( 'Profile updated successfully.', 'captain-live-chat' ),
+			'user'    => array(
+				'id'   => $user_id,
+				'name' => $display_name,
+				'email' => $user_email,
+				'avatar_url' => get_avatar_url( $user_id, array( 'size' => 128 ) ),
+			)
+		) );
 	}
 }

@@ -34,6 +34,7 @@ class CAPTLC_Settings {
 			'offline_message'  => __( 'Leave your message. We\'ll reply soon.', 'captain-live-chat' ),
 			'widget_title'     => __( 'Chat with us', 'captain-live-chat' ),
 			'poll_interval_ms' => 3000,
+			'quick_replies'    => array( 'Pricing', 'Support', 'Get a Demo' ),
 		);
 
 		$saved = get_option( self::OPTION_KEY, array() );
@@ -65,6 +66,9 @@ class CAPTLC_Settings {
 			'offline_message'  => isset( $raw['offline_message'] ) ? sanitize_textarea_field( $raw['offline_message'] ) : '',
 			'widget_title'     => isset( $raw['widget_title'] ) ? sanitize_text_field( $raw['widget_title'] ) : '',
 			'poll_interval_ms' => isset( $raw['poll_interval_ms'] ) ? absint( $raw['poll_interval_ms'] ) : 3000,
+			'quick_replies'    => isset( $raw['quick_replies'] ) && is_array( $raw['quick_replies'] )
+				? array_filter( array_map( 'sanitize_text_field', $raw['quick_replies'] ) )
+				: array(),
 		);
 
 		update_option( self::OPTION_KEY, $settings );

@@ -22,6 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Core plugin constants.
  */
 define( 'CAPTLC_VERSION', '1.0.0' );
+define( 'CAPTLC_DB_VERSION', '1.1.0' );
 define( 'CAPTLC_FILE', __FILE__ );
 define( 'CAPTLC_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CAPTLC_URL', plugin_dir_url( __FILE__ ) );

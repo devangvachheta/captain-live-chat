@@ -47,10 +47,15 @@ if ( ! class_exists( 'Captlc_Plugin_Load' ) ) {
 		 * @since 1.0.0
 		 */
 		public function __construct() {
+			// Activator class must be loaded immediately, activation/deactivation
+			// hooks fire before 'plugins_loaded', so it can't wait for captlc_load_dependencies().
+			require_once CAPTLC_PATH . 'includes/class-captlc-activator.php';
+
 			register_activation_hook( CAPTLC_FILE, array( 'CAPTLC_Activator', 'activate' ) );
 			register_deactivation_hook( CAPTLC_FILE, array( 'CAPTLC_Activator', 'deactivate' ) );
 
 			add_action( 'plugins_loaded', array( $this, 'captlc_init_plugin' ) );
+			add_action( 'init', array( 'CAPTLC_Activator', 'maybe_upgrade' ) );
 		}
 
 		/**
@@ -66,6 +71,9 @@ if ( ! class_exists( 'Captlc_Plugin_Load' ) ) {
 			new CAPTLC_Canned_Replies();
 			new CAPTLC_History();
 			new CAPTLC_AI();
+			new CAPTLC_Widget_Design();
+			new CAPTLC_Analytics();
+			new CAPTLC_Features();
 
 			if ( is_admin() ) {
 				new Captlc_Menu();
@@ -80,7 +88,6 @@ if ( ! class_exists( 'Captlc_Plugin_Load' ) ) {
 		 * @since 1.0.0
 		 */
 		public function captlc_load_dependencies() {
-			require_once CAPTLC_PATH . 'includes/class-captlc-activator.php';
 			require_once CAPTLC_PATH . 'includes/class-captlc-roles.php';
 			require_once CAPTLC_PATH . 'includes/class-captlc-settings.php';
 			require_once CAPTLC_PATH . 'includes/class-captlc-db.php';
@@ -89,6 +96,9 @@ if ( ! class_exists( 'Captlc_Plugin_Load' ) ) {
 			require_once CAPTLC_PATH . 'includes/class-captlc-canned-replies.php';
 			require_once CAPTLC_PATH . 'includes/class-captlc-history.php';
 			require_once CAPTLC_PATH . 'includes/class-captlc-ai.php';
+			require_once CAPTLC_PATH . 'includes/class-captlc-widget-design.php';
+			require_once CAPTLC_PATH . 'includes/class-captlc-analytics.php';
+			require_once CAPTLC_PATH . 'includes/class-captlc-features.php';
 			require_once CAPTLC_PATH . 'includes/admin/class-captlc-menu.php';
 			require_once CAPTLC_PATH . 'public/class-captlc-public.php';
 		}

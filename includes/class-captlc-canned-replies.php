@@ -25,6 +25,7 @@ class CAPTLC_Canned_Replies {
 		add_action( 'wp_ajax_captlc_get_canned_replies',    array( $this, 'get_replies' ) );
 		add_action( 'wp_ajax_nopriv_captlc_get_canned_replies', array( $this, 'get_replies' ) );
 		add_action( 'wp_ajax_captlc_save_canned_replies',   array( $this, 'save_replies' ) );
+		add_action( 'wp_ajax_captlc_quick_add_canned_reply', array( $this, 'quick_add_reply' ) );
 	}
 
 	/**
@@ -75,6 +76,40 @@ class CAPTLC_Canned_Replies {
 		update_option( self::OPTION_KEY, $sanitized );
 
 		wp_send_json_success( array( 'replies' => $sanitized ) );
+	}
+
+	/**
+	 * Appends a single canned reply from the chat context menu ("Save as
+	 * shortcut"). Any agent (not just admins) may add one — unlike
+	 * save_replies() this never replaces the full list, so it's safe for a
+	 * lower-privileged agent to call from a stale client state.
+	 *
+	 * @return void
+	 */
+	public function quick_add_reply() {
+		check_ajax_referer( CAPTLC_Ajax::NONCE_ACTION, 'nonce' );
+
+		if ( ! is_user_logged_in() || ! CAPTLC_Roles::can_reply( get_current_user_id() ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'captain-live-chat' ) ), 403 );
+		}
+
+		$shortcut = isset( $_POST['shortcut'] ) ? sanitize_text_field( wp_unslash( $_POST['shortcut'] ) ) : '';
+		$text     = isset( $_POST['text'] ) ? sanitize_textarea_field( wp_unslash( $_POST['text'] ) ) : '';
+
+		if ( '' === $shortcut || '' === $text ) {
+			wp_send_json_error( array( 'message' => __( 'Shortcut and text are required.', 'captain-live-chat' ) ) );
+		}
+
+		$replies   = self::all();
+		$replies[] = array(
+			'id'       => time() + wp_rand( 0, 999 ),
+			'shortcut' => $shortcut,
+			'text'     => $text,
+		);
+
+		update_option( self::OPTION_KEY, $replies );
+
+		wp_send_json_success( array( 'replies' => $replies ) );
 	}
 
 	/**

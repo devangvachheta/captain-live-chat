@@ -23,8 +23,7 @@
 
 /* ── App shell ────────────────────────────────────────────────────────── */
 .captain-app {
-	display: flex;
-	align-items: flex-start;
+	display: block;
 	min-height: calc(100vh - var(--captlc-adminbar-h, 32px));
 	background-color: var(--captlc-bg-app);
 	color: var(--captlc-text-primary);
@@ -39,13 +38,41 @@
 }
 
 .captlc-app-main-content {
-	flex: 1;
-	padding: 32px 36px;
+	margin-left: var(--captlc-sidebar-w, 240px);
+	padding: 16px 24px;
 	background-color: var(--captlc-bg-app);
-	transition: background-color 0.3s ease;
+	transition: background-color 0.3s ease, margin-left 0.2s ease;
 	overflow-y: auto;
 	min-height: calc(100vh - var(--captlc-adminbar-h, 32px));
 	min-width: 0;
+}
+
+.captlc-app-main-content--collapsed {
+	margin-left: 64px;
+}
+
+/* ── Shared page header (title + primary action), used by Inbox, Settings, etc ── */
+.captlc-main__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 14px;
+	flex-shrink: 0;
+}
+
+.captlc-main__title {
+	margin: 0;
+	font-size: 17px;
+	font-weight: 700;
+	color: var(--captlc-text-primary);
+	line-height: 1.2;
+}
+
+@media screen and (max-width: 960px) {
+	.captlc-app-main-content,
+	.captlc-app-main-content--collapsed {
+		margin-left: 0;
+	}
 }
 
 /* ── Skeleton loading animation ───────────────────────────────────────── */

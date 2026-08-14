@@ -63,6 +63,10 @@ class CAPTLC_Activator {
 			browser VARCHAR(100) DEFAULT '' NOT NULL,
 			device VARCHAR(100) DEFAULT '' NOT NULL,
 			location VARCHAR(191) DEFAULT '' NOT NULL,
+			language VARCHAR(50) DEFAULT '' NOT NULL,
+			is_favorite TINYINT(1) DEFAULT 0 NOT NULL,
+			is_blocked TINYINT(1) DEFAULT 0 NOT NULL,
+			custom_data LONGTEXT NULL,
 			created_at DATETIME NOT NULL,
 			updated_at DATETIME NOT NULL,
 			PRIMARY KEY  (id),
@@ -95,6 +99,23 @@ class CAPTLC_Activator {
 		dbDelta( $sql_threads );
 		dbDelta( $sql_messages );
 		dbDelta( $sql_agents );
+
+		update_option( 'captlc_db_version', CAPTLC_DB_VERSION );
+	}
+
+	/**
+	 * Runs dbDelta again if the stored schema version is behind the current
+	 * plugin's expected version — lets already-active installs pick up new
+	 * columns without needing to deactivate/reactivate the plugin.
+	 *
+	 * @return void
+	 */
+	public static function maybe_upgrade() {
+		if ( get_option( 'captlc_db_version' ) === CAPTLC_DB_VERSION ) {
+			return;
+		}
+
+		self::create_tables();
 	}
 
 	/**

@@ -157,6 +157,98 @@ class CAPTLC_DB {
 	}
 
 	/**
+	 * Toggles the is_favorite (star) flag on a thread.
+	 *
+	 * @param int  $thread_id Thread ID.
+	 * @param bool $favorite  New value.
+	 * @return void
+	 */
+	public static function set_thread_favorite( $thread_id, $favorite ) {
+		global $wpdb;
+
+		$wpdb->update(
+			self::threads_table(),
+			array( 'is_favorite' => $favorite ? 1 : 0 ),
+			array( 'id' => $thread_id ),
+			array( '%d' ),
+			array( '%d' )
+		);
+	}
+
+	/**
+	 * Toggles the is_blocked flag on a thread (blocks the visitor from sending
+	 * further messages).
+	 *
+	 * @param int  $thread_id Thread ID.
+	 * @param bool $blocked   New value.
+	 * @return void
+	 */
+	public static function set_thread_blocked( $thread_id, $blocked ) {
+		global $wpdb;
+
+		$wpdb->update(
+			self::threads_table(),
+			array( 'is_blocked' => $blocked ? 1 : 0 ),
+			array( 'id' => $thread_id ),
+			array( '%d' ),
+			array( '%d' )
+		);
+	}
+
+	/**
+	 * Assigns (or unassigns, if null) an agent to a thread.
+	 *
+	 * @param int      $thread_id Thread ID.
+	 * @param int|null $agent_id  User ID of the agent, or null to unassign.
+	 * @return void
+	 */
+	public static function assign_thread_agent( $thread_id, $agent_id ) {
+		global $wpdb;
+
+		$wpdb->update(
+			self::threads_table(),
+			array( 'assigned_agent_id' => $agent_id ? $agent_id : null ),
+			array( 'id' => $thread_id ),
+			array( '%d' ),
+			array( '%d' )
+		);
+	}
+
+	/**
+	 * Merges a key/value pair into a thread's custom_data JSON column.
+	 *
+	 * @param int    $thread_id Thread ID.
+	 * @param string $key       Custom field label.
+	 * @param string $value     Custom field value.
+	 * @return array Updated custom data (assoc array).
+	 */
+	public static function set_thread_custom_data( $thread_id, $key, $value ) {
+		global $wpdb;
+
+		$thread = self::get_thread( $thread_id );
+		$data   = array();
+
+		if ( $thread && ! empty( $thread->custom_data ) ) {
+			$decoded = json_decode( $thread->custom_data, true );
+			if ( is_array( $decoded ) ) {
+				$data = $decoded;
+			}
+		}
+
+		$data[ $key ] = $value;
+
+		$wpdb->update(
+			self::threads_table(),
+			array( 'custom_data' => wp_json_encode( $data ) ),
+			array( 'id' => $thread_id ),
+			array( '%s' ),
+			array( '%d' )
+		);
+
+		return $data;
+	}
+
+	/**
 	 * Touches a thread's updated_at timestamp (used on new message).
 	 *
 	 * @param int $thread_id Thread ID.
@@ -242,6 +334,37 @@ class CAPTLC_DB {
 				$thread_id
 			)
 		);
+	}
+
+	/**
+	 * Returns a single message row (or null).
+	 *
+	 * @param int $message_id Message ID.
+	 * @return object|null
+	 */
+	public static function get_message( $message_id ) {
+		global $wpdb;
+
+		$table = self::messages_table();
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		return $wpdb->get_row(
+			$wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $message_id )
+		);
+	}
+
+	/**
+	 * Deletes a single message by ID.
+	 *
+	 * @param int $message_id Message ID.
+	 * @return bool
+	 */
+	public static function delete_message( $message_id ) {
+		global $wpdb;
+
+		$table = self::messages_table();
+
+		return (bool) $wpdb->delete( $table, array( 'id' => $message_id ), array( '%d' ) );
 	}
 
 	/**
