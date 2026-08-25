@@ -3,7 +3,7 @@
 .captlc-dashboard-overview {
 	display: flex;
 	flex-direction: column;
-	gap: 22px;
+	gap: $space_lg; // standardized — was 22px
 }
 
 /* ── Header ──────────────────────────────────────────────────────────── */

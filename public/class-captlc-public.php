@@ -2,7 +2,7 @@
 /**
  * Frontend bootstrap: enqueues and renders the floating chat widget.
  *
- * @package Captain_Live_Chat
+ * @package captain-live-chat
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -70,11 +70,11 @@ class CAPTLC_Public {
 			array(
 				'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
 				'nonce'          => wp_create_nonce( CAPTLC_Ajax::NONCE_ACTION ),
-				'pollInterval'   => absint( $settings['poll_interval_ms'] ),
+				'pollInterval'   => absint( ! empty( $widget_design['poll_interval_ms'] ) ? $widget_design['poll_interval_ms'] : $settings['poll_interval_ms'] ),
 				'widgetTitle'    => ! empty( $widget_design['welcome_title'] ) ? $widget_design['welcome_title'] : $settings['widget_title'],
-				'offlineMessage' => $settings['offline_message'],
+				'offlineMessage' => ! empty( $widget_design['offline_message'] ) ? $widget_design['offline_message'] : $settings['offline_message'],
 				'widgetDesign'   => $widget_design,
-				'quickReplies'   => isset( $settings['quick_replies'] ) ? $settings['quick_replies'] : array(),
+				'quickReplies'   => ! empty( $widget_design['quick_replies'] ) ? $widget_design['quick_replies'] : ( isset( $settings['quick_replies'] ) ? $settings['quick_replies'] : array() ),
 				'i18n'           => array(
 					'namePlaceholder'    => __( 'Your name', 'captain-live-chat' ),
 					'emailPlaceholder'   => __( 'Your email (optional)', 'captain-live-chat' ),
@@ -86,6 +86,8 @@ class CAPTLC_Public {
 					'typeMessage'        => ! empty( $widget_design['placeholder_text'] ) ? $widget_design['placeholder_text'] : __( 'Type a message…', 'captain-live-chat' ),
 					'seen'               => __( 'Seen', 'captain-live-chat' ),
 					'supportAgent'       => __( 'Support Agent', 'captain-live-chat' ),
+					'openChat'           => __( 'Open chat', 'captain-live-chat' ),
+					'closeChat'          => __( 'Close chat', 'captain-live-chat' ),
 				),
 			)
 		);

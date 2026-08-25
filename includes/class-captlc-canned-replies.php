@@ -2,7 +2,7 @@
 /**
  * Canned Replies management — stored as a single WP option (JSON array).
  *
- * @package Captain_Live_Chat
+ * @package captain-live-chat
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -22,9 +22,9 @@ class CAPTLC_Canned_Replies {
 	 * @return void
 	 */
 	public function __construct() {
-		add_action( 'wp_ajax_captlc_get_canned_replies',    array( $this, 'get_replies' ) );
+		add_action( 'wp_ajax_captlc_get_canned_replies', array( $this, 'get_replies' ) );
 		add_action( 'wp_ajax_nopriv_captlc_get_canned_replies', array( $this, 'get_replies' ) );
-		add_action( 'wp_ajax_captlc_save_canned_replies',   array( $this, 'save_replies' ) );
+		add_action( 'wp_ajax_captlc_save_canned_replies', array( $this, 'save_replies' ) );
 		add_action( 'wp_ajax_captlc_quick_add_canned_reply', array( $this, 'quick_add_reply' ) );
 	}
 

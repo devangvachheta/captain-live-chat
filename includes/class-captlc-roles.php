@@ -2,7 +2,7 @@
 /**
  * Role and user permission handling.
  *
- * @package Captain_Live_Chat
+ * @package captain-live-chat
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -40,12 +40,12 @@ class CAPTLC_Roles {
 	 * Returns users list for the "specific users" checkbox list.
 	 * Limited to users who can at least read the admin area.
 	 *
-	 * @return array<int,array{id:int,name:string}>
+	 * @return array<int,array{id:int,name:string,email:string,avatar:string}>
 	 */
 	public static function get_selectable_users() {
 		$users = get_users(
 			array(
-				'fields'  => array( 'ID', 'display_name' ),
+				'fields'  => array( 'ID', 'display_name', 'user_email' ),
 				'orderby' => 'display_name',
 				'order'   => 'ASC',
 			)
@@ -55,12 +55,54 @@ class CAPTLC_Roles {
 
 		foreach ( $users as $user ) {
 			$output[] = array(
-				'id'   => (int) $user->ID,
-				'name' => $user->display_name,
+				'id'     => (int) $user->ID,
+				'name'   => $user->display_name,
+				'email'  => $user->user_email,
+				'avatar' => get_avatar_url( $user->ID, array( 'size' => 64 ) ),
 			);
 		}
 
 		return $output;
+	}
+
+	/**
+	 * The plugin pages that are gated behind per-user access (in addition
+	 * to the always-available base pages: Inbox, Profile, Documentation,
+	 * Help). Keys match the React route slugs used in routes.js /
+	 * navigation.jsx and the submenu slugs registered in class-captlc-menu.php.
+	 *
+	 * @return array<string,string> slug => label
+	 */
+	public static function get_optional_pages() {
+		return array(
+			'analytics'       => __( 'Analytics', 'captain-live-chat' ),
+			'settings'        => __( 'Settings', 'captain-live-chat' ),
+			'ai-settings'     => __( 'AI Agent', 'captain-live-chat' ),
+			'widget-settings' => __( 'Widget Settings', 'captain-live-chat' ),
+			'canned-replies'  => __( 'Canned Responses', 'captain-live-chat' ),
+			'history'         => __( 'History', 'captain-live-chat' ),
+		);
+	}
+
+	/**
+	 * Returns the optional-page slugs a given user is allowed to open.
+	 * Admins (manage_options) implicitly get every page, so this is only
+	 * meaningful for non-admin agents granted access via the "specific
+	 * users" list on the Profile → Team Access screen.
+	 *
+	 * @param int $user_id WP user ID.
+	 * @return array<int,string>
+	 */
+	public static function get_user_allowed_pages( $user_id ) {
+		if ( user_can( $user_id, 'manage_options' ) ) {
+			return array_keys( self::get_optional_pages() );
+		}
+
+		$settings = CAPTLC_Settings::get_settings();
+		$map      = isset( $settings['user_page_access'] ) && is_array( $settings['user_page_access'] ) ? $settings['user_page_access'] : array();
+		$pages    = isset( $map[ $user_id ] ) && is_array( $map[ $user_id ] ) ? $map[ $user_id ] : array();
+
+		return array_values( array_intersect( $pages, array_keys( self::get_optional_pages() ) ) );
 	}
 
 	/**

@@ -136,17 +136,19 @@ const hourLabel = ( h ) => {
 
 // ── Main Analytics page ───────────────────────────────────────────────────
 const Analytics = () => {
-	const [ data, setData ]     = useState( null );
+	const [ data, setData ]       = useState( null );
 	const [ loading, setLoading ] = useState( true );
+	const [ range, setRange ]     = useState( 'week' );
 
 	useEffect( () => {
-		ajax( 'captlc_get_analytics' )
+		setLoading( true );
+		ajax( 'captlc_get_analytics', { range } )
 			.then( ( res ) => { if ( res?.success ) setData( res.data ); } )
 			.catch( () => {} )
 			.finally( () => setLoading( false ) );
-	}, [] );
+	}, [ range ] );
 
-	if ( loading ) return <div className="captlc-analytics-loading">{ __( 'Loading analytics…', 'captain-live-chat' ) }</div>;
+	if ( loading && ! data ) return <div className="captlc-analytics-loading">{ __( 'Loading analytics…', 'captain-live-chat' ) }</div>;
 
 	if ( ! data ) return <div className="captlc-analytics-loading">{ __( 'No data available.', 'captain-live-chat' ) }</div>;
 
@@ -154,18 +156,34 @@ const Analytics = () => {
 	const hourlyData = {};
 	data.hourly.forEach( ( cnt, h ) => { hourlyData[ hourLabel( h ) ] = cnt; } );
 
-	// Daily trend.
-	const trendData = {};
-	Object.entries( data.daily_trend ).forEach( ( [ date, cnt ] ) => {
-		trendData[ date.slice( 5 ) ] = cnt; // "08-05" format.
-	} );
+	const trendLabel = {
+		week:  __( 'Chats — Last 7 Days', 'captain-live-chat' ),
+		month: __( 'Chats — Last 30 Days', 'captain-live-chat' ),
+		year:  __( 'Chats — Last 12 Months', 'captain-live-chat' ),
+	}[ range ];
 
 	return (
 		<div className="captlc-analytics">
 			<div className="captlc-main__header">
 				<div>
 					<h1 className="captlc-main__title">{ __( 'Analytics', 'captain-live-chat' ) }</h1>
-					<p className="captlc-main__subtitle">{ __( 'Last 30 days overview of your live chat performance.', 'captain-live-chat' ) }</p>
+					<p className="captlc-main__subtitle">{ __( 'Overview of your live chat performance.', 'captain-live-chat' ) }</p>
+				</div>
+				<div className="captlc-analytics-range">
+					{ [
+						{ id: 'week',  label: __( 'Week', 'captain-live-chat' ) },
+						{ id: 'month', label: __( 'Month', 'captain-live-chat' ) },
+						{ id: 'year',  label: __( 'Year', 'captain-live-chat' ) },
+					].map( ( r ) => (
+						<button
+							key={ r.id }
+							type="button"
+							className={ `captlc-analytics-range__btn${ range === r.id ? ' is-active' : '' }` }
+							onClick={ () => setRange( r.id ) }
+						>
+							{ r.label }
+						</button>
+					) ) }
 				</div>
 			</div>
 
@@ -207,7 +225,7 @@ const Analytics = () => {
 			{ /* ── Charts row ── */ }
 			<div className="captlc-charts-grid">
 				<div className="captlc-card">
-					<BarChart data={ trendData } label={ __( 'Daily Chats — Last 14 Days', 'captain-live-chat' ) } />
+					<BarChart data={ data.trend } label={ trendLabel } />
 				</div>
 				<div className="captlc-card">
 					<BarChart data={ hourlyData } label={ __( 'Most Active Hours (last 30 days)', 'captain-live-chat' ) } />

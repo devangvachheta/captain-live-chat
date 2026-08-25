@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './help.scss';
 import { __ } from '@wordpress/i18n';
+import { Link } from 'react-router-dom';
 
 const IconDoc = () => (
 	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -58,17 +59,15 @@ const Help = () => {
 			</div>
 
 			<div className="captlc-help-cards">
-				<a
+				<Link
 					className="captlc-help-card"
-					href="https://example.com/captain-live-chat/docs"
-					target="_blank"
-					rel="noopener noreferrer"
+					to="/docs"
 				>
 					<span className="captlc-help-card__icon"><IconDoc /></span>
 					<h3>{ __( 'Documentation', 'captain-live-chat' ) }</h3>
 					<p>{ __( 'Read our full plugin documentation to learn all available features.', 'captain-live-chat' ) }</p>
 					<span className="captlc-help-card__link">{ __( 'View Docs', 'captain-live-chat' ) } →</span>
-				</a>
+				</Link>
 
 				<a
 					className="captlc-help-card"

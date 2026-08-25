@@ -19,6 +19,19 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 
 global $wpdb;
 
+// ── Read the "Settings → Uninstall" preferences before touching anything ──
+// Both toggles live inside the captlc_settings option itself, so we must
+// read them first and decide, then act — deleting that option later would
+// destroy the very flags we're checking.
+$captlc_settings                = get_option( 'captlc_settings', array() );
+$delete_data_on_uninstall       = ! empty( $captlc_settings['delete_data_on_uninstall'] );
+$preserve_settings_on_uninstall = ! empty( $captlc_settings['preserve_settings_on_uninstall'] );
+
+// Nothing to do if the admin never opted in to deletion.
+if ( ! $delete_data_on_uninstall ) {
+	return;
+}
+
 // ── Drop custom tables ──────────────────────────────────────────────────
 $tables = array(
 	$wpdb->prefix . 'captlc_threads',
@@ -40,7 +53,16 @@ $options = array(
 	'captlc_widget_design',
 	'captlc_agent_schedule',
 	'captlc_tags',
+	'captlc_faqs',
 );
+
+// "Preserve Settings on Uninstall" overrides deletion of captlc_settings
+// specifically, so allowed roles/notification preferences etc. survive a
+// future reinstall even though everything else (threads, messages, canned
+// replies...) is still wiped.
+if ( $preserve_settings_on_uninstall ) {
+	$options = array_diff( $options, array( 'captlc_settings' ) );
+}
 
 foreach ( $options as $option ) {
 	delete_option( $option );

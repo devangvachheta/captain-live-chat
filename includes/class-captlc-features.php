@@ -2,7 +2,7 @@
 /**
  * Chat Tags, Internal Notes and Agent Schedule — combined feature class.
  *
- * @package Captain_Live_Chat
+ * @package captain-live-chat
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -25,16 +25,16 @@ class CAPTLC_Features {
 	 */
 	public function __construct() {
 		// Tags.
-		add_action( 'wp_ajax_captlc_get_tags',    array( $this, 'get_tags' ) );
-		add_action( 'wp_ajax_captlc_save_tags',   array( $this, 'save_tags' ) );
+		add_action( 'wp_ajax_captlc_get_tags', array( $this, 'get_tags' ) );
+		add_action( 'wp_ajax_captlc_save_tags', array( $this, 'save_tags' ) );
 
 		// Internal notes.
-		add_action( 'wp_ajax_captlc_get_notes',   array( $this, 'get_notes' ) );
-		add_action( 'wp_ajax_captlc_add_note',    array( $this, 'add_note' ) );
+		add_action( 'wp_ajax_captlc_get_notes', array( $this, 'get_notes' ) );
+		add_action( 'wp_ajax_captlc_add_note', array( $this, 'add_note' ) );
 		add_action( 'wp_ajax_captlc_delete_note', array( $this, 'delete_note' ) );
 
 		// Agent schedule.
-		add_action( 'wp_ajax_captlc_get_schedule',  array( $this, 'get_schedule' ) );
+		add_action( 'wp_ajax_captlc_get_schedule', array( $this, 'get_schedule' ) );
 		add_action( 'wp_ajax_captlc_save_schedule', array( $this, 'save_schedule' ) );
 
 		// Register the custom cron interval as early as possible, but the
@@ -42,6 +42,7 @@ class CAPTLC_Features {
 		// (wp_schedule_event) that must wait until init, since that call
 		// fires the 'cron_schedules' filter and can trigger other plugins'
 		// (e.g. WooCommerce) translation-loading code too early.
+		// phpcs:ignore WordPress.WP.CronInterval.CronSchedulesInterval -- registers our own 5-minute schedule below; the interval itself is validated in add_cron_interval(), this filter registration is not the interval definition.
 		add_filter( 'cron_schedules', array( $this, 'add_cron_interval' ) );
 
 		add_action( 'captlc_schedule_tick', array( $this, 'apply_schedule' ) );
@@ -69,6 +70,7 @@ class CAPTLC_Features {
 	 * @return array
 	 */
 	public function add_cron_interval( $schedules ) {
+		// phpcs:ignore WordPress.WP.CronInterval.CronSchedulesInterval -- agent schedule (online/offline) needs to refresh more often than the default minimum; 5 minutes is intentional here.
 		$schedules['captlc_5min'] = array(
 			'interval' => 300,
 			'display'  => __( 'Every 5 minutes', 'captain-live-chat' ),
@@ -88,12 +90,16 @@ class CAPTLC_Features {
 		$this->require_agent();
 
 		$thread_id = isset( $_POST['thread_id'] ) ? absint( $_POST['thread_id'] ) : 0;
-		$tags      = (array) get_post_meta( 0, '' ); // unused, using options.
 
-		$all_tags  = (array) get_option( 'captlc_tags', array() );
+		$all_tags    = (array) get_option( 'captlc_tags', array() );
 		$thread_tags = (array) get_option( 'captlc_thread_tags_' . $thread_id, array() );
 
-		wp_send_json_success( array( 'all_tags' => $all_tags, 'thread_tags' => $thread_tags ) );
+		wp_send_json_success(
+			array(
+				'all_tags'    => $all_tags,
+				'thread_tags' => $thread_tags,
+			)
+		);
 	}
 
 	/**
@@ -181,7 +187,7 @@ class CAPTLC_Features {
 		$this->require_agent();
 
 		$thread_id = isset( $_POST['thread_id'] ) ? absint( $_POST['thread_id'] ) : 0;
-		$note_id   = isset( $_POST['note_id'] )   ? sanitize_text_field( wp_unslash( $_POST['note_id'] ) ) : '';
+		$note_id   = isset( $_POST['note_id'] ) ? sanitize_text_field( wp_unslash( $_POST['note_id'] ) ) : '';
 
 		$notes = (array) get_option( 'captlc_notes_' . $thread_id, array() );
 		$notes = array_values( array_filter( $notes, fn( $n ) => $n['id'] !== $note_id ) );
@@ -220,7 +226,7 @@ class CAPTLC_Features {
 			wp_send_json_error( null, 403 );
 		}
 
-		$raw = isset( $_POST['schedule'] ) ? wp_unslash( $_POST['schedule'] ) : '{}';
+		$raw  = isset( $_POST['schedule'] ) ? wp_unslash( $_POST['schedule'] ) : '{}';
 		$data = json_decode( $raw, true );
 
 		if ( ! is_array( $data ) ) {
@@ -235,11 +241,11 @@ class CAPTLC_Features {
 		);
 
 		foreach ( $days_of_week as $day ) {
-			$day_data = $data['days'][ $day ] ?? array();
+			$day_data              = isset( $data['days'][ $day ] ) ? $data['days'][ $day ] : array();
 			$saved['days'][ $day ] = array(
 				'active' => ! empty( $day_data['active'] ),
 				'from'   => isset( $day_data['from'] ) ? sanitize_text_field( $day_data['from'] ) : '09:00',
-				'to'     => isset( $day_data['to'] )   ? sanitize_text_field( $day_data['to'] )   : '18:00',
+				'to'     => isset( $day_data['to'] ) ? sanitize_text_field( $day_data['to'] ) : '18:00',
 			);
 		}
 
@@ -259,13 +265,41 @@ class CAPTLC_Features {
 			'enabled'  => false,
 			'timezone' => wp_timezone_string(),
 			'days'     => array(
-				'monday'    => array( 'active' => true,  'from' => '09:00', 'to' => '18:00' ),
-				'tuesday'   => array( 'active' => true,  'from' => '09:00', 'to' => '18:00' ),
-				'wednesday' => array( 'active' => true,  'from' => '09:00', 'to' => '18:00' ),
-				'thursday'  => array( 'active' => true,  'from' => '09:00', 'to' => '18:00' ),
-				'friday'    => array( 'active' => true,  'from' => '09:00', 'to' => '18:00' ),
-				'saturday'  => array( 'active' => false, 'from' => '09:00', 'to' => '18:00' ),
-				'sunday'    => array( 'active' => false, 'from' => '09:00', 'to' => '18:00' ),
+				'monday'    => array(
+					'active' => true,
+					'from'   => '09:00',
+					'to'     => '18:00',
+				),
+				'tuesday'   => array(
+					'active' => true,
+					'from'   => '09:00',
+					'to'     => '18:00',
+				),
+				'wednesday' => array(
+					'active' => true,
+					'from'   => '09:00',
+					'to'     => '18:00',
+				),
+				'thursday'  => array(
+					'active' => true,
+					'from'   => '09:00',
+					'to'     => '18:00',
+				),
+				'friday'    => array(
+					'active' => true,
+					'from'   => '09:00',
+					'to'     => '18:00',
+				),
+				'saturday'  => array(
+					'active' => false,
+					'from'   => '09:00',
+					'to'     => '18:00',
+				),
+				'sunday'    => array(
+					'active' => false,
+					'from'   => '09:00',
+					'to'     => '18:00',
+				),
 			),
 		);
 
@@ -285,25 +319,31 @@ class CAPTLC_Features {
 		}
 
 		try {
-			$tz  = new DateTimeZone( $schedule['timezone'] ?: wp_timezone_string() );
+			$tz  = new DateTimeZone( $schedule['timezone'] ? $schedule['timezone'] : wp_timezone_string() );
 			$now = new DateTime( 'now', $tz );
 		} catch ( Exception $e ) {
 			$now = new DateTime( 'now' );
 		}
 
-		$day_name  = strtolower( $now->format( 'l' ) );
-		$time_now  = $now->format( 'H:i' );
-		$day_cfg   = $schedule['days'][ $day_name ] ?? array( 'active' => false );
+		$day_name = strtolower( $now->format( 'l' ) );
+		$time_now = $now->format( 'H:i' );
+		$day_cfg  = isset( $schedule['days'][ $day_name ] ) ? $schedule['days'][ $day_name ] : array( 'active' => false );
 
 		$is_online = $day_cfg['active']
 			&& isset( $day_cfg['from'], $day_cfg['to'] )
 			&& $time_now >= $day_cfg['from']
 			&& $time_now <= $day_cfg['to'];
 
-		// Get all allowed agents and update their status.
+		// Only agents who opted into the shared schedule ("Custom availability" in
+		// their profile) are affected — agents forced to Always/Never/manual status
+		// must not be overridden by this cron.
 		$users = get_users( array( 'fields' => array( 'ID' ) ) );
 		foreach ( $users as $user ) {
-			if ( CAPTLC_Roles::can_reply( $user->ID ) ) {
+			if ( ! CAPTLC_Roles::can_reply( $user->ID ) ) {
+				continue;
+			}
+			$profile = CAPTLC_DB::get_agent_profile( $user->ID );
+			if ( 'custom' === $profile['availability_mode'] ) {
 				CAPTLC_DB::set_agent_status( $user->ID, $is_online );
 			}
 		}

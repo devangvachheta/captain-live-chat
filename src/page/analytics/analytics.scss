@@ -6,6 +6,38 @@
 	color: var(--captlc-text-muted);
 }
 
+/* ── Week / Month / Year toggle ─────────────────────────────────────────── */
+.captlc-analytics-range {
+	display: flex;
+	gap: 6px;
+	background: var(--captlc-bg-secondary);
+	border: 1px solid var(--captlc-border);
+	border-radius: 8px;
+	padding: 4px;
+}
+
+.captlc-analytics-range__btn {
+	all: unset;
+	box-sizing: border-box;
+	padding: 6px 14px;
+	border-radius: 6px;
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--captlc-text-secondary);
+	cursor: pointer;
+
+	&:hover {
+		color: var(--captlc-text-primary);
+	}
+
+	&.is-active {
+		background: var(--captlc-bg-card);
+		color: var(--captlc-primary-text);
+		font-weight: 600;
+		box-shadow: var(--captlc-shadow-sm);
+	}
+}
+
 /* ── Stat cards grid ─────────────────────────────────────────────────── */
 .captlc-stat-grid {
 	display: grid;

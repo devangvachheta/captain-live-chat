@@ -9,6 +9,15 @@ const AppContent = () => {
 	const theme = useSelector( ( state ) => state.theme );
 	const sidebarCollapsed = useSelector( ( state ) => state.sidebarCollapsed );
 
+	// Reset scroll to top whenever the route changes — otherwise the page
+	// keeps whatever scroll position the previous page was left at, and
+	// people have to scroll back up manually after every menu click.
+	useEffect( () => {
+		window.scrollTo( 0, 0 );
+		const main = document.querySelector( '.captlc-app-main-content' );
+		if ( main ) main.scrollTop = 0;
+	}, [ location.pathname ] );
+
 	// Apply data-captlc-theme on the root wrapper — CSS vars cascade from here.
 	useEffect( () => {
 		const el = document.getElementById( 'captain-live-chat-app' );

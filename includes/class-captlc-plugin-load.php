@@ -68,10 +68,13 @@ if ( ! class_exists( 'Captlc_Plugin_Load' ) ) {
 			$this->captlc_load_dependencies();
 
 			new CAPTLC_Ajax();
+			new CAPTLC_Notifications();
 			new CAPTLC_Canned_Replies();
 			new CAPTLC_History();
 			new CAPTLC_AI();
+			new CAPTLC_Knowledge();
 			new CAPTLC_Widget_Design();
+			new CAPTLC_Faq();
 			new CAPTLC_Analytics();
 			new CAPTLC_Features();
 
@@ -96,7 +99,9 @@ if ( ! class_exists( 'Captlc_Plugin_Load' ) ) {
 			require_once CAPTLC_PATH . 'includes/class-captlc-canned-replies.php';
 			require_once CAPTLC_PATH . 'includes/class-captlc-history.php';
 			require_once CAPTLC_PATH . 'includes/class-captlc-ai.php';
+			require_once CAPTLC_PATH . 'includes/class-captlc-knowledge.php';
 			require_once CAPTLC_PATH . 'includes/class-captlc-widget-design.php';
+			require_once CAPTLC_PATH . 'includes/class-captlc-faq.php';
 			require_once CAPTLC_PATH . 'includes/class-captlc-analytics.php';
 			require_once CAPTLC_PATH . 'includes/class-captlc-features.php';
 			require_once CAPTLC_PATH . 'includes/admin/class-captlc-menu.php';

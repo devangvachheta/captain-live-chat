@@ -2,7 +2,7 @@
 /**
  * Fired during plugin activation.
  *
- * @package Captain_Live_Chat
+ * @package captain-live-chat
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -69,6 +69,7 @@ class CAPTLC_Activator {
 			custom_data LONGTEXT NULL,
 			created_at DATETIME NOT NULL,
 			updated_at DATETIME NOT NULL,
+			reminder_sent_at DATETIME NULL,
 			PRIMARY KEY  (id),
 			KEY visitor_id (visitor_id),
 			KEY status (status),
@@ -93,6 +94,11 @@ class CAPTLC_Activator {
 			user_id BIGINT UNSIGNED NOT NULL,
 			is_online TINYINT(1) DEFAULT 0 NOT NULL,
 			last_active_at DATETIME NULL,
+			company_name VARCHAR(191) DEFAULT '' NOT NULL,
+			country VARCHAR(2) DEFAULT '' NOT NULL,
+			address TEXT NULL,
+			preferred_language VARCHAR(10) DEFAULT 'en' NOT NULL,
+			availability_mode VARCHAR(20) DEFAULT 'status' NOT NULL,
 			PRIMARY KEY  (user_id)
 		) {$charset_collate};";
 
@@ -131,6 +137,8 @@ class CAPTLC_Activator {
 				'sound_enabled'    => true,
 				'email_notif'      => true,
 				'browser_notif'    => true,
+				'reminder_email_enabled' => true,
+				'reminder_delay_hours'   => 4,
 				'offline_message'  => __( 'Leave your message. We\'ll reply soon.', 'captain-live-chat' ),
 				'widget_title'     => __( 'Chat with us', 'captain-live-chat' ),
 				'poll_interval_ms' => 3000,

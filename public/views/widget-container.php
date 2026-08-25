@@ -4,7 +4,7 @@
  * All dynamic strings are injected via wp_localize_script (captlcData),
  * this file only outputs the static skeleton.
  *
- * @package Captain_Live_Chat
+ * @package captain-live-chat
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -13,8 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 <div id="captlc-widget" class="captlc-widget" data-state="closed">
 
-	<button type="button" id="captlc-widget-toggle" class="captlc-widget__toggle" aria-label="<?php esc_attr_e( 'Open chat', 'captain-live-chat' ); ?>" style="background:var(--captlcw-accent);border:none;outline:none;box-shadow:0 8px 24px rgba(47,110,240,0.35);border-radius:50%;color:#fff;">
-		<span class="captlc-widget__toggle-icon-wrap" id="captlc-toggle-icon-chat" data-icon="chat1">
+	<button type="button" id="captlc-widget-toggle" class="captlc-widget__toggle" aria-label="<?php esc_attr_e( 'Open chat', 'captain-live-chat' ); ?>" aria-expanded="false" aria-controls="captlc-widget-panel" style="background:var(--captlcw-accent);border:none;outline:none;box-shadow:0 8px 24px rgba(47,110,240,0.35);border-radius:50%;color:#fff;">
+		<span class="captlc-widget__toggle-icon-wrap" id="captlc-toggle-icon-chat" data-icon="chat1" aria-hidden="true">
 			<svg class="captlc-widget__icon captlc-widget__icon--chat1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
 				<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
 			</svg>
@@ -29,12 +29,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15h-2v-6h2zm0-8h-2V7h2z"/>
 			</svg>
 		</span>
-		<svg class="captlc-widget__icon captlc-widget__icon--close" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<svg class="captlc-widget__icon captlc-widget__icon--close" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
 			<path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
 		</svg>
 	</button>
 
-	<div class="captlc-widget__panel" id="captlc-widget-panel">
+	<div class="captlc-widget__panel" id="captlc-widget-panel" role="dialog" aria-modal="true" aria-label="<?php esc_attr_e( 'Live chat', 'captain-live-chat' ); ?>" aria-hidden="true">
 
 		<!-- SCREEN 1: Welcome Screen -->
 		<div class="captlc-widget__screen is-active" id="captlc-screen-welcome">
@@ -69,13 +69,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 			
 			<!-- Bottom Tabs Menu (Chatway Style) -->
 			<div class="captlc-widget__footer-tabs">
-				<button type="button" class="captlc-widget__footer-tab is-active">
+				<button type="button" class="captlc-widget__footer-tab is-active" data-tab="chat">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
 						<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
 					</svg>
 					<span>Chat</span>
 				</button>
-				<button type="button" class="captlc-widget__footer-tab" onclick="alert('FAQ is coming soon!')">
+				<button type="button" class="captlc-widget__footer-tab" data-tab="faq">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
 						<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
 					</svg>
@@ -91,15 +91,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<!-- SCREEN 2: Pre-chat Form -->
 		<div class="captlc-widget__screen" id="captlc-screen-prechat" style="display:none;">
 			<div class="captlc-widget__header captlc-widget__header--sub" style="background:var(--captlcw-accent);">
-				<button type="button" class="captlc-widget__back-btn" id="captlc-prechat-back">←</button>
+			<button type="button" class="captlc-widget__back-btn" id="captlc-prechat-back" aria-label="<?php esc_attr_e( 'Back', 'captain-live-chat' ); ?>">←</button>
 				<span class="captlc-widget__header-title"><?php esc_html_e( 'Start Chat', 'captain-live-chat' ); ?></span>
-				<button type="button" class="captlc-widget__panel-close">✕</button>
+				<button type="button" class="captlc-widget__panel-close" aria-label="<?php esc_attr_e( 'Close chat', 'captain-live-chat' ); ?>">✕</button>
 			</div>
 			
 			<form id="captlc-prechat-form" class="captlc-widget__prechat">
-				<input type="text" id="captlc-input-name" class="captlc-widget__input" required />
-				<input type="email" id="captlc-input-email" class="captlc-widget__input" />
-				<textarea id="captlc-input-message" class="captlc-widget__textarea" rows="3" required></textarea>
+				<input type="text" id="captlc-input-name" class="captlc-widget__input" aria-label="<?php esc_attr_e( 'Your name', 'captain-live-chat' ); ?>" required />
+				<input type="email" id="captlc-input-email" class="captlc-widget__input" aria-label="<?php esc_attr_e( 'Your email (optional)', 'captain-live-chat' ); ?>" />
+				<textarea id="captlc-input-message" class="captlc-widget__textarea" aria-label="<?php esc_attr_e( 'Your message', 'captain-live-chat' ); ?>" rows="3" required></textarea>
 				<button type="submit" class="captlc-widget__send-btn" id="captlc-prechat-submit" style="background:var(--captlcw-accent);"></button>
 			</form>
 
@@ -111,7 +111,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<!-- SCREEN 3: Active Chat conversation -->
 		<div class="captlc-widget__screen" id="captlc-screen-chat" style="display:none;">
 			<div class="captlc-widget__header captlc-widget__header--agent" style="background:var(--captlcw-accent);">
-				<button type="button" class="captlc-widget__back-btn" id="captlc-chat-back">←</button>
+				<button type="button" class="captlc-widget__back-btn" id="captlc-chat-back" aria-label="<?php esc_attr_e( 'Back', 'captain-live-chat' ); ?>">←</button>
 				<div class="captlc-widget__header-agent-avatar" id="captlc-chat-header-avatar"></div>
 				<div class="captlc-widget__header-agent-meta">
 					<span class="captlc-widget__header-agent-name" id="captlc-chat-agent-name"></span>
@@ -120,14 +120,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<span id="captlc-widget-status-text"></span>
 					</span>
 				</div>
-				<button type="button" class="captlc-widget__panel-close">✕</button>
+				<button type="button" class="captlc-widget__panel-close" aria-label="<?php esc_attr_e( 'Close chat', 'captain-live-chat' ); ?>">✕</button>
 			</div>
 
 			<div class="captlc-widget__thread" id="captlc-widget-thread">
-				<div class="captlc-widget__messages" id="captlc-widget-messages"></div>
+				<div class="captlc-widget__messages" id="captlc-widget-messages" role="log" aria-live="polite" aria-relevant="additions"></div>
 
-				<div class="captlc-widget__typing" id="captlc-widget-typing" hidden>
-					<span class="captlc-typing-dots"><span></span><span></span><span></span></span>
+				<div class="captlc-widget__typing" id="captlc-widget-typing" hidden role="status" aria-live="polite">
+					<span class="captlc-typing-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+					<span class="captlc-sr-only"><?php esc_html_e( 'Typing…', 'captain-live-chat' ); ?></span>
 				</div>
 
 				<div class="captlc-widget__seen" id="captlc-widget-seen" hidden></div>
@@ -153,13 +154,54 @@ if ( ! defined( 'ABSPATH' ) ) {
 						aria-hidden="true"
 					/>
 
-					<input type="text" id="captlc-reply-input" class="captlc-widget__reply-input" autocomplete="off" />
+					<input type="text" id="captlc-reply-input" class="captlc-widget__reply-input" aria-label="<?php esc_attr_e( 'Write your message', 'captain-live-chat' ); ?>" autocomplete="off" />
 					<button type="submit" class="captlc-widget__reply-send" aria-label="<?php esc_attr_e( 'Send', 'captain-live-chat' ); ?>" style="background:var(--captlcw-accent);">
 						<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="18" height="18">
 							<path d="M4 12l16-8-6 8 6 8-16-8z" fill="currentColor"/>
 						</svg>
 					</button>
 				</form>
+			</div>
+		</div>
+
+		<!-- SCREEN 4: FAQ -->
+		<div class="captlc-widget__screen" id="captlc-screen-faq" style="display:none;">
+			<div class="captlc-widget__header captlc-widget__header--sub" style="background:var(--captlcw-accent);">
+				<span class="captlc-widget__header-title"><?php esc_html_e( 'Frequently Asked Questions', 'captain-live-chat' ); ?></span>
+				<button type="button" class="captlc-widget__panel-close" aria-label="<?php esc_attr_e( 'Close chat', 'captain-live-chat' ); ?>">✕</button>
+			</div>
+
+			<div class="captlc-widget__faq-body">
+				<div class="captlc-widget__faq-list" id="captlc-faq-list"></div>
+				<p class="captlc-widget__faq-empty" id="captlc-faq-empty" hidden><?php esc_html_e( 'No FAQs have been added yet.', 'captain-live-chat' ); ?></p>
+
+				<div class="captlc-widget__faq-detail" id="captlc-faq-detail" style="display:none;">
+					<button type="button" class="captlc-widget__faq-detail-back" id="captlc-faq-detail-back">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M9 14L4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+						<span><?php esc_html_e( 'All FAQs', 'captain-live-chat' ); ?></span>
+					</button>
+					<h3 class="captlc-widget__faq-detail-question" id="captlc-faq-detail-question"></h3>
+					<p class="captlc-widget__faq-detail-answer" id="captlc-faq-detail-answer"></p>
+				</div>
+			</div>
+
+			<div class="captlc-widget__footer-tabs">
+				<button type="button" class="captlc-widget__footer-tab" data-tab="chat">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+						<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+					</svg>
+					<span>Chat</span>
+				</button>
+				<button type="button" class="captlc-widget__footer-tab is-active" data-tab="faq">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+						<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+					</svg>
+					<span>FAQ</span>
+				</button>
+			</div>
+
+			<div class="captlc-widget__branding">
+				Powered by <span style="font-weight:700;">Captain Live Chat</span>
 			</div>
 		</div>
 

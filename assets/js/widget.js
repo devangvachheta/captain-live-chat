@@ -18,6 +18,7 @@
 	// Screen views
 	var widget          = document.getElementById( 'captlc-widget' );
 	var toggleBtn       = document.getElementById( 'captlc-widget-toggle' );
+	var panelEl         = document.getElementById( 'captlc-widget-panel' );
 	
 	// Welcome Screen Elements
 	var welcomeScreen   = document.getElementById( 'captlc-screen-welcome' );
@@ -54,6 +55,16 @@
 	var replyForm       = document.getElementById( 'captlc-reply-form' );
 	var replyInput      = document.getElementById( 'captlc-reply-input' );
 
+	// FAQ Elements
+	var faqScreen       = document.getElementById( 'captlc-screen-faq' );
+	var faqListBox      = document.getElementById( 'captlc-faq-list' );
+	var faqEmpty        = document.getElementById( 'captlc-faq-empty' );
+	var faqDetail       = document.getElementById( 'captlc-faq-detail' );
+	var faqDetailBack   = document.getElementById( 'captlc-faq-detail-back' );
+	var faqDetailQuestion = document.getElementById( 'captlc-faq-detail-question' );
+	var faqDetailAnswer = document.getElementById( 'captlc-faq-detail-answer' );
+	var faqLoaded       = false;
+
 	if ( ! widget ) {
 		return;
 	}
@@ -78,6 +89,11 @@
 	} else {
 		widget.style.right = '24px';
 		widget.style.left  = 'auto';
+	}
+
+	// Panel size — default / large (Widget Designer setting).
+	if ( 'large' === design.widget_size ) {
+		widget.classList.add( 'captlc-widget--size-large' );
 	}
 
 	var pollTimer     = null;
@@ -152,7 +168,7 @@
 
 	// Screen Transition Helper
 	function showScreen( screenId ) {
-		var screens = [ welcomeScreen, prechatScreen, chatScreen ];
+		var screens = [ welcomeScreen, prechatScreen, chatScreen, faqScreen ];
 		screens.forEach( function ( scr ) {
 			if ( scr ) {
 				scr.style.display = 'none';
@@ -228,6 +244,14 @@
 				{
 					action: action,
 					nonce: captlcData.nonce,
+					// Tells the backend this request came from the public-facing
+					// widget, not the agent inbox — see class-captlc-ajax.php.
+					// Without this, a developer/agent testing the widget while
+					// logged into wp-admin in the same browser has their own
+					// widget messages misclassified as agent replies (since
+					// is_user_logged_in() is true for them either way), so the
+					// message renders on the wrong side of the chat.
+					widget_context: '1',
 				},
 				data || {}
 			)
@@ -399,10 +423,34 @@
 		}
 	}
 
+	// Keeps aria-hidden/aria-expanded in sync with data-state, and handles
+	// focus: move focus into the panel on open, return it to the launcher
+	// button on close (standard "dialog" accessibility pattern).
+	function setWidgetOpen( open ) {
+		widget.setAttribute( 'data-state', open ? 'open' : 'closed' );
+		toggleBtn.setAttribute( 'aria-expanded', open ? 'true' : 'false' );
+		toggleBtn.setAttribute( 'aria-label', open ? captlcData.i18n.closeChat || 'Close chat' : captlcData.i18n.openChat || 'Open chat' );
+
+		if ( panelEl ) {
+			panelEl.setAttribute( 'aria-hidden', open ? 'false' : 'true' );
+		}
+
+		if ( open ) {
+			// Focus the first sensible control in the now-visible screen
+			// (short delay lets the CSS transition/display:flex apply first).
+			setTimeout( function () {
+				var target = widget.querySelector( '.captlc-widget__screen.is-active input, .captlc-widget__screen.is-active button, .captlc-widget__screen.is-active textarea' );
+				if ( target ) target.focus();
+			}, 50 );
+		} else {
+			toggleBtn.focus();
+		}
+	}
+
 	// Toggle panel open/close
 	toggleBtn.addEventListener( 'click', function () {
 		var isOpen = 'open' === widget.getAttribute( 'data-state' );
-		widget.setAttribute( 'data-state', isOpen ? 'closed' : 'open' );
+		setWidgetOpen( ! isOpen );
 
 		if ( ! isOpen ) {
 			refreshAgentStatus();
@@ -424,8 +472,15 @@
 	var closeButtons = widget.querySelectorAll( '.captlc-widget__panel-close' );
 	closeButtons.forEach( function ( btn ) {
 		btn.addEventListener( 'click', function () {
-			widget.setAttribute( 'data-state', 'closed' );
+			setWidgetOpen( false );
 		} );
+	} );
+
+	// Keyboard: Escape closes the panel, same as clicking the close/toggle button.
+	widget.addEventListener( 'keydown', function ( e ) {
+		if ( 'Escape' === e.key && 'open' === widget.getAttribute( 'data-state' ) ) {
+			setWidgetOpen( false );
+		}
 	} );
 
 	// Action button: Start new chat
@@ -445,6 +500,84 @@
 			}
 		} );
 	}
+
+	// ── FAQ tab ─────────────────────────────────────────────────────────
+	function escapeHtml( str ) {
+		var div = document.createElement( 'div' );
+		div.textContent = str == null ? '' : str;
+		return div.innerHTML;
+	}
+
+	function showFaqList() {
+		if ( faqDetail ) faqDetail.style.display = 'none';
+		if ( faqListBox ) faqListBox.style.display = '';
+	}
+
+	function showFaqDetail( faq ) {
+		if ( ! faqDetail ) return;
+		if ( faqDetailQuestion ) faqDetailQuestion.textContent = faq.question;
+		if ( faqDetailAnswer ) faqDetailAnswer.textContent = faq.answer;
+		if ( faqListBox ) faqListBox.style.display = 'none';
+		faqDetail.style.display = 'flex';
+	}
+
+	function renderFaqs( faqs ) {
+		if ( ! faqListBox ) return;
+
+		if ( ! faqs || ! faqs.length ) {
+			faqListBox.innerHTML = '';
+			if ( faqEmpty ) faqEmpty.hidden = false;
+			return;
+		}
+
+		if ( faqEmpty ) faqEmpty.hidden = true;
+
+		faqListBox.innerHTML = faqs.map( function ( faq, i ) {
+			return '<button type="button" class="captlc-widget__faq-item" data-index="' + i + '">' +
+				'<span>' + escapeHtml( faq.question ) + '</span>' +
+				'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg>' +
+				'</button>';
+		} ).join( '' );
+
+		Array.prototype.forEach.call( faqListBox.querySelectorAll( '.captlc-widget__faq-item' ), function ( btn ) {
+			btn.addEventListener( 'click', function () {
+				var idx = parseInt( btn.getAttribute( 'data-index' ), 10 );
+				if ( faqs[ idx ] ) showFaqDetail( faqs[ idx ] );
+			} );
+		} );
+	}
+
+	function loadFaqs() {
+		if ( faqLoaded ) return;
+		faqLoaded = true;
+
+		ajax( 'captlc_get_widget_faqs', {} ).then( function ( res ) {
+			renderFaqs( res && res.success ? res.data.faqs : [] );
+		} ).catch( function () {
+			faqLoaded = false; // allow retry on next tab open
+		} );
+	}
+
+	if ( faqDetailBack ) {
+		faqDetailBack.addEventListener( 'click', showFaqList );
+	}
+
+	// Bottom "Chat" / "FAQ" tabs — present on both the Welcome and FAQ screens.
+	var footerTabs = widget.querySelectorAll( '.captlc-widget__footer-tab' );
+	Array.prototype.forEach.call( footerTabs, function ( btn ) {
+		btn.addEventListener( 'click', function () {
+			var tab = btn.getAttribute( 'data-tab' );
+
+			if ( 'faq' === tab ) {
+				showScreen( 'captlc-screen-faq' );
+				loadFaqs();
+			} else if ( currentTid ) {
+				showScreen( 'captlc-screen-chat' );
+			} else {
+				showScreen( 'captlc-screen-welcome' );
+			}
+		} );
+	} );
 
 	// Back navigations
 	if ( prechatBack ) {

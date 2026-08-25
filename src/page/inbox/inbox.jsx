@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import './inbox.scss';
 import { __ } from '@wordpress/i18n';
 import { useSelector, useDispatch } from 'react-redux';
@@ -46,6 +47,8 @@ const OfflineBanner = () => (
 
 const Inbox = () => {
 	const [ threads, setThreads ] = useState( [] );
+	const [ searchParams ] = useSearchParams();
+	const deepLinkOpened = useRef( false );
 	const [ activeThread, setActiveThread ] = useState( null );
 	const [ messages, setMessages ] = useState( [] );
 	const [ replyText, setReplyText ] = useState( '' );
@@ -72,13 +75,9 @@ const Inbox = () => {
 	const [ savingShortcut, setSavingShortcut ] = useState( false );
 	const [ sidebarOpen, setSidebarOpen ] = useState( true );
 	const [ listCollapsed, setListCollapsed ] = useState( false );
+	const [ favoritesOnly, setFavoritesOnly ] = useState( false );
 	const [ assignMenuOpen, setAssignMenuOpen ] = useState( false );
-	const [ resolveMenuOpen, setResolveMenuOpen ] = useState( false );
 	const [ commerce, setCommerce ] = useState( null );
-	const [ customKey, setCustomKey ] = useState( '' );
-	const [ customValue, setCustomValue ] = useState( '' );
-	const [ addingCustom, setAddingCustom ] = useState( false );
-	const [ savingCustom, setSavingCustom ] = useState( false );
 
 	// Load canned replies once.
 	useEffect( () => {
@@ -90,8 +89,11 @@ const Inbox = () => {
 	const lastMsgId       = useRef( 0 );
 	const prevUnread      = useRef( {} );
 	const isFirstLoad     = useRef( true );
-	const messagesEndRef  = useRef( null );
-	const lastTypingSent  = useRef( 0 );
+	const messagesListRef = useRef( null );
+	const isPrependingRef = useRef( false );
+	const scrollRestoreRef = useRef( { height: 0, top: 0 } );
+	const [ hasMoreOlder, setHasMoreOlder ] = useState( false );
+	const [ loadingOlder, setLoadingOlder ] = useState( false );	const lastTypingSent  = useRef( 0 );
 	const failCount       = useRef( 0 );
 	const replyInputRef   = useRef( null );
 
@@ -103,13 +105,13 @@ const Inbox = () => {
 		return () => document.removeEventListener( 'click', close );
 	}, [ openMsgMenu ] );
 
-	// Close the "Assign to" / "Resolve" dropdowns when clicking elsewhere.
+	// Close the "Assign to" dropdown when clicking elsewhere.
 	useEffect( () => {
-		if ( ! assignMenuOpen && ! resolveMenuOpen ) return;
-		const close = () => { setAssignMenuOpen( false ); setResolveMenuOpen( false ); };
+		if ( ! assignMenuOpen ) return;
+		const close = () => setAssignMenuOpen( false );
 		document.addEventListener( 'click', close );
 		return () => document.removeEventListener( 'click', close );
-	}, [ assignMenuOpen, resolveMenuOpen ] );
+	}, [ assignMenuOpen ] );
 
 	// ── Toast helpers ────────────────────────────────────────────────────
 	const showToast = useCallback( ( message, type = 'error' ) => {
@@ -200,9 +202,26 @@ const Inbox = () => {
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
+	// Deep-link support for the "Open in a New Tab" context-menu action
+	// (assets/js/widget.js and the context menu below both build URLs like
+	// #/inbox?thread=123) — auto-select that thread once the list has loaded.
+	useEffect( () => {
+		if ( deepLinkOpened.current || ! threads.length ) return;
+		const tid = searchParams.get( 'thread' );
+		if ( ! tid ) return;
+		const match = threads.find( ( t ) => String( t.id ) === String( tid ) );
+		if ( match ) {
+			deepLinkOpened.current = true;
+			openThread( match );
+		}
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ threads ] );
+
 	// ── Active thread message polling ─────────────────────────────────────
 	const pollMessages = useCallback( () => {
 		if ( ! activeThread ) return;
+
+		const isInitialLoad = 0 === lastMsgId.current;
 
 		ajax( 'captlc_get_messages', { thread_id: activeThread.id, since_id: lastMsgId.current } )
 			.then( ( res ) => {
@@ -213,16 +232,51 @@ const Inbox = () => {
 						lastMsgId.current = Math.max( lastMsgId.current, m.id );
 					} );
 				}
+				if ( isInitialLoad ) {
+					setHasMoreOlder( !! res.data.has_more );
+				}
 				setIsTyping( !! res.data.typing );
 			} )
 			.catch( () => {} ); // silent — thread poll failures handled by threads poll banner
 	}, [ activeThread ] );
+
+	// Loads an older page of the current thread when scrolled to the top —
+	// initial load only fetches the most recent 50 messages (see
+	// class-captlc-ajax.php get_messages()), so long-running conversations
+	// stay fast to open instead of pulling the entire history at once.
+	const loadOlderMessages = useCallback( () => {
+		if ( ! activeThread || ! hasMoreOlder || loadingOlder || ! messages.length ) return;
+
+		const el = messagesListRef.current;
+		if ( el ) {
+			scrollRestoreRef.current = { height: el.scrollHeight, top: el.scrollTop };
+		}
+
+		setLoadingOlder( true );
+		ajax( 'captlc_get_older_messages', { thread_id: activeThread.id, before_id: messages[ 0 ].id } )
+			.then( ( res ) => {
+				if ( ! res?.success ) return;
+				isPrependingRef.current = true;
+				setMessages( ( prev ) => [ ...res.data.messages, ...prev ] );
+				setHasMoreOlder( !! res.data.has_more );
+			} )
+			.catch( () => {} )
+			.finally( () => setLoadingOlder( false ) );
+	}, [ activeThread, hasMoreOlder, loadingOlder, messages ] );
+
+	const handleMessagesScroll = () => {
+		const el = messagesListRef.current;
+		if ( el && el.scrollTop < 60 ) {
+			loadOlderMessages();
+		}
+	};
 
 	useEffect( () => {
 		if ( ! activeThread ) return;
 		lastMsgId.current = 0;
 		setMessages( [] );
 		setIsTyping( false );
+		setHasMoreOlder( false );
 		pollMessages();
 		const id = setInterval( pollMessages, POLL_INTERVAL );
 		return () => clearInterval( id );
@@ -230,7 +284,25 @@ const Inbox = () => {
 	}, [ activeThread?.id ] );
 
 	useEffect( () => {
-		messagesEndRef.current?.scrollIntoView( { behavior: 'smooth' } );
+		// Scroll only the message list itself, not the whole admin page.
+		// scrollIntoView() on the bottom anchor bubbles up through every
+		// scrollable ancestor (including the outer WP admin page), which is
+		// what was causing the page to jump on every new message / thread
+		// switch. Setting scrollTop directly on the list container keeps the
+		// scroll contained to the chat panel.
+		const el = messagesListRef.current;
+		if ( ! el ) return;
+
+		if ( isPrependingRef.current ) {
+			// Older messages were just prepended (via loadOlderMessages) —
+			// restore the visitor's scroll position relative to the content
+			// they were already looking at, instead of jumping to the bottom.
+			isPrependingRef.current = false;
+			el.scrollTop = el.scrollHeight - scrollRestoreRef.current.height + scrollRestoreRef.current.top;
+			return;
+		}
+
+		el.scrollTop = el.scrollHeight;
 	}, [ messages ] );
 
 	// ── Auto-away on tab hidden ───────────────────────────────────────────
@@ -257,19 +329,113 @@ const Inbox = () => {
 	}, [ isOnline ] );
 
 	// ── Actions ───────────────────────────────────────────────────────────
+	const [ contextMenu, setContextMenu ] = useState( null ); // { x, y, thread }
+
+	const openContextMenu = ( e, thread ) => {
+		e.preventDefault();
+		setContextMenu( { x: e.clientX, y: e.clientY, thread } );
+	};
+
+	const closeContextMenu = () => setContextMenu( null );
+
+	useEffect( () => {
+		if ( ! contextMenu ) return;
+		const close = () => closeContextMenu();
+		document.addEventListener( 'click', close );
+		document.addEventListener( 'scroll', close, true );
+		document.addEventListener( 'keydown', ( e ) => { if ( 'Escape' === e.key ) close(); } );
+		return () => {
+			document.removeEventListener( 'click', close );
+			document.removeEventListener( 'scroll', close, true );
+		};
+	}, [ contextMenu ] );
+
+	// Applies a thread patch to both the list and the active thread (if it's the same one).
+	const patchThread = ( threadId, patch ) => {
+		setThreads( ( prev ) => prev.map( ( t ) => t.id === threadId ? { ...t, ...patch } : t ) );
+		setActiveThread( ( prev ) => ( prev && prev.id === threadId ) ? { ...prev, ...patch } : prev );
+	};
+
+	const menuResolveThread = ( thread ) => {
+		const isClosed = 'closed' === thread.status;
+		if ( ! isClosed && ! window.confirm( __( 'Resolve this chat? The visitor will see the offline message if they reply again.', 'captain-live-chat' ) ) ) return;
+		ajax( isClosed ? 'captlc_reopen_thread' : 'captlc_close_thread', { thread_id: thread.id } )
+			.then( ( res ) => {
+				if ( res?.success ) {
+					patchThread( thread.id, { status: isClosed ? 'open' : 'closed' } );
+					showToast( isClosed ? __( 'Chat reopened.', 'captain-live-chat' ) : __( 'Chat resolved.', 'captain-live-chat' ), 'success' );
+				}
+			} )
+			.catch( () => showToast( __( 'Network error — could not update chat status.', 'captain-live-chat' ) ) );
+	};
+
+	const menuToggleFavorite = ( thread ) => {
+		const next = ! thread.is_favorite;
+		patchThread( thread.id, { is_favorite: next } );
+		ajax( 'captlc_toggle_favorite', { thread_id: thread.id, favorite: next ? '1' : '0' } )
+			.catch( () => showToast( __( 'Could not update favorite.', 'captain-live-chat' ) ) );
+	};
+
+	const menuToggleBlock = ( thread ) => {
+		const next = ! thread.is_blocked;
+		if ( next && ! window.confirm( __( 'Block this visitor from sending further messages?', 'captain-live-chat' ) ) ) return;
+		patchThread( thread.id, { is_blocked: next } );
+		ajax( 'captlc_toggle_block', { thread_id: thread.id, blocked: next ? '1' : '0' } )
+			.catch( () => showToast( __( 'Could not update block status.', 'captain-live-chat' ) ) );
+	};
+
+	const menuOpenInNewTab = ( thread ) => {
+		const url = window.location.href.split( '#' )[ 0 ] + '#/inbox?thread=' + thread.id;
+		window.open( url, '_blank' );
+	};
+
+	const menuDownloadTranscript = ( thread ) => {
+		ajax( 'captlc_get_messages', { thread_id: thread.id, since_id: 0 } )
+			.then( ( res ) => {
+				if ( ! res?.success ) {
+					showToast( __( 'Could not load the transcript.', 'captain-live-chat' ) );
+					return;
+				}
+				const lines = res.data.messages.map( ( m ) => {
+					const who = 'agent' === m.sender_type ? __( 'Agent', 'captain-live-chat' ) : ( thread.visitor_name || __( 'Visitor', 'captain-live-chat' ) );
+					return '[' + who + '] ' + m.message;
+				} );
+				const blob = new Blob( [ lines.join( '\n' ) ], { type: 'text/plain' } );
+				const link = document.createElement( 'a' );
+				link.href = URL.createObjectURL( blob );
+				link.download = 'chat-transcript-' + thread.id + '.txt';
+				link.click();
+				URL.revokeObjectURL( link.href );
+			} )
+			.catch( () => showToast( __( 'Could not load the transcript.', 'captain-live-chat' ) ) );
+	};
+
+	const menuDeleteThread = ( thread ) => {
+		if ( ! window.confirm( __( 'Permanently delete this conversation? This cannot be undone.', 'captain-live-chat' ) ) ) return;
+		setThreads( ( prev ) => prev.filter( ( t ) => t.id !== thread.id ) );
+		if ( activeThread?.id === thread.id ) {
+			setActiveThread( null );
+			setMessages( [] );
+		}
+		ajax( 'captlc_delete_thread', { thread_id: thread.id } )
+			.then( ( res ) => {
+				if ( ! res?.success ) showToast( res?.data?.message || __( 'Could not delete the conversation.', 'captain-live-chat' ) );
+			} )
+			.catch( () => showToast( __( 'Network error — could not delete the conversation.', 'captain-live-chat' ) ) );
+	};
+
 	const openThread = ( thread ) => {
 		setActiveThread( thread );
 		setMessages( [] );
 		lastMsgId.current = 0;
 		setIsTyping( false );
+		setHasMoreOlder( false );
 		setActiveTab( 'messages' );
 		setNotes( [] );
 		setThreadTags( [] );
 		setTagInput( '' );
 		setCommerce( null );
 		setAssignMenuOpen( false );
-		setResolveMenuOpen( false );
-		setAddingCustom( false );
 		ajax( 'captlc_mark_read', { thread_id: thread.id } ).catch( () => {} );
 		ajax( 'captlc_get_notes', { thread_id: thread.id } )
 			.then( ( r ) => { if ( r?.success ) setNotes( r.data.notes ); } ).catch( () => {} );
@@ -307,28 +473,6 @@ const Inbox = () => {
 		setActiveThread( ( prev ) => ( { ...prev, is_blocked: next } ) );
 		ajax( 'captlc_toggle_block', { thread_id: activeThread.id, blocked: next ? '1' : '0' } )
 			.catch( () => showToast( __( 'Could not update block status.', 'captain-live-chat' ) ) );
-	};
-
-	const submitCustomData = ( e ) => {
-		e.preventDefault();
-		const key = customKey.trim();
-		const value = customValue.trim();
-		if ( ! key || ! value || ! activeThread ) return;
-
-		setSavingCustom( true );
-		ajax( 'captlc_save_custom_data', { thread_id: activeThread.id, key, value } )
-			.then( ( res ) => {
-				if ( res?.success ) {
-					setActiveThread( ( prev ) => ( { ...prev, custom_data: res.data.custom_data } ) );
-					setCustomKey( '' );
-					setCustomValue( '' );
-					setAddingCustom( false );
-				} else {
-					showToast( res?.data?.message || __( 'Could not save custom field.', 'captain-live-chat' ) );
-				}
-			} )
-			.catch( () => showToast( __( 'Network error — could not save custom field.', 'captain-live-chat' ) ) )
-			.finally( () => setSavingCustom( false ) );
 	};
 
 	const addNote = () => {
@@ -422,7 +566,6 @@ const Inbox = () => {
 
 		if ( ! isClosed && ! window.confirm( __( 'Resolve this chat? The visitor will see the offline message if they reply again.', 'captain-live-chat' ) ) ) return;
 
-		setResolveMenuOpen( false );
 		setClosingThread( true );
 
 		const action = isClosed ? 'captlc_reopen_thread' : 'captlc_close_thread';
@@ -579,6 +722,13 @@ const Inbox = () => {
 						<span className="captlc-inbox__list-header-label">{ __( 'Inbox', 'captain-live-chat' ) }</span>
 						<button
 							type="button"
+							className={ `captlc-inbox__favorites-toggle${ favoritesOnly ? ' is-active' : '' }` }
+							title={ favoritesOnly ? __( 'Show all conversations', 'captain-live-chat' ) : __( 'Show favorites only', 'captain-live-chat' ) }
+							aria-label={ favoritesOnly ? __( 'Show all conversations', 'captain-live-chat' ) : __( 'Show favorites only', 'captain-live-chat' ) }
+							onClick={ () => setFavoritesOnly( ( v ) => ! v ) }
+						>★</button>
+						<button
+							type="button"
 							className="captlc-inbox__list-collapse-btn"
 							title={ listCollapsed ? __( 'Expand conversation list', 'captain-live-chat' ) : __( 'Collapse conversation list', 'captain-live-chat' ) }
 							aria-label={ listCollapsed ? __( 'Expand conversation list', 'captain-live-chat' ) : __( 'Collapse conversation list', 'captain-live-chat' ) }
@@ -601,12 +751,19 @@ const Inbox = () => {
 						</div>
 					) }
 
-					{ threads.map( ( thread ) => (
+					{ ! threadLoading && favoritesOnly && threads.filter( ( t ) => t.is_favorite ).length === 0 && (
+						<div className="captlc-inbox__empty">
+							{ __( 'No favorited conversations yet — tap the star on a conversation to add one.', 'captain-live-chat' ) }
+						</div>
+					) }
+
+					{ ( favoritesOnly ? threads.filter( ( t ) => t.is_favorite ) : threads ).map( ( thread ) => (
 						<button
 							type="button"
 							key={ thread.id }
 							className={ `captlc-thread-item${ activeThread?.id === thread.id ? ' is-active' : '' }` }
 							onClick={ () => openThread( thread ) }
+							onContextMenu={ ( e ) => openContextMenu( e, thread ) }
 							title={ thread.visitor_name || __( 'Visitor', 'captain-live-chat' ) }
 						>
 							<span className="captlc-thread-item__avatar">
@@ -614,7 +771,10 @@ const Inbox = () => {
 								<span className={ `captlc-thread-item__dot ${ 'closed' === thread.status ? 'is-closed' : 'is-open' }` }></span>
 							</span>
 							<span className="captlc-thread-item__body">
-								<span className="captlc-thread-item__name">{ thread.visitor_name || __( 'Visitor', 'captain-live-chat' ) }</span>
+								<span className="captlc-thread-item__name">
+									{ thread.visitor_name || __( 'Visitor', 'captain-live-chat' ) }
+									{ thread.is_favorite && <span className="captlc-thread-item__fav-star" title={ __( 'Favorited', 'captain-live-chat' ) }>★</span> }
+								</span>
 								<span className="captlc-thread-item__preview">{ thread.last_message }</span>
 							</span>
 							{ thread.unread > 0 && (
@@ -672,7 +832,7 @@ const Inbox = () => {
 										<button
 											type="button"
 											className="captlc-secondary-button"
-											onClick={ ( e ) => { e.stopPropagation(); setResolveMenuOpen( false ); setAssignMenuOpen( ! assignMenuOpen ); } }
+											onClick={ ( e ) => { e.stopPropagation(); setAssignMenuOpen( ! assignMenuOpen ); } }
 										>
 											{ activeThread.assigned_agent_id
 												? ( ( captlc_data?.users || [] ).find( ( u ) => u.id === activeThread.assigned_agent_id )?.name || __( 'Assign to', 'captain-live-chat' ) )
@@ -704,37 +864,24 @@ const Inbox = () => {
 										) }
 									</div>
 
-									<div className="captlc-dropdown-wrap">
-										<button
-											type="button"
-											className={ `captlc-secondary-button${ closingThread ? ' is-loading' : '' }` }
-											onClick={ resolveThread }
-											disabled={ closingThread }
-										>
-											{ closingThread
-												? __( 'Working…', 'captain-live-chat' )
-												: ( 'closed' === activeThread.status ? __( 'Reopen', 'captain-live-chat' ) : __( 'Resolve', 'captain-live-chat' ) ) }
-										</button>
-										<button
-											type="button"
-											className="captlc-secondary-button captlc-secondary-button--caret"
-											title={ __( 'More status options', 'captain-live-chat' ) }
-											onClick={ ( e ) => { e.stopPropagation(); setAssignMenuOpen( false ); setResolveMenuOpen( ! resolveMenuOpen ); } }
-										>⌄</button>
-										{ resolveMenuOpen && (
-											<div className="captlc-dropdown captlc-dropdown--right" onClick={ ( e ) => e.stopPropagation() }>
-												<button type="button" className="captlc-dropdown__item" onClick={ resolveThread }>
-													{ 'closed' === activeThread.status ? __( 'Mark as open', 'captain-live-chat' ) : __( 'Mark as resolved', 'captain-live-chat' ) }
-												</button>
-											</div>
-										) }
-									</div>
+									<button
+										type="button"
+										className={ `captlc-secondary-button${ closingThread ? ' is-loading' : '' }` }
+										onClick={ resolveThread }
+										disabled={ closingThread }
+									>
+										{ closingThread
+											? __( 'Working…', 'captain-live-chat' )
+											: ( 'closed' === activeThread.status ? __( 'Reopen', 'captain-live-chat' ) : __( 'Resolve', 'captain-live-chat' ) ) }
+									</button>
 
 									<button
 										type="button"
-										className={ `captlc-secondary-button${ sidebarOpen ? ' is-active' : '' }` }
+										className={ `captlc-icon-button${ sidebarOpen ? ' is-active-neutral' : '' }` }
+										title={ __( 'Details', 'captain-live-chat' ) }
+										aria-label={ __( 'Details', 'captain-live-chat' ) }
 										onClick={ () => setSidebarOpen( ! sidebarOpen ) }
-									>ⓘ { __( 'Details', 'captain-live-chat' ) }</button>
+									>ⓘ</button>
 								</div>
 							</div>
 
@@ -762,7 +909,10 @@ const Inbox = () => {
 
 							{ activeTab === 'messages' && (
 								<>
-									<div className="captlc-inbox__messages">
+									<div className="captlc-inbox__messages" ref={ messagesListRef } onScroll={ handleMessagesScroll }>
+								{ loadingOlder && (
+									<div className="captlc-inbox__load-older">{ __( 'Loading earlier messages…', 'captain-live-chat' ) }</div>
+								) }
 								{ messages.length === 0 && (
 									<div className="captlc-inbox__no-messages">
 										{ __( 'No messages yet.', 'captain-live-chat' ) }
@@ -830,7 +980,6 @@ const Inbox = () => {
 										) }
 									</div>
 								) ) }
-								<div ref={ messagesEndRef } />
 							</div>
 
 							{ isTyping && (
@@ -971,29 +1120,53 @@ const Inbox = () => {
 								</div>
 							) }
 
-							{ ( activeThread.browser || activeThread.device || activeThread.language ) && (
+							{ ( activeThread.browser || activeThread.device || activeThread.language || activeThread.source_url ) && (
 								<div className="captlc-sidebar-section">
 									<div className="captlc-sidebar-section__title">{ __( 'Device', 'captain-live-chat' ) }</div>
 									{ activeThread.browser && <div className="captlc-sidebar-row">🌐 { __( 'Browser:', 'captain-live-chat' ) } { activeThread.browser }</div> }
 									{ activeThread.device && <div className="captlc-sidebar-row">💻 { __( 'Device:', 'captain-live-chat' ) } { activeThread.device }</div> }
 									{ activeThread.language && <div className="captlc-sidebar-row">🗣 { __( 'Language:', 'captain-live-chat' ) } { activeThread.language }</div> }
+									{ activeThread.source_url && (
+										<a
+											href={ activeThread.source_url }
+											target="_blank"
+											rel="noopener noreferrer"
+											className="captlc-sidebar-row captlc-sidebar-row--link"
+											title={ activeThread.source_url }
+										>
+											🔗 { __( 'Pages Visited:', 'captain-live-chat' ) } { activeThread.source_url }
+										</a>
+									) }
 								</div>
 							) }
 
 							<div className="captlc-sidebar-section">
-								<div className="captlc-sidebar-section__title">{ __( 'Orders', 'captain-live-chat' ) }</div>
-								{ ! commerce && <div className="captlc-sidebar-row captlc-sidebar-row--muted">{ __( 'Loading…', 'captain-live-chat' ) }</div> }
-								{ commerce && ! commerce.available && (
-									<div className="captlc-sidebar-row captlc-sidebar-row--muted">{ commerce.reason }</div>
-								) }
-								{ commerce && commerce.available && (
-									<div className="captlc-sidebar-row">
-										{ commerce.orders.count } { __( 'Orders', 'captain-live-chat' ) } · { commerce.currency }{ commerce.orders.total.toFixed( 2 ) }
-									</div>
-								) }
+								<div className="captlc-sidebar-section__title">{ __( 'Tags', 'captain-live-chat' ) }</div>
+								<div className="captlc-inbox__tags-row captlc-inbox__tags-row--sidebar captlc-inbox__tags-row--compact">
+									{ threadTags.map( ( tag ) => (
+										<span key={ tag } className="captlc-tag">
+											#{ tag }
+											<button type="button" className="captlc-tag__remove" onClick={ () => removeTag( tag ) }>×</button>
+										</span>
+									) ) }
+									<input
+										type="text"
+										className="captlc-tag-input"
+										placeholder={ threadTags.length ? __( 'Add…', 'captain-live-chat' ) : __( 'Add tag…', 'captain-live-chat' ) }
+										value={ tagInput }
+										onChange={ ( e ) => setTagInput( e.target.value ) }
+										onKeyDown={ ( e ) => {
+											if ( ( e.key === 'Enter' || e.key === ',' ) && tagInput.trim() ) {
+												e.preventDefault();
+												addTag( tagInput );
+												setTagInput( '' );
+											}
+										} }
+									/>
+								</div>
 							</div>
 
-							<div className="captlc-sidebar-section">
+							<div className="captlc-sidebar-section captlc-sidebar-section--muted">
 								<div className="captlc-sidebar-section__title">{ __( 'Cart', 'captain-live-chat' ) }</div>
 								{ ! commerce && <div className="captlc-sidebar-row captlc-sidebar-row--muted">{ __( 'Loading…', 'captain-live-chat' ) }</div> }
 								{ commerce && ! commerce.available && (
@@ -1009,88 +1182,6 @@ const Inbox = () => {
 								) }
 							</div>
 
-							<div className="captlc-sidebar-section">
-								<div className="captlc-sidebar-section__title">{ __( 'Tags', 'captain-live-chat' ) }</div>
-								<div className="captlc-inbox__tags-row captlc-inbox__tags-row--sidebar">
-									{ threadTags.map( ( tag ) => (
-										<span key={ tag } className="captlc-tag">
-											#{ tag }
-											<button type="button" className="captlc-tag__remove" onClick={ () => removeTag( tag ) }>×</button>
-										</span>
-									) ) }
-									<input
-										type="text"
-										className="captlc-tag-input"
-										placeholder={ __( 'Add tag…', 'captain-live-chat' ) }
-										value={ tagInput }
-										onChange={ ( e ) => setTagInput( e.target.value ) }
-										onKeyDown={ ( e ) => {
-											if ( ( e.key === 'Enter' || e.key === ',' ) && tagInput.trim() ) {
-												e.preventDefault();
-												addTag( tagInput );
-												setTagInput( '' );
-											}
-										} }
-									/>
-								</div>
-							</div>
-
-							<div className="captlc-sidebar-section">
-								<div className="captlc-sidebar-section__title">{ __( 'Custom Data', 'captain-live-chat' ) }</div>
-								{ Object.entries( activeThread.custom_data || {} ).map( ( [ key, value ] ) => (
-									<div key={ key } className="captlc-sidebar-row captlc-sidebar-row--custom">
-										<span className="captlc-sidebar-row__label">{ key }</span>
-										<span>{ value }</span>
-									</div>
-								) ) }
-
-								{ ! addingCustom && (
-									<button type="button" className="captlc-add-link" onClick={ () => setAddingCustom( true ) }>
-										+ { __( 'Add Custom', 'captain-live-chat' ) }
-									</button>
-								) }
-
-								{ addingCustom && (
-									<form className="captlc-custom-data-form" onSubmit={ submitCustomData }>
-										<Input
-											placeholder={ __( 'Field name', 'captain-live-chat' ) }
-											value={ customKey }
-											onChange={ ( e ) => setCustomKey( e.target.value ) }
-										/>
-										<Input
-											placeholder={ __( 'Value', 'captain-live-chat' ) }
-											value={ customValue }
-											onChange={ ( e ) => setCustomValue( e.target.value ) }
-										/>
-										<div className="captlc-modal__actions">
-											<button type="button" className="captlc-secondary-button" onClick={ () => setAddingCustom( false ) }>
-												{ __( 'Cancel', 'captain-live-chat' ) }
-											</button>
-											<button type="submit" className="captlc-primary-button" disabled={ savingCustom || ! customKey.trim() || ! customValue.trim() }>
-												{ savingCustom ? __( 'Saving…', 'captain-live-chat' ) : __( 'Save', 'captain-live-chat' ) }
-											</button>
-										</div>
-									</form>
-								) }
-							</div>
-
-							<div className="captlc-sidebar-section">
-								<div className="captlc-sidebar-section__title">{ __( 'Pages Visited', 'captain-live-chat' ) }</div>
-								{ activeThread.source_url ? (
-									<a
-										href={ activeThread.source_url }
-										target="_blank"
-										rel="noopener noreferrer"
-										className="captlc-sidebar-row captlc-sidebar-row--link"
-										title={ activeThread.source_url }
-									>
-										🔗 { activeThread.source_url }
-									</a>
-								) : (
-									<div className="captlc-sidebar-row captlc-sidebar-row--muted">{ __( 'Not tracked yet.', 'captain-live-chat' ) }</div>
-								) }
-							</div>
-
 							<div className="captlc-contact-sidebar__footer">
 								<button type="button" className="captlc-block-button" onClick={ toggleBlockVisitor }>
 									🚫 { activeThread.is_blocked ? __( 'Unblock', 'captain-live-chat' ) : __( 'Block', 'captain-live-chat' ) }
@@ -1102,6 +1193,36 @@ const Inbox = () => {
 			) }
 		</div>
 	</div>
+
+	{ contextMenu && (
+		<div
+			className="captlc-thread-ctx-menu"
+			style={ { top: contextMenu.y, left: contextMenu.x } }
+			onClick={ ( e ) => e.stopPropagation() }
+		>
+			<button type="button" onClick={ () => { menuResolveThread( contextMenu.thread ); closeContextMenu(); } }>
+				✓ { 'closed' === contextMenu.thread.status ? __( 'Reopen', 'captain-live-chat' ) : __( 'Resolve', 'captain-live-chat' ) }
+			</button>
+			<button type="button" onClick={ () => { openThread( contextMenu.thread ); closeContextMenu(); } }>
+				↩ { __( 'Reply', 'captain-live-chat' ) }
+			</button>
+			<button type="button" onClick={ () => { menuOpenInNewTab( contextMenu.thread ); closeContextMenu(); } }>
+				⤢ { __( 'Open in a New Tab', 'captain-live-chat' ) }
+			</button>
+			<button type="button" onClick={ () => { menuToggleFavorite( contextMenu.thread ); closeContextMenu(); } }>
+				☆ { contextMenu.thread.is_favorite ? __( 'Unstar', 'captain-live-chat' ) : __( 'Star Mark', 'captain-live-chat' ) }
+			</button>
+			<button type="button" onClick={ () => { menuDownloadTranscript( contextMenu.thread ); closeContextMenu(); } }>
+				⬇ { __( 'Download Transcript', 'captain-live-chat' ) }
+			</button>
+			<button type="button" onClick={ () => { menuToggleBlock( contextMenu.thread ); closeContextMenu(); } }>
+				🚫 { contextMenu.thread.is_blocked ? __( 'Unblock', 'captain-live-chat' ) : __( 'Block', 'captain-live-chat' ) }
+			</button>
+			<button type="button" className="captlc-thread-ctx-menu__delete" onClick={ () => { menuDeleteThread( contextMenu.thread ); closeContextMenu(); } }>
+				🗑 { __( 'Delete', 'captain-live-chat' ) }
+			</button>
+		</div>
+	) }
 </div>
 	);
 };

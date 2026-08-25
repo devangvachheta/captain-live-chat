@@ -41,6 +41,13 @@ const IconAI = () => (
 		<circle cx="15" cy="14" r="1" fill="currentColor"/>
 	</svg>
 );
+const IconDocs = () => (
+	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+		<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+		<polyline points="14 2 14 8 20 8"/>
+		<line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+	</svg>
+);
 const IconDesign = () => (
 	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 		<circle cx="12" cy="12" r="10"/>
@@ -58,12 +65,6 @@ const IconAnalytics = () => (
 		<line x1="6"  y1="20" x2="6"  y2="14"/>
 	</svg>
 );
-const IconSchedule = () => (
-	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-		<circle cx="12" cy="12" r="10"/>
-		<polyline points="12 6 12 12 16 14"/>
-	</svg>
-);
 const IconHelp = () => (
 	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 		<circle cx="12" cy="12" r="10"/>
@@ -71,8 +72,19 @@ const IconHelp = () => (
 		<line x1="12" y1="17" x2="12.01" y2="17"/>
 	</svg>
 );
+// Single source-of-truth logo asset — lives at assets/img/logo.svg and is
+// also reused (via base64) for the WP admin-menu icon in
+// includes/admin/class-captlc-menu.php. Replace that one file to update the
+// logo everywhere it appears.
+const LOGO_URL = ( typeof captlc_data !== 'undefined' && captlc_data?.plugin_url )
+	? captlc_data.plugin_url + 'assets/img/logo.svg'
+	: '';
 const LogoMark = () => (
-	<span className="captlc-nav-logo-mark">CLC</span>
+	<span className="captlc-nav-logo-mark">
+		{ LOGO_URL
+			? <img src={ LOGO_URL } alt="" className="captlc-nav-logo-mark__img" />
+			: 'CLC' }
+	</span>
 );
 const ThemeToggle = ( { theme, dispatch } ) => (
 	<button
@@ -136,6 +148,14 @@ const Navigation = () => {
 	const [ extraOpen, setExtraOpen ] = useState( true );
 	const sidebarStateClass = sidebarCollapsed ? ' captlc-navigation-sidebar--collapsed' : '';
 
+	// Non-admin agents (granted chat-reply access under Settings → Who can
+	// reply) only get Inbox, Profile, and Help — everything else mutates
+	// admin-only settings on the backend (manage_options), so hiding those
+	// links here avoids dead-end navigation that 403s when clicked.
+	const isAdmin = ( typeof captlc_data !== 'undefined' && !! captlc_data?.is_admin ) || false;
+	const allowedPages = ( typeof captlc_data !== 'undefined' && captlc_data?.allowed_pages ) || [];
+	const canOpen = ( slug ) => isAdmin || allowedPages.includes( slug );
+
 	const closeMobile = () => setMobileOpen( false );
 
 	// Measures WP's own native admin-menu width (it can be default-width,
@@ -145,7 +165,18 @@ const Navigation = () => {
 		const wpMenu = document.getElementById( 'adminmenuwrap' ) || document.getElementById( 'adminmenu' );
 
 		const measure = () => {
-			const width = wpMenu && wpMenu.offsetParent !== null ? wpMenu.getBoundingClientRect().width : 0;
+			// offsetParent is unreliable here: modern WP core makes #adminmenuwrap
+			// sticky (position: fixed) once you scroll, and fixed-position elements
+			// always report offsetParent === null even while fully visible — that
+			// was making us treat a visible WP menu as hidden and collapse our own
+			// sidebar's left offset to 0, tucking it behind WP's menu. Check actual
+			// computed visibility instead.
+			let width = 0;
+			if ( wpMenu ) {
+				const style = window.getComputedStyle( wpMenu );
+				const isHidden = style.display === 'none' || style.visibility === 'hidden';
+				width = isHidden ? 0 : wpMenu.getBoundingClientRect().width;
+			}
 			document.documentElement.style.setProperty( '--captlc-wp-adminmenu-w', width + 'px' );
 		};
 
@@ -212,20 +243,19 @@ const Navigation = () => {
 						<span className="captlc-nav-label">{ __( 'Inbox', 'captain-live-chat' ) }</span>
 					</Link>
 
-					<Link to="/ai-settings" className={ linkClass( '/ai-settings' ) } onClick={ closeMobile }>
-						<span className="captlc-nav-icon"><IconAI /></span>
-						<span className="captlc-nav-label">{ __( 'AI Agent', 'captain-live-chat' ) }</span>
-					</Link>
+					{ canOpen( 'analytics' ) && (
+						<Link to="/analytics" className={ linkClass( '/analytics' ) } onClick={ closeMobile }>
+							<span className="captlc-nav-icon"><IconAnalytics /></span>
+							<span className="captlc-nav-label">{ __( 'Analytics', 'captain-live-chat' ) }</span>
+						</Link>
+					) }
 
-					<Link to="/analytics" className={ linkClass( '/analytics' ) } onClick={ closeMobile }>
-						<span className="captlc-nav-icon"><IconAnalytics /></span>
-						<span className="captlc-nav-label">{ __( 'Analytics', 'captain-live-chat' ) }</span>
-					</Link>
-
-					<Link to="/settings" className={ linkClass( '/settings' ) } onClick={ closeMobile }>
-						<span className="captlc-nav-icon"><IconSettings /></span>
-						<span className="captlc-nav-label">{ __( 'Settings', 'captain-live-chat' ) }</span>
-					</Link>
+					{ canOpen( 'settings' ) && (
+						<Link to="/settings" className={ linkClass( '/settings' ) } onClick={ closeMobile }>
+							<span className="captlc-nav-icon"><IconSettings /></span>
+							<span className="captlc-nav-label">{ __( 'Settings', 'captain-live-chat' ) }</span>
+						</Link>
+					) }
 
 					<button
 						type="button"
@@ -238,19 +268,35 @@ const Navigation = () => {
 
 					{ generalOpen && (
 						<div className="captlc-nav-extra-group">
-							<Link to="/widget-designer" className={ linkClass( '/widget-designer' ) } onClick={ closeMobile }>
-								<span className="captlc-nav-icon"><IconDesign /></span>
-								<span className="captlc-nav-label">{ __( 'Widget Settings', 'captain-live-chat' ) }</span>
-							</Link>
+							{ canOpen( 'ai-settings' ) && (
+								<Link to="/ai-settings" className={ linkClass( '/ai-settings' ) } onClick={ closeMobile }>
+									<span className="captlc-nav-icon"><IconAI /></span>
+									<span className="captlc-nav-label">{ __( 'AI Agent', 'captain-live-chat' ) }</span>
+								</Link>
+							) }
 
 							<Link to="/profile" className={ linkClass( '/profile' ) } onClick={ closeMobile }>
 								<span className="captlc-nav-icon"><IconProfile /></span>
 								<span className="captlc-nav-label">{ __( 'Profile', 'captain-live-chat' ) }</span>
 							</Link>
 
-							<Link to="/canned-replies" className={ linkClass( '/canned-replies' ) } onClick={ closeMobile }>
-								<span className="captlc-nav-icon"><IconCanned /></span>
-								<span className="captlc-nav-label">{ __( 'Canned Responses', 'captain-live-chat' ) }</span>
+							{ canOpen( 'widget-settings' ) && (
+								<Link to="/widget-settings" className={ linkClass( '/widget-settings' ) } onClick={ closeMobile }>
+									<span className="captlc-nav-icon"><IconDesign /></span>
+									<span className="captlc-nav-label">{ __( 'Widget Settings', 'captain-live-chat' ) }</span>
+								</Link>
+							) }
+
+							{ canOpen( 'canned-replies' ) && (
+								<Link to="/canned-replies" className={ linkClass( '/canned-replies' ) } onClick={ closeMobile }>
+									<span className="captlc-nav-icon"><IconCanned /></span>
+									<span className="captlc-nav-label">{ __( 'Canned Responses', 'captain-live-chat' ) }</span>
+								</Link>
+							) }
+
+							<Link to="/docs" className={ linkClass( '/docs' ) } onClick={ closeMobile }>
+								<span className="captlc-nav-icon"><IconDocs /></span>
+								<span className="captlc-nav-label">{ __( 'Documentation', 'captain-live-chat' ) }</span>
 							</Link>
 						</div>
 					) }
@@ -266,15 +312,12 @@ const Navigation = () => {
 
 					{ extraOpen && (
 						<div className="captlc-nav-extra-group">
-							<Link to="/schedule" className={ linkClass( '/schedule' ) } onClick={ closeMobile }>
-								<span className="captlc-nav-icon"><IconSchedule /></span>
-								<span className="captlc-nav-label">{ __( 'Agent Schedule', 'captain-live-chat' ) }</span>
-							</Link>
-
-							<Link to="/history" className={ linkClass( '/history' ) } onClick={ closeMobile }>
-								<span className="captlc-nav-icon"><IconHistory /></span>
-								<span className="captlc-nav-label">{ __( 'History', 'captain-live-chat' ) }</span>
-							</Link>
+							{ canOpen( 'history' ) && (
+								<Link to="/history" className={ linkClass( '/history' ) } onClick={ closeMobile }>
+									<span className="captlc-nav-icon"><IconHistory /></span>
+									<span className="captlc-nav-label">{ __( 'History', 'captain-live-chat' ) }</span>
+								</Link>
+							) }
 
 							<Link to="/help" className={ linkClass( '/help' ) } onClick={ closeMobile }>
 								<span className="captlc-nav-icon"><IconHelp /></span>

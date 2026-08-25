@@ -18,12 +18,23 @@ const getSavedSidebarCollapsed = () => {
 	}
 };
 
+const DEFAULT_AGENT_PROFILE = {
+	company_name: '',
+	country: '',
+	address: '',
+	preferred_language: 'en',
+	availability_mode: 'status',
+};
+
 const initialState = {
 	plugin_info: {},
 	theme: getSavedTheme(),
 	sidebarCollapsed: getSavedSidebarCollapsed(),
 	currentUser: ( typeof captlc_data !== 'undefined' && captlc_data?.current_user ) || null,
 	agentOnline: ( typeof captlc_data !== 'undefined' && !! captlc_data?.agent_online ) || false,
+	agentProfile: ( typeof captlc_data !== 'undefined' && captlc_data?.agent_profile )
+		? { ...DEFAULT_AGENT_PROFILE, ...captlc_data.agent_profile }
+		: DEFAULT_AGENT_PROFILE,
 };
 
 const Slice = createSlice( {
@@ -57,8 +68,11 @@ const Slice = createSlice( {
 		setAgentOnline: ( state, action ) => {
 			state.agentOnline = action.payload;
 		},
+		setAgentProfile: ( state, action ) => {
+			state.agentProfile = { ...state.agentProfile, ...action.payload };
+		},
 	},
 } );
 
-export const { handlePluginInfo, toggleTheme, setTheme, toggleSidebar, setCurrentUser, setAgentOnline } = Slice.actions;
+export const { handlePluginInfo, toggleTheme, setTheme, toggleSidebar, setCurrentUser, setAgentOnline, setAgentProfile } = Slice.actions;
 export default Slice.reducer;

@@ -28,6 +28,8 @@ const History = () => {
 	const [ expanded, setExpanded ]   = useState( null );
 	const [ messages, setMessages ]   = useState( {} );
 	const [ msgLoading, setMsgLoading ] = useState( false );
+	const [ hasMoreMsgs, setHasMoreMsgs ] = useState( {} ); // thread.id => bool
+	const [ loadingOlder, setLoadingOlder ] = useState( false );
 	const [ exporting, setExporting ] = useState( false );
 	const [ page, setPage ]           = useState( 1 );
 	const [ totalPages, setTotalPages ] = useState( 1 );
@@ -71,10 +73,27 @@ const History = () => {
 			.then( ( res ) => {
 				if ( res?.success ) {
 					setMessages( ( prev ) => ( { ...prev, [ thread.id ]: res.data.messages } ) );
+					setHasMoreMsgs( ( prev ) => ( { ...prev, [ thread.id ]: !! res.data.has_more } ) );
 				}
 			} )
 			.catch( () => {} )
 			.finally( () => setMsgLoading( false ) );
+	};
+
+	const loadOlderMessages = ( thread ) => {
+		const current = messages[ thread.id ] || [];
+		if ( ! current.length || loadingOlder ) return;
+
+		setLoadingOlder( true );
+		ajax( 'captlc_get_older_thread_messages', { thread_id: thread.id, before_id: current[ 0 ].id } )
+			.then( ( res ) => {
+				if ( res?.success ) {
+					setMessages( ( prev ) => ( { ...prev, [ thread.id ]: [ ...res.data.messages, ...current ] } ) );
+					setHasMoreMsgs( ( prev ) => ( { ...prev, [ thread.id ]: !! res.data.has_more } ) );
+				}
+			} )
+			.catch( () => {} )
+			.finally( () => setLoadingOlder( false ) );
 	};
 
 	const exportCSV = () => {
@@ -213,6 +232,16 @@ const History = () => {
 													<div className="captlc-history__messages">
 														{ msgLoading && ! messages[ t.id ] && (
 															<div className="captlc-history__state">{ __( 'Loading messages…', 'captain-live-chat' ) }</div>
+														) }
+														{ ! msgLoading && hasMoreMsgs[ t.id ] && (
+															<button
+																type="button"
+																className="captlc-history__load-more"
+																onClick={ ( e ) => { e.stopPropagation(); loadOlderMessages( t ); } }
+																disabled={ loadingOlder }
+															>
+																{ loadingOlder ? __( 'Loading…', 'captain-live-chat' ) : __( '↑ Load earlier messages', 'captain-live-chat' ) }
+															</button>
 														) }
 														{ ( messages[ t.id ] || [] ).map( ( msg, i ) => (
 															<div key={ i } className={ `captlc-msg captlc-msg--${ msg.sender_type }` }>

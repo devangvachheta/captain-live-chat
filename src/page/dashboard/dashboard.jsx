@@ -105,7 +105,7 @@ const Dashboard = () => {
 						<span className="captlc-gs-step__icon captlc-gs-step__icon--purple"><IconDesign /></span>
 						<h3>{ __( 'Design your widget', 'captain-live-chat' ) }</h3>
 						<p>{ __( 'Pick colors, position, and the welcome text visitors see first.', 'captain-live-chat' ) }</p>
-						<Link to="/widget-designer" className="captlc-gs-step__link captlc-gs-step__link--purple">
+						<Link to="/widget-settings" className="captlc-gs-step__link captlc-gs-step__link--purple">
 							{ __( 'Open Widget Designer', 'captain-live-chat' ) } →
 						</Link>
 					</div>

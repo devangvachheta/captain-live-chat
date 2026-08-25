@@ -1,63 +1,34 @@
 import React, { useState } from 'react';
 import './settings.scss';
 import { __ } from '@wordpress/i18n';
-import { useSelector, useDispatch } from 'react-redux';
-import { setAgentOnline } from '../../redux/slice.jsx';
 import Switcher from '../../components/switcher/switcher.jsx';
-import Input from '../../components/input/Input.jsx';
 import Primary_button from '../../components/button/primary_button/primary_button.jsx';
 
 const initialSettings = ( typeof captlc_data !== 'undefined' && captlc_data?.settings ) || {
-	allowed_roles:    [ 'administrator' ],
-	allowed_users:    [],
-	sound_enabled:    true,
-	browser_notif:    true,
-	email_notif:      true,
-	widget_title:     '',
-	offline_message:  '',
-	poll_interval_ms: 3000,
+	allowed_roles: [ 'administrator' ],
+	allowed_users: [],
+	sound_enabled: true,
+	browser_notif: true,
+	email_notif:   true,
+	reminder_email_enabled: true,
+	reminder_delay_hours:   4,
 };
 
 const roleOptions = ( typeof captlc_data !== 'undefined' && captlc_data?.roles ) || {};
-const userOptions = ( typeof captlc_data !== 'undefined' && captlc_data?.users ) || [];
 
 const Settings = () => {
-	const dispatch = useDispatch();
-	const agentOnline = useSelector( ( state ) => state.agentOnline );
-
-	const [ allowedRoles, setAllowedRoles ]     = useState( initialSettings.allowed_roles || [] );
-	const [ allowedUsers, setAllowedUsers ]     = useState( ( initialSettings.allowed_users || [] ).map( Number ) );
-	const [ soundEnabled, setSoundEnabled ]     = useState( !! initialSettings.sound_enabled );
-	const [ browserNotif, setBrowserNotif ]     = useState( !! initialSettings.browser_notif );
-	const [ emailNotif, setEmailNotif ]         = useState( !! initialSettings.email_notif );
-	const [ widgetTitle, setWidgetTitle ]       = useState( initialSettings.widget_title || '' );
-	const [ offlineMessage, setOfflineMessage ] = useState( initialSettings.offline_message || '' );
-	const [ pollInterval, setPollInterval ]       = useState( initialSettings.poll_interval_ms || 3000 );
-	const [ quickReplies, setQuickReplies ]       = useState( initialSettings.quick_replies || [] );
-	const [ quickReplyInput, setQuickReplyInput ] = useState( '' );
+	const [ allowedRoles, setAllowedRoles ] = useState( initialSettings.allowed_roles || [] );
+	const [ soundEnabled, setSoundEnabled ] = useState( !! initialSettings.sound_enabled );
+	const [ browserNotif, setBrowserNotif ] = useState( !! initialSettings.browser_notif );
+	const [ emailNotif, setEmailNotif ]     = useState( !! initialSettings.email_notif );
+	const [ reminderEmailEnabled, setReminderEmailEnabled ] = useState( !! initialSettings.reminder_email_enabled );
+	const [ reminderDelayHours, setReminderDelayHours ]     = useState( initialSettings.reminder_delay_hours || 4 );
+	const [ deleteDataOnUninstall, setDeleteDataOnUninstall ]         = useState( !! initialSettings.delete_data_on_uninstall );
+	const [ preserveSettingsOnUninstall, setPreserveSettingsOnUninstall ] = useState( !! initialSettings.preserve_settings_on_uninstall );
 
 	const [ saving, setSaving ]   = useState( false );
 	const [ notice, setNotice ]   = useState( null ); // { type: 'success'|'error', message: string }
 	const [ activeTab, setActiveTab ] = useState( 'access' );
-
-	const handleStatusToggle = ( e ) => {
-		const checked = e.target.checked;
-		dispatch( setAgentOnline( checked ) );
-
-		const body = new URLSearchParams( {
-			action: 'captlc_toggle_agent_status',
-			nonce: captlc_data.nonce,
-			is_online: checked ? '1' : '0',
-		} );
-		fetch( captlc_data.ajax_url, {
-			method: 'POST',
-			credentials: 'same-origin',
-			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-			body: body.toString(),
-		} ).catch( () => {
-			dispatch( setAgentOnline( ! checked ) );
-		} );
-	};
 
 	const toggleRole = ( slug ) => {
 		setAllowedRoles( ( prev ) =>
@@ -65,14 +36,10 @@ const Settings = () => {
 		);
 	};
 
-	const toggleUser = ( id ) => {
-		setAllowedUsers( ( prev ) =>
-			prev.includes( id ) ? prev.filter( ( u ) => u !== id ) : [ ...prev, id ]
-		);
-	};
-
 	const handleSave = ( e ) => {
-		e.preventDefault();
+		if ( e && typeof e.preventDefault === 'function' ) {
+			e.preventDefault();
+		}
 		if ( saving ) return;
 
 		setSaving( true );
@@ -82,14 +49,13 @@ const Settings = () => {
 		body.append( 'action', 'captlc_save_settings' );
 		body.append( 'nonce', captlc_data.nonce );
 		allowedRoles.forEach( ( r ) => body.append( 'allowed_roles[]', r ) );
-		allowedUsers.forEach( ( u ) => body.append( 'allowed_users[]', u ) );
-		body.append( 'sound_enabled',    soundEnabled ? '1' : '0' );
-		body.append( 'browser_notif',    browserNotif ? '1' : '0' );
-		body.append( 'email_notif',      emailNotif   ? '1' : '0' );
-		body.append( 'widget_title',     widgetTitle );
-		body.append( 'offline_message',  offlineMessage );
-		body.append( 'poll_interval_ms', pollInterval );
-		quickReplies.forEach( ( r ) => body.append( 'quick_replies[]', r ) );
+		body.append( 'sound_enabled', soundEnabled ? '1' : '0' );
+		body.append( 'browser_notif', browserNotif ? '1' : '0' );
+		body.append( 'email_notif',   emailNotif   ? '1' : '0' );
+		body.append( 'reminder_email_enabled', reminderEmailEnabled ? '1' : '0' );
+		body.append( 'reminder_delay_hours',   reminderDelayHours );
+		body.append( 'delete_data_on_uninstall',       deleteDataOnUninstall       ? '1' : '0' );
+		body.append( 'preserve_settings_on_uninstall', preserveSettingsOnUninstall ? '1' : '0' );
 
 		fetch( captlc_data.ajax_url, {
 			method: 'POST',
@@ -162,26 +128,17 @@ const Settings = () => {
 					className={ `captlc-settings-tab${ 'notifications' === activeTab ? ' is-active' : '' }` }
 					onClick={ () => setActiveTab( 'notifications' ) }
 				>{ __( 'Notifications', 'captain-live-chat' ) }</button>
+				<button
+					type="button"
+					className={ `captlc-settings-tab${ 'uninstall' === activeTab ? ' is-active' : '' }` }
+					onClick={ () => setActiveTab( 'uninstall' ) }
+				>{ __( 'Uninstall', 'captain-live-chat' ) }</button>
 			</div>
 
 			<form onSubmit={ handleSave } className="captlc-settings-panel">
 
 				{ 'access' === activeTab && (
 					<>
-						{ /* ── Availability Status ── */ }
-						<div className="captlc-card">
-							<h2 className="captlc-card__title">{ __( 'Availability Status', 'captain-live-chat' ) }</h2>
-							<p className="captlc-card__desc">{ __( 'Toggle your status between Online and Offline. When Offline, the front-end chat widget changes to show your offline welcome message and email submission form.', 'captain-live-chat' ) }</p>
-
-							<div style={ { display: 'flex', alignItems: 'center', gap: 12, marginTop: 14 } }>
-								<div className={ `captlc-status-dot${ agentOnline ? ' is-online' : '' }` } style={ { width: 8, height: 8, borderRadius: '50%', background: agentOnline ? '#22c55e' : '#94a3b8' } } />
-								<Switcher checked={ agentOnline } onChange={ handleStatusToggle } />
-								<span style={ { fontSize: 13, fontWeight: 600, color: 'var(--captlc-text-primary)' } }>
-									{ agentOnline ? __( 'Online', 'captain-live-chat' ) : __( 'Offline', 'captain-live-chat' ) }
-								</span>
-							</div>
-						</div>
-
 						{ /* ── Roles ── */ }
 						<div className="captlc-card">
 							<h2 className="captlc-card__title">{ __( 'Who can reply to chats', 'captain-live-chat' ) }</h2>
@@ -200,26 +157,9 @@ const Settings = () => {
 									</label>
 								) ) }
 							</div>
-						</div>
-
-						{ /* ── Specific users ── */ }
-						<div className="captlc-card">
-							<h2 className="captlc-card__title">{ __( 'Or allow specific users', 'captain-live-chat' ) }</h2>
-							<p className="captlc-card__desc">{ __( 'These users can reply to chats regardless of their role.', 'captain-live-chat' ) }</p>
-
-							<div className="captlc-checkbox-list captlc-checkbox-list--scroll">
-								{ userOptions.map( ( user ) => (
-									<label key={ user.id } className="captlc-checkbox">
-										<input
-											type="checkbox"
-											checked={ allowedUsers.includes( user.id ) }
-											onChange={ () => toggleUser( user.id ) }
-										/>
-										<span className="captlc-checkbox__box"></span>
-										<span className="captlc-checkbox__label">{ user.name }</span>
-									</label>
-								) ) }
-							</div>
+							<p className="captlc-card__desc captlc-card__desc--footnote">
+								{ __( 'To allow specific individual users regardless of role, and to control which pages each of them can open, go to Profile → Team Access.', 'captain-live-chat' ) }
+							</p>
 						</div>
 					</>
 				) }
@@ -241,11 +181,52 @@ const Settings = () => {
 								<Switcher checked={ emailNotif } onChange={ ( e ) => setEmailNotif( e.target.checked ) } />
 								<span>{ __( 'Email notification', 'captain-live-chat' ) }</span>
 							</label>
+							<label className="captlc-toggle-row captlc-toggle-row--stacked">
+								<div className="captlc-toggle-row__text">
+									<span className="captlc-toggle-row__label">{ __( 'Unanswered message reminder', 'captain-live-chat' ) }</span>
+									<span className="captlc-toggle-row__desc">{ __( 'If a visitor message hasn\'t been replied to after the delay below, email agents a reminder with the pending message(s).', 'captain-live-chat' ) }</span>
+								</div>
+								<Switcher checked={ reminderEmailEnabled } onChange={ ( e ) => setReminderEmailEnabled( e.target.checked ) } />
+							</label>
+							{ reminderEmailEnabled && (
+								<div className="captlc-field captlc-field--inline">
+									<label className="captlc-field__label">{ __( 'Remind after (hours)', 'captain-live-chat' ) }</label>
+									<input
+										type="number"
+										min="1"
+										max="72"
+										className="captlc-input-field captlc-input-field--small"
+										value={ reminderDelayHours }
+										onChange={ ( e ) => setReminderDelayHours( e.target.value ) }
+									/>
+								</div>
+							) }
 						</div>
 					</div>
 				) }
 
+				{ 'uninstall' === activeTab && (
+					<div className="captlc-card captlc-card--danger">
+						<h2 className="captlc-card__title">{ __( 'Uninstall Settings', 'captain-live-chat' ) }</h2>
 
+						<div className="captlc-toggle-list">
+							<label className="captlc-toggle-row captlc-toggle-row--stacked">
+								<div className="captlc-toggle-row__text">
+									<span className="captlc-toggle-row__label">{ __( 'Delete Data on Uninstall', 'captain-live-chat' ) }</span>
+									<span className="captlc-toggle-row__desc">{ __( 'When enabled, all plugin data (threads, messages, settings) will be deleted when the plugin is uninstalled.', 'captain-live-chat' ) }</span>
+								</div>
+								<Switcher checked={ deleteDataOnUninstall } onChange={ ( e ) => setDeleteDataOnUninstall( e.target.checked ) } />
+							</label>
+							<label className="captlc-toggle-row captlc-toggle-row--stacked">
+								<div className="captlc-toggle-row__text">
+									<span className="captlc-toggle-row__label">{ __( 'Preserve Settings on Uninstall', 'captain-live-chat' ) }</span>
+									<span className="captlc-toggle-row__desc">{ __( 'Overrides "Delete Data on Uninstall". Settings will be kept even if delete is enabled.', 'captain-live-chat' ) }</span>
+								</div>
+								<Switcher checked={ preserveSettingsOnUninstall } onChange={ ( e ) => setPreserveSettingsOnUninstall( e.target.checked ) } />
+							</label>
+						</div>
+					</div>
+				) }
 
 			</form>
 		</div>

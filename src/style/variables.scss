@@ -5,6 +5,16 @@ $rs_medium: 8px;
 $rs_normal: 10px;
 $rs_large: 15px;
 
+// Spacing scale — aliases for the tokens defined in theme.scss
+// (--captlc-space-*). Use these instead of hardcoding pixel values for card
+// padding and the gap between stacked cards/sections, so the whole app's
+// rhythm stays in sync from one place.
+$space_xs: var(--captlc-space-xs);
+$space_sm: var(--captlc-space-sm);
+$space_md: var(--captlc-space-md);
+$space_lg: var(--captlc-space-lg);
+$space_xl: var(--captlc-space-xl);
+
 $primary_color: var(--captlc-primary-text);
 $primary_color_hover: var(--captlc-primary-hover);
 $secondary_color: var(--captlc-secondary);

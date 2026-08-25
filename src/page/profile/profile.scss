@@ -1,143 +1,212 @@
 @use '/src/style/variables.scss' as *;
 
 .captlc-profile {
-	max-width: 720px;
-	margin: 0 auto;
 	padding-bottom: 40px;
+}
 
-	&__header-actions {
-		display: flex;
-		align-items: center;
+/* ── Save status indicator (replaces Save/Cancel buttons) ── */
+.captlc-profile__save-indicator {
+	min-width: 70px;
+	text-align: right;
+}
+
+.captlc-profile__save-status {
+	font-size: 12.5px;
+	font-weight: 600;
+	color: var(--captlc-text-muted);
+
+	&.is-saved {
+		color: var(--captlc-success-text);
 	}
+}
 
-	&__content {
-		display: flex;
-		flex-direction: column;
-		gap: 20px;
-		margin-top: 10px;
+/* ── Two-column layout: avatar sidebar + main content ── */
+.captlc-profile__layout {
+	display: grid;
+	grid-template-columns: 300px 1fr;
+	gap: $space_lg;
+	align-items: start;
+
+	@media (max-width: 780px) {
+		grid-template-columns: 1fr;
 	}
+}
 
-	&__avatar-card {
-		padding: 30px;
-		display: flex;
-		justify-content: center;
-		align-items: center;
+.captlc-profile__main {
+	display: flex;
+	flex-direction: column;
+	gap: $space_lg;
+	min-width: 0;
+}
+
+/* ── Left: compact avatar card ──
+   Uses the standard card padding ($space_xl, uniform on all sides) instead
+   of a one-off narrower horizontal value, so it matches every other card
+   in the app. Content inside (name, availability controls) is centered via
+   text-align/flex on the children, not by shrinking the card's own padding. */
+.captlc-profile__avatar-card {
+	padding: $space_xl;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	gap: 4px;
+	position: sticky;
+	top: 20px;
+
+	@media (max-width: 780px) {
+		position: static;
 	}
+}
 
-	&__avatar-section {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 16px;
+.captlc-profile__avatar-circle {
+	width: 76px;
+	height: 76px;
+	border-radius: 50%;
+	background: var(--captlc-primary);
+	color: #fff;
+	font-size: 26px;
+	font-weight: 700;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+	border: 3px solid var(--captlc-border);
+	overflow: hidden;
+	margin-bottom: 10px;
+
+	img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
 	}
+}
 
-	&__avatar-container {
-		position: relative;
+.captlc-profile__avatar-name {
+	font-size: 15px;
+	font-weight: 700;
+	color: var(--captlc-text-primary);
+	margin: 0;
+}
+
+.captlc-profile__avatar-email {
+	font-size: 11.5px;
+	color: var(--captlc-text-muted);
+	word-break: break-word;
+	margin-bottom: 4px;
+}
+
+/* ── Inline-editable name (pencil icon reveals a text input) ── */
+.captlc-profile__name-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	max-width: 100%;
+}
+
+.captlc-profile__edit-name-btn {
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	color: var(--captlc-text-muted);
+	padding: 3px;
+	display: flex;
+	border-radius: 5px;
+	transition: $transition;
+	flex-shrink: 0;
+
+	svg { width: 13px; height: 13px; }
+
+	&:hover {
+		color: var(--captlc-primary-text);
+		background: var(--captlc-bg-hover);
 	}
+}
 
-	&__avatar-circle {
-		width: 96px;
-		height: 96px;
-		border-radius: 50%;
-		background: var(--captlc-primary);
-		color: #fff;
-		font-size: 32px;
-		font-weight: 700;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-		border: 3px solid var(--captlc-border);
-		overflow: hidden;
+.captlc-profile__name-input {
+	font-size: 15px;
+	font-weight: 700;
+	text-align: center;
+	color: var(--captlc-text-primary);
+	background: var(--captlc-bg-input);
+	border: 1px solid var(--captlc-primary);
+	border-radius: 6px;
+	padding: 4px 8px;
+	width: 100%;
+	font-family: inherit;
 
-		img {
-			width: 100%;
-			height: 100%;
-			object-fit: cover;
-		}
+	&:focus {
+		outline: none;
 	}
+}
 
-	&__avatar-name {
-		font-size: 18px;
-		font-weight: 600;
-		color: var(--captlc-text-primary);
-		margin: 0;
-		text-align: center;
+.captlc-profile__avatar-divider {
+	width: 100%;
+	height: 1px;
+	background: var(--captlc-border);
+	margin: 14px 0;
+}
+
+/* ── Availability, now living inside the avatar card ── */
+.captlc-profile__avatar-availability {
+	width: 100%;
+	text-align: left;
+}
+
+.captlc-profile__status-action {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 14px;
+}
+
+.captlc-profile__status-label {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--captlc-text-muted);
+
+	&.is-online {
+		color: var(--captlc-success-text);
 	}
+}
 
-	&__status-card {
-		background: var(--captlc-bg-card);
-		border: 1px solid var(--captlc-border);
-		border-radius: 12px;
-		padding: 20px 24px;
-		box-shadow: var(--captlc-shadow-sm);
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 20px;
+.captlc-profile__avatar-availability-select {
+	margin-bottom: 0;
+}
 
-		@media (max-width: 540px) {
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 16px;
-		}
+.captlc-profile__avatar-availability-hint {
+	margin-top: 8px;
+}
+
+.captlc-profile__schedule-inline {
+	margin-top: 14px;
+	padding-top: 14px;
+	border-top: 1px solid var(--captlc-border);
+	text-align: left;
+}
+
+/* ── Details form ── */
+.captlc-profile__form-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: $space_md;
+	margin-top: $space_sm;
+
+	@media (max-width: 640px) {
+		grid-template-columns: 1fr;
+		gap: $space_sm;
 	}
+}
 
-	&__status-label {
-		display: flex;
-		flex-direction: column;
-		gap: 4px;
+.captlc-field--full {
+	grid-column: 1 / -1;
+}
 
-		span:first-child {
-			font-size: 14px;
-			font-weight: 600;
-			color: var(--captlc-text-primary);
-		}
-
-		span:last-child {
-			font-size: 12.5px;
-			color: var(--captlc-text-secondary);
-			line-height: 1.4;
-		}
-	}
-
-	&__status-action {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-		flex-shrink: 0;
-
-		span {
-			font-size: 13px;
-			font-weight: 500;
-			color: var(--captlc-text-primary);
-			min-width: 48px;
-		}
-	}
-
-	&__status-dot {
-		width: 8px;
-		height: 8px;
-		border-radius: 50%;
-		background-color: var(--captlc-text-muted);
-		transition: background-color 0.25s ease, box-shadow 0.25s ease;
-
-		&.is-online {
-			background-color: #22c55e;
-			box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
-		}
-	}
-
-	&__form-row {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 20px;
-
-		@media (max-width: 640px) {
-			grid-template-columns: 1fr;
-			gap: 16px;
-		}
-	}
+.captlc-field__hint {
+	display: block;
+	font-size: 11px;
+	color: var(--captlc-text-muted);
+	margin: 6px 0 0;
 }
 
 /* ── Close icon in notices ── */
@@ -156,4 +225,138 @@
 	&:hover {
 		opacity: 1;
 	}
+}
+
+/* ── Team access (admin-only) ──
+   No margin-top here: this card is a sibling of .captlc-profile__layout
+   (the grid above), and that grid's last child already carries the
+   standard .captlc-card margin-bottom ($space_lg), which extends the
+   grid's own height. Adding margin-top here on top of that was stacking
+   two card-gaps back to back (~40px) instead of the site-standard single
+   gap everywhere else uses — so this class intentionally carries no
+   spacing rules of its own now. */
+
+.captlc-team-access__header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: $space_md;
+	margin-bottom: $space_md;
+
+	@media (max-width: 640px) {
+		flex-direction: column;
+	}
+}
+
+.captlc-team-access__list {
+	display: flex;
+	flex-direction: column;
+	border: 1px solid var(--captlc-border);
+	border-radius: $rs_medium;
+	/* NOT overflow:hidden — that was clipping the MultiSelect dropdown panel
+	   (position:absolute) for rows near the bottom, cutting it off instead of
+	   letting it float over the page. Corners are rounded per-row instead. */
+	overflow: visible;
+}
+
+.captlc-team-access__row--head {
+	border-top-left-radius: $rs_medium;
+	border-top-right-radius: $rs_medium;
+}
+
+.captlc-team-access__row:last-child {
+	border-bottom-left-radius: $rs_medium;
+	border-bottom-right-radius: $rs_medium;
+}
+
+.captlc-team-access__row {
+	display: grid;
+	grid-template-columns: 32px 1fr 1fr 240px;
+	align-items: center;
+	gap: 12px;
+	padding: 10px 14px;
+	border-bottom: 1px solid var(--captlc-border);
+
+	&:last-child {
+		border-bottom: none;
+	}
+
+	@media (max-width: 720px) {
+		grid-template-columns: 24px 1fr;
+		grid-template-areas:
+			"check user"
+			". email"
+			". pages";
+		row-gap: 6px;
+	}
+}
+
+.captlc-team-access__row--head {
+	background: var(--captlc-bg-hover);
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	color: var(--captlc-text-muted);
+	padding: 8px 14px;
+
+	@media (max-width: 720px) {
+		display: none;
+	}
+}
+
+.captlc-team-access__checkbox {
+	margin: 0;
+}
+
+.captlc-team-access__user {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-width: 0;
+}
+
+.captlc-team-access__avatar {
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	overflow: hidden;
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--captlc-primary);
+	color: #fff;
+	font-size: 12px;
+	font-weight: 600;
+
+	img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+}
+
+.captlc-team-access__name {
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--captlc-text-primary);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.captlc-team-access__email {
+	font-size: 12.5px;
+	color: var(--captlc-text-secondary);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.captlc-team-access__empty {
+	padding: 16px;
+	font-size: 13px;
+	color: var(--captlc-text-muted);
+	text-align: center;
 }

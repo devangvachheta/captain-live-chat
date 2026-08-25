@@ -86,6 +86,43 @@
 	color: var(--captlc-text-primary);
 }
 
+/* ── Uninstall tab ─────────────────────────────────────────────────────── */
+.captlc-card--danger {
+	background: var(--captlc-danger-bg);
+	border-color: var(--captlc-danger-border);
+}
+
+.captlc-toggle-row--stacked {
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 24px;
+	padding: 14px 0;
+	border-bottom: 1px solid var(--captlc-border);
+
+	&:last-child {
+		border-bottom: none;
+		padding-bottom: 0;
+	}
+}
+
+.captlc-toggle-row__text {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.captlc-toggle-row__label {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--captlc-text-primary);
+}
+
+.captlc-toggle-row__desc {
+	font-size: 12.5px;
+	color: var(--captlc-text-secondary);
+	max-width: 560px;
+}
+
 .captlc-field {
 	margin-bottom: 16px;
 
@@ -127,6 +164,34 @@
 
 .captlc-field--half {
 	max-width: 280px;
+}
+
+.captlc-field--inline {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-top: 4px;
+
+	.captlc-field__label {
+		margin-bottom: 0;
+		white-space: nowrap;
+	}
+}
+
+.captlc-input-field--small {
+	width: 80px;
+	background: var(--captlc-bg-input);
+	border: 1px solid var(--captlc-border);
+	border-radius: $rs_medium;
+	padding: 8px 10px;
+	color: var(--captlc-text-primary);
+	font-size: 13px;
+	transition: $transition;
+
+	&:focus {
+		outline: none;
+		border-color: var(--captlc-primary);
+	}
 }
 
 .captlc-field__hint {
@@ -226,5 +291,14 @@
 .captlc-settings-panel {
 	display: flex;
 	flex-direction: column;
-	gap: 20px;
+	// No extra gap — direct children are all .captlc-card, which already
+	// carry the standard margin-bottom (the shared $space_lg token). See
+	// the same fix/note in ai_settings.scss and profile.scss — this was
+	// stacking two 20px spacings into 40px between cards.
+}
+
+.captlc-card__desc--footnote {
+	margin: 12px 0 0;
+	padding-top: 12px;
+	border-top: 1px solid var(--captlc-border);
 }

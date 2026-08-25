@@ -46,6 +46,7 @@ const Input = forwardRef( ( {
 			name={ name }
 			value={ value }
 			required={ required }
+			readOnly={ readOnly }
 			onClick={ ( e ) => { if ( onClick ) onClick( e ); } }
 			onChange={ ( e ) => { if ( onChange ) onChange( e ); } }
 			onKeyDown={ ( e ) => { if ( onKeyDown ) onKeyDown( e ); } }

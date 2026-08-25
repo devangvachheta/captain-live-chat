@@ -2,7 +2,7 @@
 /**
  * Widget Designer — stores visual customisation settings for the frontend widget.
  *
- * @package Captain_Live_Chat
+ * @package captain-live-chat
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -22,7 +22,7 @@ class CAPTLC_Widget_Design {
 	 * @return void
 	 */
 	public function __construct() {
-		add_action( 'wp_ajax_captlc_get_widget_design',  array( $this, 'get_design' ) );
+		add_action( 'wp_ajax_captlc_get_widget_design', array( $this, 'get_design' ) );
 		add_action( 'wp_ajax_captlc_save_widget_design', array( $this, 'save_design' ) );
 	}
 
@@ -49,7 +49,7 @@ class CAPTLC_Widget_Design {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'captain-live-chat' ) ), 403 );
 		}
 
-		$raw = isset( $_POST['design'] ) ? wp_unslash( $_POST['design'] ) : '{}';
+		$raw  = isset( $_POST['design'] ) ? wp_unslash( $_POST['design'] ) : '{}';
 		$data = json_decode( $raw, true );
 
 		if ( ! is_array( $data ) ) {
@@ -71,6 +71,7 @@ class CAPTLC_Widget_Design {
 					'button_style'         => isset( $w['button_style'] ) ? sanitize_key( $w['button_style'] ) : 'bubble',
 					'button_icon'          => isset( $w['button_icon'] ) ? sanitize_key( $w['button_icon'] ) : 'chat1',
 					'position'             => isset( $w['position'] ) ? sanitize_key( $w['position'] ) : 'right',
+					'widget_size'          => in_array( ( isset( $w['widget_size'] ) ? $w['widget_size'] : '' ), array( 'default', 'large' ), true ) ? $w['widget_size'] : 'default',
 					'welcome_title'        => isset( $w['welcome_title'] ) ? sanitize_text_field( $w['welcome_title'] ) : '',
 					'welcome_subtitle'     => isset( $w['welcome_subtitle'] ) ? sanitize_text_field( $w['welcome_subtitle'] ) : '',
 					'welcome_message'      => isset( $w['welcome_message'] ) ? sanitize_text_field( $w['welcome_message'] ) : '',
@@ -101,21 +102,22 @@ class CAPTLC_Widget_Design {
 
 		// Fallback to legacy single widget save
 		$saved = array(
-			'accent_color'       => isset( $data['accent_color'] ) ? sanitize_hex_color( $data['accent_color'] ) : '#2f6ef0',
-			'button_style'       => isset( $data['button_style'] ) ? sanitize_key( $data['button_style'] ) : 'bubble',
-			'button_icon'        => isset( $data['button_icon'] ) ? sanitize_key( $data['button_icon'] ) : 'chat1',
-			'position'           => isset( $data['position'] ) ? sanitize_key( $data['position'] ) : 'right',
-			'welcome_title'      => isset( $data['welcome_title'] ) ? sanitize_text_field( $data['welcome_title'] ) : '',
-			'welcome_subtitle'   => isset( $data['welcome_subtitle'] ) ? sanitize_text_field( $data['welcome_subtitle'] ) : '',
-			'welcome_message'    => isset( $data['welcome_message'] ) ? sanitize_text_field( $data['welcome_message'] ) : '',
-			'show_avatar'        => isset( $data['show_avatar'] ) ? (bool) $data['show_avatar'] : true,
-			'avatar_initials'    => isset( $data['avatar_initials'] ) ? sanitize_text_field( $data['avatar_initials'] ) : 'A',
-			'avatar_bg_color'    => isset( $data['avatar_bg_color'] ) ? sanitize_hex_color( $data['avatar_bg_color'] ) : '#9ca3af',
-			'avatar_image_url'   => isset( $data['avatar_image_url'] ) ? esc_url_raw( $data['avatar_image_url'] ) : '',
-			'placeholder_text'   => isset( $data['placeholder_text'] ) ? sanitize_text_field( $data['placeholder_text'] ) : '',
+			'accent_color'         => isset( $data['accent_color'] ) ? sanitize_hex_color( $data['accent_color'] ) : '#2f6ef0',
+			'button_style'         => isset( $data['button_style'] ) ? sanitize_key( $data['button_style'] ) : 'bubble',
+			'button_icon'          => isset( $data['button_icon'] ) ? sanitize_key( $data['button_icon'] ) : 'chat1',
+			'position'             => isset( $data['position'] ) ? sanitize_key( $data['position'] ) : 'right',
+			'widget_size'          => in_array( ( isset( $data['widget_size'] ) ? $data['widget_size'] : '' ), array( 'default', 'large' ), true ) ? $data['widget_size'] : 'default',
+			'welcome_title'        => isset( $data['welcome_title'] ) ? sanitize_text_field( $data['welcome_title'] ) : '',
+			'welcome_subtitle'     => isset( $data['welcome_subtitle'] ) ? sanitize_text_field( $data['welcome_subtitle'] ) : '',
+			'welcome_message'      => isset( $data['welcome_message'] ) ? sanitize_text_field( $data['welcome_message'] ) : '',
+			'show_avatar'          => isset( $data['show_avatar'] ) ? (bool) $data['show_avatar'] : true,
+			'avatar_initials'      => isset( $data['avatar_initials'] ) ? sanitize_text_field( $data['avatar_initials'] ) : 'A',
+			'avatar_bg_color'      => isset( $data['avatar_bg_color'] ) ? sanitize_hex_color( $data['avatar_bg_color'] ) : '#9ca3af',
+			'avatar_image_url'     => isset( $data['avatar_image_url'] ) ? esc_url_raw( $data['avatar_image_url'] ) : '',
+			'placeholder_text'     => isset( $data['placeholder_text'] ) ? sanitize_text_field( $data['placeholder_text'] ) : '',
 			'visitor_bubble_color' => isset( $data['visitor_bubble_color'] ) ? sanitize_hex_color( $data['visitor_bubble_color'] ) : '#2f6ef0',
-			'agent_bubble_color' => isset( $data['agent_bubble_color'] ) ? sanitize_hex_color( $data['agent_bubble_color'] ) : '#f0f2f5',
-			'template'           => isset( $data['template'] ) ? sanitize_key( $data['template'] ) : 'classic',
+			'agent_bubble_color'   => isset( $data['agent_bubble_color'] ) ? sanitize_hex_color( $data['agent_bubble_color'] ) : '#f0f2f5',
+			'template'             => isset( $data['template'] ) ? sanitize_key( $data['template'] ) : 'classic',
 		);
 
 		update_option( self::OPTION_KEY, $saved );
@@ -133,6 +135,7 @@ class CAPTLC_Widget_Design {
 			'button_style'         => 'bubble',
 			'button_icon'          => 'chat1',
 			'position'             => 'right',
+			'widget_size'          => 'default',
 			'welcome_title'        => '👋 Our team is here for you',
 			'welcome_subtitle'     => 'We typically reply in a few minutes.',
 			'welcome_message'      => 'Hi, how can we help?',
@@ -153,7 +156,7 @@ class CAPTLC_Widget_Design {
 
 		// If it's a list format, return the active widget's settings
 		if ( isset( $saved['widgets'] ) && is_array( $saved['widgets'] ) ) {
-			$active_id = isset( $saved['active_id'] ) ? $saved['active_id'] : '';
+			$active_id     = isset( $saved['active_id'] ) ? $saved['active_id'] : '';
 			$active_widget = null;
 			foreach ( $saved['widgets'] as $w ) {
 				if ( $w['id'] === $active_id || ( empty( $active_id ) && ! empty( $w['active'] ) ) ) {
@@ -183,9 +186,9 @@ class CAPTLC_Widget_Design {
 
 		// If it's legacy flat structure, wrap it into a list format
 		if ( ! isset( $saved['widgets'] ) ) {
-			$flat_settings = self::get_settings(); // merges defaults
-			$flat_settings['id'] = 'widget-default';
-			$flat_settings['name'] = 'Default Widget';
+			$flat_settings           = self::get_settings(); // merges defaults
+			$flat_settings['id']     = 'widget-default';
+			$flat_settings['name']   = 'Default Widget';
 			$flat_settings['active'] = true;
 
 			$saved = array(

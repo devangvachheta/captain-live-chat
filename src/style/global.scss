@@ -87,8 +87,8 @@
 	background: var(--captlc-bg-card);
 	border: 1px solid var(--captlc-border);
 	border-radius: 12px;
-	padding: 24px;
-	margin-bottom: 20px;
+	padding: var(--captlc-space-xl);
+	margin-bottom: var(--captlc-space-lg);
 	box-shadow: var(--captlc-shadow-sm);
 }
 
@@ -167,6 +167,12 @@
 	margin-bottom: 6px;
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
+}
+
+.captlc-field__hint {
+	font-size: 11px;
+	color: var(--captlc-text-muted);
+	margin: 5px 0 0;
 }
 
 .captlc-textarea {

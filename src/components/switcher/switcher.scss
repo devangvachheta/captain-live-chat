@@ -48,3 +48,8 @@
 	outline: 2px solid var(--captlc-primary);
 	outline-offset: 2px;
 }
+
+.captlc-switcher.is-disabled {
+	cursor: not-allowed;
+	opacity: 0.55;
+}

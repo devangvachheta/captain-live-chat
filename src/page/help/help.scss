@@ -3,7 +3,7 @@
 .captlc-help {
 	display: flex;
 	flex-direction: column;
-	gap: 22px;
+	gap: $space_lg; // standardized — was 22px
 }
 
 .captlc-help__subtitle {

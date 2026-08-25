@@ -20,4 +20,27 @@
 	&::placeholder {
 		color: var(--captlc-text-muted);
 	}
+
+	/* Browsers (Chrome/Edge autofill, and type="password" fields in general)
+	   force their own white/yellow background on saved-credential inputs,
+	   ignoring our `background`. This overrides it back to the theme color. */
+	&:-webkit-autofill,
+	&:-webkit-autofill:hover,
+	&:-webkit-autofill:focus {
+		-webkit-text-fill-color: var(--captlc-text-primary);
+		-webkit-box-shadow: 0 0 0 1000px var(--captlc-bg-input) inset;
+		box-shadow: 0 0 0 1000px var(--captlc-bg-input) inset;
+		transition: background-color 5000s ease-in-out 0s;
+	}
+
+	&:read-only {
+		cursor: not-allowed;
+		opacity: 0.65;
+		background: var(--captlc-bg-hover);
+
+		&:focus {
+			border-color: var(--captlc-border);
+			background: var(--captlc-bg-hover);
+		}
+	}
 }

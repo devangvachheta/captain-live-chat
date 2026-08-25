@@ -2,7 +2,7 @@
 
 /* ── Filters card ───────────────────────────────────────────────────── */
 .captlc-history__filters {
-	padding: 20px 24px;
+	padding: $space_xl; // standardized — was 20px 24px
 }
 
 .captlc-history__filter-row {
@@ -10,6 +10,14 @@
 	grid-template-columns: 1fr 160px 160px 160px;
 	align-items: end;
 	gap: 14px;
+
+	// Override the shared .captlc-field { &:last-child { margin-bottom: 0 } }
+	// rule (meant for stacked vertical forms) — in this horizontal grid row
+	// it made the last field (To) sit lower than its siblings since only its
+	// bottom margin was removed while align-items:end kept the others intact.
+	.captlc-field {
+		margin-bottom: 0;
+	}
 
 	@media screen and (max-width: 860px) {
 		grid-template-columns: 1fr 1fr;
@@ -55,6 +63,31 @@
 	text-align: center;
 	color: var(--captlc-text-muted);
 	font-size: 13px;
+}
+
+.captlc-history__load-more {
+	all: unset;
+	box-sizing: border-box;
+	display: block;
+	width: 100%;
+	text-align: center;
+	padding: 8px;
+	margin-bottom: 10px;
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--captlc-primary-text);
+	background: var(--captlc-bg-secondary);
+	cursor: pointer;
+
+	&:hover {
+		background: var(--captlc-bg-hover);
+	}
+
+	&:disabled {
+		opacity: 0.6;
+		cursor: default;
+	}
 }
 
 .captlc-history__table {

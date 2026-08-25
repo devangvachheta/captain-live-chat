@@ -1,18 +1,18 @@
 === Captain Live Chat ===
-Contributors: bharti
-Tags: live chat, chat, support, customer service, real-time chat, chat widget
-Requires at least: 5.8
-Tested up to: 6.7
-Stable tag: 1.0.0
+Contributors: devangvachheta
+Tags: live chat, chat widget, customer service, support, real-time chat
+Requires at least: 6.2
+Tested up to: 7.1
+Stable tag: 1.3.0
 Requires PHP: 7.4
-License: GPLv3 or later
-License URI: https://www.gnu.org/licenses/gpl-3.0.html
+License: GPL-2.0-or-later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Lightweight, self-hosted live chat for WordPress. No monthly subscription, no third-party servers — 100% your data.
+Self-hosted live chat for WordPress with optional AI auto-reply. No subscription — your data stays in your database.
 
 == Description ==
 
-**Captain Live Chat** is a powerful, fully self-hosted live chat plugin for WordPress. Unlike cloud-based services such as Tawk.to, Zendesk, or Crisp, Captain Live Chat keeps every message in your own WordPress database. No monthly subscription. No data leaving your server.
+**Captain Live Chat** is a powerful, fully self-hosted live chat plugin for WordPress. Unlike cloud-based services such as Tawk.to, Zendesk, or Crisp, Captain Live Chat keeps every message in your own WordPress database. No monthly subscription. No data leaving your server — unless you choose to switch on the optional AI auto-reply feature, which sends the visitor's message to an AI provider you select (see "External Services" below).
 
 = Why Captain Live Chat? =
 
@@ -46,6 +46,18 @@ Lightweight, self-hosted live chat for WordPress. No monthly subscription, no th
 * Agent online/offline toggle with 45-second heartbeat
 * Auto-away when browser tab is hidden
 
+**AI Auto-Reply (Optional)**
+* Automatically replies to visitors when no agent is online, using an AI provider you connect (Groq, OpenAI, Google Gemini, or Anthropic — bring your own API key)
+* Custom system prompt to steer tone and topics
+* Knowledge base — add links or upload PDF/.txt documents so replies are grounded in your own content
+* Configurable daily reply limit
+* See "External Services" below for what is sent and to whom
+
+**Analytics & History**
+* Dashboard analytics: chat volume, response times, agent performance
+* Full conversation history with CSV export
+* Canned replies / quick responses for agents
+
 **Settings**
 * Allow specific WordPress roles (Administrator, Editor, etc.) as agents
 * Or allow individual users regardless of role
@@ -60,7 +72,7 @@ Lightweight, self-hosted live chat for WordPress. No monthly subscription, no th
 * BEM-style CSS naming, all classes prefixed `captlc-`
 * All inputs sanitized, all outputs escaped, nonce-verified endpoints
 * Transient-based rate limiting on visitor-facing endpoints
-* `uninstall.php` for clean data removal
+* `uninstall.php` for opt-in clean data removal (toggle in Settings)
 
 == Installation ==
 
@@ -72,7 +84,7 @@ Lightweight, self-hosted live chat for WordPress. No monthly subscription, no th
 
 = Minimum Requirements =
 
-* WordPress 5.8 or greater
+* WordPress 6.2 or greater
 * PHP 7.4 or greater
 * MySQL 5.6 or MariaDB 10.1 or greater
 
@@ -85,7 +97,10 @@ No. Captain Live Chat is 100% free and self-hosted. All data stays on your serve
 Yes. The plugin uses AJAX polling (not WebSockets), which works on all shared hosting providers including Hostinger, Bluehost, SiteGround, and Kinsta.
 
 = Is data stored on your servers? =
-No. All chat data is stored exclusively in your WordPress database. No data is ever sent to external servers.
+No. All chat data is stored exclusively in your WordPress database — Captain Live Chat itself never sends data to any server we operate. If you switch on the optional AI auto-reply feature, the visitor's message is sent to the AI provider you personally connect (using your own API key) so it can generate a reply. See "External Services" below for details. This feature is off by default.
+
+= Does the AI auto-reply feature send my visitors' data anywhere? =
+Only if you enable it and configure an AI provider yourself. When enabled, the visitor's message (and, optionally, your knowledge base content and system prompt) is sent to whichever provider you chose — Groq, OpenAI, Google Gemini, or Anthropic — using your own API key. See "External Services" below for each provider's data-handling terms.
 
 = Can multiple agents reply to chats? =
 Yes. You can grant chat access by WordPress role (e.g. all Editors) or by selecting individual users.
@@ -97,7 +112,22 @@ All visitor inputs are sanitized server-side using WordPress functions. All AJAX
 The frontend widget uses CSS custom properties. You can override `--captlc-w-accent` (and related variables) in your theme's CSS.
 
 = What happens to data when I uninstall? =
-All plugin data (database tables, options, transients) is removed cleanly when you delete the plugin via the WordPress admin.
+By default, your data is kept so you don't lose anything if you reinstall later. If you want a clean removal, turn on "Delete data on uninstall" in Settings before deleting the plugin — this removes all plugin database tables, options, and transients when you click Delete on the Plugins screen. A "Preserve settings on uninstall" option is also available if you want your role/notification preferences to survive a future reinstall while everything else is wiped.
+
+== External Services ==
+
+Captain Live Chat's core live-chat features (widget, inbox, notifications, analytics) run entirely on your own WordPress database and make no external calls.
+
+The plugin includes an **optional** AI auto-reply feature. It is **disabled by default** and only activates once you enable it and enter your own API key for a provider. When enabled, the visitor's message — and, depending on your settings, your custom system prompt and knowledge base content — is sent to the provider you selected so it can generate a reply. No data is sent to any of these services unless you turn this feature on.
+
+This plugin can connect to one of the following third-party AI services, depending on which provider you configure:
+
+* **Groq** — [Terms of Use](https://groq.com/terms-of-use) | [Privacy Policy](https://groq.com/privacy-policy)
+* **OpenAI** — [Terms of Use](https://openai.com/policies/) | [Privacy Policy](https://openai.com/policies/privacy-policy/)
+* **Google Gemini API** — [Terms of Service](https://ai.google.dev/gemini-api/terms) | [Privacy Policy](https://policies.google.com/privacy)
+* **Anthropic (Claude)** — [Commercial Terms of Service](https://www.anthropic.com/legal/commercial-terms) | [Privacy Policy](https://www.anthropic.com/legal/privacy)
+
+Data sent: the visitor's chat message, and, if configured, your custom system prompt and knowledge base text. No data is sent unless you have enabled AI auto-reply and provided your own API key for the selected provider.
 
 == Screenshots ==
 
@@ -109,19 +139,22 @@ All plugin data (database tables, options, transients) is removed cleanly when y
 
 == Changelog ==
 
-= 1.0.0 =
-* Initial release.
+= 1.3.0 =
+* Initial public release on WordPress.org.
 * Frontend floating chat widget (pre-chat form, polling, typing indicator, seen tick).
 * React-based admin dashboard (thread list, chat panel, visitor info).
 * Role-based and user-based agent permissions.
 * Sound, browser, and email notifications with rate limiting.
 * Auto-away on tab visibility change.
+* Optional AI auto-reply (Groq, OpenAI, Gemini, or Anthropic — bring your own API key), with custom system prompt, knowledge base, and daily reply limit.
+* Analytics dashboard and full conversation history with CSV export.
+* Canned replies for agents.
 * Transient-based rate limiting on visitor AJAX endpoints.
 * Network error handling with toast notifications.
-* `uninstall.php` for clean data removal.
+* `uninstall.php` for opt-in clean data removal (toggle in Settings).
 * Dark and light mode admin UI.
 
 == Upgrade Notice ==
 
-= 1.0.0 =
-Initial release. No upgrade steps required.
+= 1.3.0 =
+Initial public release on WordPress.org.

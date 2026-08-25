@@ -2,7 +2,7 @@
 /**
  * Chat history — search, filter, paginate, export.
  *
- * @package Captain_Live_Chat
+ * @package captain-live-chat
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -20,9 +20,10 @@ class CAPTLC_History {
 	 * @return void
 	 */
 	public function __construct() {
-		add_action( 'wp_ajax_captlc_get_history',         array( $this, 'get_history' ) );
+		add_action( 'wp_ajax_captlc_get_history', array( $this, 'get_history' ) );
 		add_action( 'wp_ajax_captlc_get_thread_messages', array( $this, 'get_thread_messages' ) );
-		add_action( 'wp_ajax_captlc_export_history',      array( $this, 'export_history' ) );
+		add_action( 'wp_ajax_captlc_get_older_thread_messages', array( $this, 'get_older_thread_messages' ) );
+		add_action( 'wp_ajax_captlc_export_history', array( $this, 'export_history' ) );
 	}
 
 	/**
@@ -42,22 +43,22 @@ class CAPTLC_History {
 		$threads_table  = CAPTLC_DB::threads_table();
 		$messages_table = CAPTLC_DB::messages_table();
 
-		$search    = isset( $_POST['search'] )    ? sanitize_text_field( wp_unslash( $_POST['search'] ) )    : '';
-		$status    = isset( $_POST['status'] )    ? sanitize_key( wp_unslash( $_POST['status'] ) )            : '';
+		$search    = isset( $_POST['search'] ) ? sanitize_text_field( wp_unslash( $_POST['search'] ) ) : '';
+		$status    = isset( $_POST['status'] ) ? sanitize_key( wp_unslash( $_POST['status'] ) ) : '';
 		$date_from = isset( $_POST['date_from'] ) ? sanitize_text_field( wp_unslash( $_POST['date_from'] ) ) : '';
-		$date_to   = isset( $_POST['date_to'] )   ? sanitize_text_field( wp_unslash( $_POST['date_to'] ) )   : '';
-		$page      = isset( $_POST['page'] )      ? max( 1, absint( $_POST['page'] ) )                       : 1;
-		$per_page  = isset( $_POST['per_page'] )  ? min( 100, absint( $_POST['per_page'] ) )                 : 20;
+		$date_to   = isset( $_POST['date_to'] ) ? sanitize_text_field( wp_unslash( $_POST['date_to'] ) ) : '';
+		$page      = isset( $_POST['page'] ) ? max( 1, absint( $_POST['page'] ) ) : 1;
+		$per_page  = isset( $_POST['per_page'] ) ? min( 100, absint( $_POST['per_page'] ) ) : 20;
 		$offset    = ( $page - 1 ) * $per_page;
 
 		$where  = array( '1=1' );
 		$params = array();
 
 		if ( $search ) {
-			$like          = '%' . $wpdb->esc_like( $search ) . '%';
-			$where[]       = '(t.visitor_name LIKE %s OR t.visitor_email LIKE %s)';
-			$params[]      = $like;
-			$params[]      = $like;
+			$like     = '%' . $wpdb->esc_like( $search ) . '%';
+			$where[]  = '(t.visitor_name LIKE %s OR t.visitor_email LIKE %s)';
+			$params[] = $like;
+			$params[] = $like;
 		}
 
 		if ( $status ) {
@@ -80,7 +81,7 @@ class CAPTLC_History {
 		// Count total.
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 		$count_sql = "SELECT COUNT(*) FROM {$threads_table} t WHERE {$where_sql}";
-		$total = $params
+		$total     = $params
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			? (int) $wpdb->get_var( $wpdb->prepare( $count_sql, $params ) )
 			: (int) $wpdb->get_var( $count_sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
@@ -96,7 +97,7 @@ class CAPTLC_History {
 			LIMIT %d OFFSET %d
 		";
 
-		$data_params   = array_merge( $params, array( $per_page, $offset ) );
+		$data_params = array_merge( $params, array( $per_page, $offset ) );
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$threads = $wpdb->get_results( $wpdb->prepare( $data_sql, $data_params ) );
 
@@ -128,9 +129,49 @@ class CAPTLC_History {
 			wp_send_json_error( array( 'message' => __( 'Missing thread.', 'captain-live-chat' ) ) );
 		}
 
-		$messages = CAPTLC_DB::get_messages( $thread_id, 0 );
+		// Only the most recent page — a returning customer's thread can span
+		// months and thousands of messages, so loading everything at once
+		// when the row is expanded would be slow. Older messages are
+		// fetched on demand via get_older_thread_messages() as the transcript
+		// is scrolled up.
+		$page = CAPTLC_DB::get_recent_messages( $thread_id, 50 );
 
-		wp_send_json_success( array( 'messages' => $messages ) );
+		wp_send_json_success(
+			array(
+				'messages' => $page['messages'],
+				'has_more' => $page['has_more'],
+			)
+		);
+	}
+
+	/**
+	 * Loads an older page of a thread's transcript for the History page
+	 * (paired with get_thread_messages() above).
+	 *
+	 * @return void
+	 */
+	public function get_older_thread_messages() {
+		check_ajax_referer( CAPTLC_Ajax::NONCE_ACTION, 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'captain-live-chat' ) ), 403 );
+		}
+
+		$thread_id = isset( $_POST['thread_id'] ) ? absint( $_POST['thread_id'] ) : 0;
+		$before_id = isset( $_POST['before_id'] ) ? absint( $_POST['before_id'] ) : 0;
+
+		if ( ! $thread_id || ! $before_id ) {
+			wp_send_json_error( array( 'message' => __( 'Missing thread.', 'captain-live-chat' ) ) );
+		}
+
+		$page = CAPTLC_DB::get_messages_before( $thread_id, $before_id, 50 );
+
+		wp_send_json_success(
+			array(
+				'messages' => $page['messages'],
+				'has_more' => $page['has_more'],
+			)
+		);
 	}
 
 	/**
@@ -150,10 +191,10 @@ class CAPTLC_History {
 		$threads_table  = CAPTLC_DB::threads_table();
 		$messages_table = CAPTLC_DB::messages_table();
 
-		$search    = isset( $_POST['search'] )    ? sanitize_text_field( wp_unslash( $_POST['search'] ) )    : '';
-		$status    = isset( $_POST['status'] )    ? sanitize_key( wp_unslash( $_POST['status'] ) )            : '';
+		$search    = isset( $_POST['search'] ) ? sanitize_text_field( wp_unslash( $_POST['search'] ) ) : '';
+		$status    = isset( $_POST['status'] ) ? sanitize_key( wp_unslash( $_POST['status'] ) ) : '';
 		$date_from = isset( $_POST['date_from'] ) ? sanitize_text_field( wp_unslash( $_POST['date_from'] ) ) : '';
-		$date_to   = isset( $_POST['date_to'] )   ? sanitize_text_field( wp_unslash( $_POST['date_to'] ) )   : '';
+		$date_to   = isset( $_POST['date_to'] ) ? sanitize_text_field( wp_unslash( $_POST['date_to'] ) ) : '';
 
 		$where  = array( '1=1' );
 		$params = array();
@@ -195,24 +236,38 @@ class CAPTLC_History {
 		foreach ( $threads as $thread ) {
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$msgs = $wpdb->get_results(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name comes from $wpdb->prefix, not user input; all bound values are still parameterised.
 				$wpdb->prepare( "SELECT * FROM {$messages_table} WHERE thread_id = %d ORDER BY id ASC", $thread->id )
 			);
 
 			if ( empty( $msgs ) ) {
 				$rows[] = array(
-					$thread->id, $thread->visitor_name, $thread->visitor_email,
-					$thread->status, $thread->browser, $thread->device,
-					$thread->source_url, $thread->created_at, '', '',
+					$thread->id,
+					$thread->visitor_name,
+					$thread->visitor_email,
+					$thread->status,
+					$thread->browser,
+					$thread->device,
+					$thread->source_url,
+					$thread->created_at,
+					'',
+					'',
 				);
 				continue;
 			}
 
 			foreach ( $msgs as $msg ) {
 				$rows[] = array(
-					$thread->id, $thread->visitor_name, $thread->visitor_email,
-					$thread->status, $thread->browser, $thread->device,
-					$thread->source_url, $thread->created_at,
-					$msg->sender_type, $msg->message,
+					$thread->id,
+					$thread->visitor_name,
+					$thread->visitor_email,
+					$thread->status,
+					$thread->browser,
+					$thread->device,
+					$thread->source_url,
+					$thread->created_at,
+					$msg->sender_type,
+					$msg->message,
 				);
 			}
 		}
@@ -226,7 +281,7 @@ class CAPTLC_History {
 				},
 				$row
 			);
-			$csv .= implode( ',', $escaped ) . "\r\n";
+			$csv    .= implode( ',', $escaped ) . "\r\n";
 		}
 
 		wp_send_json_success( array( 'csv' => $csv ) );

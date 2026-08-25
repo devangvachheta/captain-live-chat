@@ -4,6 +4,19 @@
 //  Usage: var(--captlc-bg-primary) etc.
 // ============================================================
 
+// ── SPACING SCALE (theme-independent — same in light & dark) ───────────────
+// This is the single source of truth for card padding, and the gap between
+// stacked cards/sections on every page. Change a value here and it updates
+// everywhere that references it, instead of each page having its own
+// hand-picked pixel value.
+:root {
+	--captlc-space-xs:  8px;
+	--captlc-space-sm:  12px;
+	--captlc-space-md:  16px;
+	--captlc-space-lg:  20px;
+	--captlc-space-xl:  24px;
+}
+
 // ── LIGHT MODE (default) ──────────────────────────────────────
 :root,
 [data-captlc-theme="light"] {
@@ -46,6 +59,8 @@
 	--captlc-info-text:        #1e40af;
 	--captlc-error-bg:         #fee2e2;
 	--captlc-error-text:       #b91c1c;
+	--captlc-danger-bg:        #fef2f2;
+	--captlc-danger-border:    #fecaca;
 
 	// Shadows
 	--captlc-shadow-sm:        0 1px 4px rgba(0,0,0,0.08);
@@ -108,6 +123,8 @@
 	--captlc-info-text:        #60a5fa;
 	--captlc-error-bg:         #2d0f0f;
 	--captlc-error-text:       #f87171;
+	--captlc-danger-bg:        #2d0f0f;
+	--captlc-danger-border:    #7f1d1d;
 
 	// Shadows
 	--captlc-shadow-sm:        0 1px 4px rgba(0,0,0,0.4);
@@ -115,7 +132,7 @@
 	--captlc-shadow-footer:    0 4px 24px rgba(0,0,0,0.5);
 
 	// Toggle
-	--captlc-toggle-bg:        #4e9de0;
+	--captlc-toggle-bg:        #3d4a6b;
 	--captlc-toggle-knob:      #ffffff;
 
 	// Skeleton
@@ -143,6 +160,7 @@
 	input[type="text"],
 	input[type="email"],
 	input[type="password"],
+	input[type="date"],
 	textarea,
 	select {
 		color-scheme: dark;
@@ -160,6 +178,7 @@
 .wp-core-ui [data-captlc-theme="dark"] input[type="number"],
 .wp-core-ui [data-captlc-theme="dark"] input[type="text"],
 .wp-core-ui [data-captlc-theme="dark"] input[type="email"],
+.wp-core-ui [data-captlc-theme="dark"] input[type="date"],
 .wp-core-ui [data-captlc-theme="dark"] textarea {
 	background: var(--captlc-bg-input) !important;
 	color: var(--captlc-text-primary) !important;

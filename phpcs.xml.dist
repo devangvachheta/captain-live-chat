@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<ruleset name="Captain Live Chat">
+	<description>WordPress Coding Standards ruleset for Captain Live Chat.</description>
+
+	<file>.</file>
+	<exclude-pattern>/build/*</exclude-pattern>
+	<exclude-pattern>/node_modules/*</exclude-pattern>
+	<exclude-pattern>/vendor/*</exclude-pattern>
+	<exclude-pattern>/assets/*</exclude-pattern>
+
+	<arg value="sp"/>
+	<arg name="basepath" value="."/>
+	<arg name="colors"/>
+	<arg name="extensions" value="php"/>
+
+	<rule ref="WordPress-Extra">
+		<!-- verify_nonce() is our own wrapper around check_ajax_referer(); every
+		     AJAX handler calls it as its first line, but the sniff can't see
+		     into custom wrapper methods without being told about them. -->
+		<exclude name="WordPress.Security.NonceVerification.Missing"/>
+	</rule>
+
+	<rule ref="WordPress.Security.NonceVerification.Missing">
+		<properties>
+			<property name="customNonceVerificationFunctions" type="array">
+				<element value="verify_nonce"/>
+			</property>
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="captain-live-chat"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>

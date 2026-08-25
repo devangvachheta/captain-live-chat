@@ -59,7 +59,8 @@ const STEPS = [
 	{ id: 1, label: __( 'Appearance', 'captain-live-chat' ) },
 	{ id: 2, label: __( 'Welcome Screen', 'captain-live-chat' ) },
 	{ id: 3, label: __( 'Chat View', 'captain-live-chat' ) },
-	{ id: 4, label: __( 'Widget settings', 'captain-live-chat' ) },
+	{ id: 4, label: __( 'Offline', 'captain-live-chat' ) },
+	{ id: 5, label: __( 'Widget settings', 'captain-live-chat' ) },
 ];
 
 const DEFAULT_WIDGET = {
@@ -67,6 +68,7 @@ const DEFAULT_WIDGET = {
 	button_style:         'bubble',
 	button_icon:          'chat1',
 	position:             'right',
+	widget_size:          'default',
 	welcome_title:        '👋 Our team is here for you',
 	welcome_subtitle:     'We typically reply in a few minutes.',
 	welcome_message:      'Hi, how can we help?',
@@ -129,18 +131,18 @@ const WidgetPreview = ( { design, previewScreen, deviceMode, onlineMode } ) => {
 							</div>
 
 							<div className="captlc-wd-preview__welcome-body">
-								<p className="captlc-wd-preview__offline-msg" style={ { fontSize: 13, color: 'var(--captlc-text-secondary)', lineHeight: 1.4, margin: '20px 0' } }>
+								<p className="captlc-wd-preview__offline-msg" style={ { fontSize: 13, color: '#64748b', lineHeight: 1.4, margin: '20px 0' } }>
 									{ design.offline_message || 'Leave your message. We\'ll reply soon.' }
 								</p>
 
 								<div className="captlc-field" style={ { width: '100%' } }>
-									<input type="text" className="captlc-input-field" placeholder={ __( 'Your Name', 'captain-live-chat' ) } disabled />
+									<input type="text" className="captlc-wd-preview__input" placeholder={ __( 'Your Name', 'captain-live-chat' ) } disabled />
 								</div>
 								<div className="captlc-field" style={ { width: '100%' } }>
-									<input type="email" className="captlc-input-field" placeholder={ __( 'Your Email', 'captain-live-chat' ) } disabled />
+									<input type="email" className="captlc-wd-preview__input" placeholder={ __( 'Your Email', 'captain-live-chat' ) } disabled />
 								</div>
 								<div className="captlc-field" style={ { width: '100%', marginBottom: 20 } }>
-									<textarea className="captlc-textarea" rows="2" placeholder={ __( 'Your Message', 'captain-live-chat' ) } disabled></textarea>
+									<textarea className="captlc-wd-preview__textarea" rows="2" placeholder={ __( 'Your Message', 'captain-live-chat' ) } disabled></textarea>
 								</div>
 
 								<button
@@ -203,14 +205,14 @@ const WidgetPreview = ( { design, previewScreen, deviceMode, onlineMode } ) => {
 											{ __( 'Return to Conversation', 'captain-live-chat' ) }
 										</button>
 
-										<div className="captlc-wd-preview-footer-tabs" style={ { display: 'flex', borderTop: '1px solid var(--captlc-border)', background: 'var(--captlc-bg-card)', padding: 6, gap: 6, justifyContent: 'center', marginTop: 16 } }>
+										<div className="captlc-wd-preview-footer-tabs" style={ { display: 'flex', borderTop: '1px solid #e2e8f0', background: '#ffffff', padding: 6, gap: 6, justifyContent: 'center', marginTop: 16 } }>
 											<div className="captlc-wd-preview-footer-tab is-active" style={ { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, padding: 6, borderRadius: 6, color: accent, fontSize: 10, fontWeight: 600, background: 'rgba(47, 110, 240, 0.05)' } }>
 												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
 													<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
 												</svg>
 												<span>Chat</span>
 											</div>
-											<div className="captlc-wd-preview-footer-tab" style={ { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, padding: 6, borderRadius: 6, color: 'var(--captlc-text-muted)', fontSize: 10, fontWeight: 600 } }>
+											<div className="captlc-wd-preview-footer-tab" style={ { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, padding: 6, borderRadius: 6, color: '#94a3b8', fontSize: 10, fontWeight: 600 } }>
 												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
 													<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
 												</svg>
@@ -250,10 +252,11 @@ const WidgetPreview = ( { design, previewScreen, deviceMode, onlineMode } ) => {
 								</>
 							) }
 						</>
+					) }
 				</div>
 
 				{ /* Mock launcher button at the bottom of the device container */ }
-				<div className="captlc-wd-preview-launcher-row" style={ { display: 'flex', justifyContent: design.position === 'left' ? 'flex-start' : 'flex-end', padding: '12px 16px', marginTop: 12 } }>
+				<div className="captlc-wd-preview-launcher-row" style={ { display: 'flex', justifyContent: design.position === 'left' ? 'flex-start' : 'flex-end', padding: '12px 16px', marginTop: 12, width: '100%', maxWidth: 280 } }>
 					<div
 						className="captlc-wd-preview-launcher"
 						style={ {
@@ -287,11 +290,94 @@ const WidgetDesigner = () => {
 	const [ onlineMode, setOnlineMode ] = useState( true ); // true (Online) | false (Offline)
 	const [ previewScreen, setPreviewScreen ] = useState( 'welcome' ); // welcome | chat
 
+	// Keep the live preview's tab/state in sync with the current step: Step 2
+	// edits the Welcome Screen, Step 3 edits the Chat View, Step 4 edits the
+	// Offline experience — so the preview should jump to match, and jump back
+	// online if the person steps back to 2 or 3.
+	useEffect( () => {
+		if ( step === 2 ) {
+			setPreviewScreen( 'welcome' );
+			setOnlineMode( true );
+		} else if ( step === 3 ) {
+			setPreviewScreen( 'chat' );
+			setOnlineMode( true );
+		} else if ( step === 4 ) {
+			setOnlineMode( false );
+		}
+	}, [ step ] );
+
 	const [ saving, setSaving ] = useState( false );
 	const [ loading, setLoading ] = useState( true );
 	const [ saved, setSaved ] = useState( false );
 
 	const [ quickReplyInput, setQuickReplyInput ] = useState( '' );
+
+	// ── FAQ tab (widget's "FAQ" screen) — separate option, shared across widgets ──
+	const [ faqs, setFaqs ] = useState( [] );
+	const [ faqsLoaded, setFaqsLoaded ] = useState( false );
+	const [ faqSaving, setFaqSaving ] = useState( false );
+	const [ faqSaved, setFaqSaved ] = useState( false );
+	const [ faqQuestionInput, setFaqQuestionInput ] = useState( '' );
+	const [ faqAnswerInput, setFaqAnswerInput ] = useState( '' );
+	const [ faqEditingId, setFaqEditingId ] = useState( null );
+
+	useEffect( () => {
+		ajax( 'captlc_get_faqs' )
+			.then( ( res ) => {
+				if ( res?.success ) {
+					setFaqs( res.data.faqs || [] );
+				}
+			} )
+			.catch( () => {} )
+			.finally( () => setFaqsLoaded( true ) );
+	}, [] );
+
+	const saveFaqs = ( nextFaqs ) => {
+		setFaqs( nextFaqs );
+		setFaqSaving( true );
+		ajax( 'captlc_save_faqs', { faqs: JSON.stringify( nextFaqs ) } )
+			.then( ( res ) => {
+				if ( res?.success ) {
+					setFaqs( res.data.faqs || nextFaqs );
+					setFaqSaved( true );
+					setTimeout( () => setFaqSaved( false ), 2500 );
+				}
+			} )
+			.finally( () => setFaqSaving( false ) );
+	};
+
+	const handleFaqSubmit = () => {
+		const question = faqQuestionInput.trim();
+		const answer   = faqAnswerInput.trim();
+		if ( ! question || ! answer ) return;
+
+		if ( faqEditingId ) {
+			saveFaqs( faqs.map( ( f ) => f.id === faqEditingId ? { ...f, question, answer } : f ) );
+		} else {
+			saveFaqs( [ ...faqs, { id: 'faq_' + Date.now().toString( 36 ), question, answer } ] );
+		}
+
+		setFaqQuestionInput( '' );
+		setFaqAnswerInput( '' );
+		setFaqEditingId( null );
+	};
+
+	const handleFaqEdit = ( faq ) => {
+		setFaqEditingId( faq.id );
+		setFaqQuestionInput( faq.question );
+		setFaqAnswerInput( faq.answer );
+	};
+
+	const handleFaqCancelEdit = () => {
+		setFaqEditingId( null );
+		setFaqQuestionInput( '' );
+		setFaqAnswerInput( '' );
+	};
+
+	const handleFaqDelete = ( id ) => {
+		saveFaqs( faqs.filter( ( f ) => f.id !== id ) );
+		if ( faqEditingId === id ) handleFaqCancelEdit();
+	};
 
 	// Load widgets list on mount
 	useEffect( () => {
@@ -438,23 +524,25 @@ const WidgetDesigner = () => {
 				</div>
 			</div>
 
-			{ /* ── Two column layout: active step controls + preview (dynamic column width) ── */ }
-			<div className={ `captlc-wd-layout${ step === 4 ? ' captlc-wd-layout--full' : '' }` }>
+			{ /* ── Two column layout: active step controls + preview ── */ }
+			<div className="captlc-wd-layout">
 				
 				{ /* Left Column: Active Step Controls ONLY */ }
 				<div className="captlc-wd-controls">
 					
-					{ /* Widget Name input (always visible at top of editor column) */ }
-					<div className="captlc-card" style={ { padding: '16px 20px', marginBottom: 12 } }>
-						<div className="captlc-field" style={ { marginBottom: 0 } }>
-							<label className="captlc-field__label" style={ { fontSize: 10, marginBottom: 4 } }>{ __( 'Widget Name', 'captain-live-chat' ) }</label>
-							<Input
-								value={ activeWidget.name || '' }
-								onChange={ ( e ) => updateActive( 'name', e.target.value ) }
-								placeholder={ __( 'Widget Name', 'captain-live-chat' ) }
-							/>
+				{ /* Widget Name input — only relevant while setting up appearance (step 1) */ }
+					{ step === 1 && (
+						<div className="captlc-card" style={ { padding: '16px 20px', marginBottom: 12 } }>
+							<div className="captlc-field" style={ { marginBottom: 0 } }>
+								<label className="captlc-field__label" style={ { fontSize: 10, marginBottom: 4 } }>{ __( 'Widget Name', 'captain-live-chat' ) }</label>
+								<Input
+									value={ activeWidget.name || '' }
+									onChange={ ( e ) => updateActive( 'name', e.target.value ) }
+									placeholder={ __( 'Widget Name', 'captain-live-chat' ) }
+								/>
+							</div>
 						</div>
-					</div>
+					) }
 
 					{ /* Wizard step panels */ }
 					{ step === 1 && (
@@ -519,6 +607,26 @@ const WidgetDesigner = () => {
 									) ) }
 								</div>
 							</div>
+
+							<div className="captlc-wd-section">
+								<label className="captlc-wd-label">{ __( 'Chat Panel Size', 'captain-live-chat' ) }</label>
+								<div className="captlc-wd-position-row">
+									{ [
+										{ id: 'default', label: __( 'Default', 'captain-live-chat' ) },
+										{ id: 'large',    label: __( 'Large', 'captain-live-chat' ) },
+									].map( ( size ) => (
+										<button
+											key={ size.id }
+											type="button"
+											className={ `captlc-wd-position-btn${ ( activeWidget.widget_size || 'default' ) === size.id ? ' is-active' : '' }` }
+											onClick={ () => updateActive( 'widget_size', size.id ) }
+										>
+											{ size.label }
+										</button>
+									) ) }
+								</div>
+								<p className="captlc-wd-section__hint">{ __( 'Default fits most sites. Large gives more room for longer conversations.', 'captain-live-chat' ) }</p>
+							</div>
 						</div>
 					) }
 
@@ -571,8 +679,8 @@ const WidgetDesigner = () => {
 								<div className="captlc-wd-avatar-editor animate-fade-in" style={ { background: 'var(--captlc-bg-hover)', padding: '16px', borderRadius: 8 } }>
 									<div className="captlc-wd-avatar-row" style={ { display: 'flex', gap: 14, alignItems: 'center' } }>
 										<Avatar design={ activeWidget } size={ 48 } />
-										<div style={ { flex: 1, display: 'flex', flexDirection: 'column', gap: 6 } }>
-											<div>
+										<div style={ { flex: 1, display: 'flex', gap: 10, alignItems: 'flex-end' } }>
+											<div style={ { flexShrink: 0 } }>
 												<label className="captlc-field__label" style={ { fontSize: 10 } }>{ __( 'Initials', 'captain-live-chat' ) }</label>
 												<input
 													type="text"
@@ -583,7 +691,7 @@ const WidgetDesigner = () => {
 													onChange={ ( e ) => updateActive( 'avatar_initials', e.target.value.toUpperCase() ) }
 												/>
 											</div>
-											<div>
+											<div style={ { flex: 1, minWidth: 0 } }>
 												<label className="captlc-field__label" style={ { fontSize: 10 } }>{ __( 'Custom Image URL', 'captain-live-chat' ) }</label>
 												<input
 													type="url"
@@ -670,8 +778,8 @@ const WidgetDesigner = () => {
 
 					{ step === 4 && (
 						<div className="captlc-card captlc-wd-step-card animate-fade-in">
-							<h2 className="captlc-wd-step__title">{ __( 'Widget Settings & Options', 'captain-live-chat' ) }</h2>
-							<p className="captlc-wd-step__desc">{ __( 'Configure visibility text logic, server intervals, and quick responses.', 'captain-live-chat' ) }</p>
+							<h2 className="captlc-wd-step__title">{ __( 'Offline Experience', 'captain-live-chat' ) }</h2>
+							<p className="captlc-wd-step__desc">{ __( 'What visitors see when no agent is online to reply.', 'captain-live-chat' ) }</p>
 
 							<div className="captlc-wd-section">
 								<label className="captlc-wd-label">{ __( 'Offline Welcome Message', 'captain-live-chat' ) }</label>
@@ -683,6 +791,13 @@ const WidgetDesigner = () => {
 									placeholder="Leave your message. We'll reply soon."
 								/>
 							</div>
+						</div>
+					) }
+
+					{ step === 5 && (
+						<div className="captlc-card captlc-wd-step-card animate-fade-in">
+							<h2 className="captlc-wd-step__title">{ __( 'Widget Settings & Options', 'captain-live-chat' ) }</h2>
+							<p className="captlc-wd-step__desc">{ __( 'Configure server intervals, quick responses, and the FAQ tab.', 'captain-live-chat' ) }</p>
 
 							<div className="captlc-wd-section">
 								<label className="captlc-wd-label">{ __( 'Polling Interval (Milliseconds)', 'captain-live-chat' ) }</label>
@@ -741,37 +856,87 @@ const WidgetDesigner = () => {
 									</button>
 								</div>
 							</div>
+
+							<div className="captlc-wd-subsection">
+								<h3 className="captlc-wd-subsection__title">{ __( 'FAQ tab', 'captain-live-chat' ) }</h3>
+								<p className="captlc-wd-step__desc">{ __( 'Questions & answers shown in the widget\'s FAQ tab, so visitors can find quick answers without waiting for a reply.', 'captain-live-chat' ) }</p>
+
+								<div className="captlc-wd-section">
+									<label className="captlc-wd-label">{ faqEditingId ? __( 'Edit FAQ', 'captain-live-chat' ) : __( 'Add a new FAQ', 'captain-live-chat' ) }</label>
+
+									<input
+										type="text"
+										className="captlc-input-field"
+										placeholder={ __( 'Question — e.g. How can I track my order?', 'captain-live-chat' ) }
+										value={ faqQuestionInput }
+										onChange={ ( e ) => setFaqQuestionInput( e.target.value ) }
+										style={ { marginBottom: 8 } }
+									/>
+									<textarea
+										className="captlc-input-field"
+										rows={ 3 }
+										placeholder={ __( 'Answer', 'captain-live-chat' ) }
+										value={ faqAnswerInput }
+										onChange={ ( e ) => setFaqAnswerInput( e.target.value ) }
+										style={ { marginBottom: 8, resize: 'vertical' } }
+									/>
+
+									<div style={ { display: 'flex', gap: 8 } }>
+										<button
+											type="button"
+											className="captlc-primary-button"
+											disabled={ ! faqQuestionInput.trim() || ! faqAnswerInput.trim() || faqSaving }
+											onClick={ handleFaqSubmit }
+										>
+											{ faqEditingId ? __( 'Save changes', 'captain-live-chat' ) : __( '+ Add FAQ', 'captain-live-chat' ) }
+										</button>
+										{ faqEditingId && (
+											<button type="button" className="captlc-secondary-button" onClick={ handleFaqCancelEdit }>
+												{ __( 'Cancel', 'captain-live-chat' ) }
+											</button>
+										) }
+										{ faqSaved && <span style={ { alignSelf: 'center', fontSize: 12, color: 'var(--captlc-success-text, #16a34a)' } }>{ __( '✓ Saved', 'captain-live-chat' ) }</span> }
+									</div>
+								</div>
+
+								<div className="captlc-wd-section">
+									<label className="captlc-wd-label">{ __( 'Current FAQs', 'captain-live-chat' ) }</label>
+
+									{ faqsLoaded && ! faqs.length && (
+										<p className="captlc-wd-section__hint">{ __( 'No FAQs yet — add your first one above.', 'captain-live-chat' ) }</p>
+									) }
+
+									<div className="captlc-wd-faq-list">
+										{ faqs.map( ( faq ) => (
+											<div key={ faq.id } className="captlc-wd-faq-row">
+												<div className="captlc-wd-faq-row__text">
+													<strong>{ faq.question }</strong>
+													<span>{ faq.answer }</span>
+												</div>
+												<div className="captlc-wd-faq-row__actions">
+													<button type="button" className="captlc-secondary-button" onClick={ () => handleFaqEdit( faq ) }>{ __( 'Edit', 'captain-live-chat' ) }</button>
+													<button type="button" className="captlc-secondary-button captlc-wd-faq-row__delete" onClick={ () => handleFaqDelete( faq.id ) }>{ __( 'Delete', 'captain-live-chat' ) }</button>
+												</div>
+											</div>
+										) ) }
+									</div>
+								</div>
+							</div>
 						</div>
 					) }
 
+
 				</div>
 
-				{ /* Right Column: Live Preview (Conditional: hidden on step 4 Settings) */ }
-				{ step !== 4 && (
-					<div className="captlc-wd-preview-col">
+				{ /* Right Column: Live Preview */ }
+				<div className="captlc-wd-preview-col">
 						
-						{ /* Preview Controls Bar */ }
-						<div className="captlc-wd-preview-toolbar">
-							
-							{ /* Online / Offline switch */ }
-							<div className="captlc-wd-preview-status-toggles">
-								<button
-									type="button"
-									className={ `captlc-wd-toolbar-btn${ onlineMode ? ' is-active' : '' }` }
-									onClick={ () => setOnlineMode( true ) }
-								>
-									<span className="captlc-status-dot is-online"></span>
-									{ __( 'Online', 'captain-live-chat' ) }
-								</button>
-								<button
-									type="button"
-									className={ `captlc-wd-toolbar-btn${ ! onlineMode ? ' is-active' : '' }` }
-									onClick={ () => setOnlineMode( false ) }
-								>
-									<span className="captlc-status-dot"></span>
-									{ __( 'Offline', 'captain-live-chat' ) }
-								</button>
-							</div>
+						{ /* Live preview label — the preview itself now auto-switches to
+						    match whichever step you're on (Welcome/Chat/Offline), so no manual
+						    state toggles are needed here. Device size is still switchable via
+						    the icons next to it. */ }
+						<div className="captlc-wd-preview-screen-tabs">
+							<span className="captlc-wd-preview-label-tag">{ __( 'LIVE PREVIEW', 'captain-live-chat' ) }</span>
 
 							{ /* Device toggle */ }
 							<div className="captlc-wd-preview-device-toggles">
@@ -781,7 +946,11 @@ const WidgetDesigner = () => {
 									onClick={ () => setDeviceMode( 'desktop' ) }
 									title={ __( 'Desktop View', 'captain-live-chat' ) }
 								>
-									💻
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="15" height="15">
+										<rect x="2" y="3" width="20" height="14" rx="2"/>
+										<line x1="8" y1="21" x2="16" y2="21"/>
+										<line x1="12" y1="17" x2="12" y2="21"/>
+									</svg>
 								</button>
 								<button
 									type="button"
@@ -789,24 +958,12 @@ const WidgetDesigner = () => {
 									onClick={ () => setDeviceMode( 'mobile' ) }
 									title={ __( 'Mobile View', 'captain-live-chat' ) }
 								>
-									📱
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="15" height="15">
+										<rect x="6" y="2" width="12" height="20" rx="2"/>
+										<line x1="11" y1="18" x2="13" y2="18"/>
+									</svg>
 								</button>
 							</div>
-						</div>
-
-						{ /* Live preview label & tabs selector */ }
-						<div className="captlc-wd-preview-screen-tabs">
-							<span className="captlc-wd-preview-label-tag">{ __( 'LIVE PREVIEW', 'captain-live-chat' ) }</span>
-							{ onlineMode && (
-								<div className="captlc-wd-preview-view-selector">
-									<button type="button" className={ previewScreen === 'welcome' ? 'is-active' : '' } onClick={ () => setPreviewScreen( 'welcome' ) }>
-										{ __( 'Welcome Screen', 'captain-live-chat' ) }
-									</button>
-									<button type="button" className={ previewScreen === 'chat' ? 'is-active' : '' } onClick={ () => setPreviewScreen( 'chat' ) }>
-										{ __( 'Chat View', 'captain-live-chat' ) }
-									</button>
-								</div>
-							) }
 						</div>
 
 						{ /* Preview rendering frame */ }
@@ -817,7 +974,6 @@ const WidgetDesigner = () => {
 							onlineMode={ onlineMode }
 						/>
 					</div>
-				)}
 
 			</div>
 		</div>
