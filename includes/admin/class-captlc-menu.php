@@ -22,25 +22,6 @@ if ( ! class_exists( 'Captlc_Menu' ) ) {
 	class Captlc_Menu {
 
 		/**
-		 * Member Variable
-		 *
-		 * @var instance
-		 */
-		private static $instance;
-
-		/**
-		 * Initiator
-		 *
-		 * @since 1.0.0
-		 */
-		public static function get_instance() {
-			if ( ! isset( self::$instance ) ) {
-				self::$instance = new self();
-			}
-			return self::$instance;
-		}
-
-		/**
 		 * Constructor — registers hooks.
 		 *
 		 * @since 1.0.0
@@ -310,6 +291,4 @@ if ( ! class_exists( 'Captlc_Menu' ) ) {
 			);
 		}
 	}
-
-	Captlc_Menu::get_instance();
 }
