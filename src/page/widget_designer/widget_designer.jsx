@@ -512,7 +512,7 @@ const WidgetDesigner = () => {
 							className="captlc-primary-button"
 							onClick={ handleNext }
 						>
-							{ __( 'Next', 'captain-live-chat' ) } →
+							{ __( 'Next', 'captain-live-chat' ) } <span className="captlc-dir-arrow" aria-hidden="true">→</span>
 						</button>
 					) : (
 						<Primary_button
@@ -534,8 +534,9 @@ const WidgetDesigner = () => {
 					{ step === 1 && (
 						<div className="captlc-card" style={ { padding: '16px 20px', marginBottom: 12 } }>
 							<div className="captlc-field" style={ { marginBottom: 0 } }>
-								<label className="captlc-field__label" style={ { fontSize: 10, marginBottom: 4 } }>{ __( 'Widget Name', 'captain-live-chat' ) }</label>
+								<label className="captlc-field__label" htmlFor="captlc-wd-name" style={ { fontSize: 10, marginBottom: 4 } }>{ __( 'Widget Name', 'captain-live-chat' ) }</label>
 								<Input
+									id="captlc-wd-name"
 									value={ activeWidget.name || '' }
 									onChange={ ( e ) => updateActive( 'name', e.target.value ) }
 									placeholder={ __( 'Widget Name', 'captain-live-chat' ) }
@@ -681,8 +682,9 @@ const WidgetDesigner = () => {
 										<Avatar design={ activeWidget } size={ 48 } />
 										<div style={ { flex: 1, display: 'flex', gap: 10, alignItems: 'flex-end' } }>
 											<div style={ { flexShrink: 0 } }>
-												<label className="captlc-field__label" style={ { fontSize: 10 } }>{ __( 'Initials', 'captain-live-chat' ) }</label>
+												<label className="captlc-field__label" htmlFor="captlc-wd-initials" style={ { fontSize: 10 } }>{ __( 'Initials', 'captain-live-chat' ) }</label>
 												<input
+													id="captlc-wd-initials"
 													type="text"
 													className="captlc-input-field"
 													style={ { width: 50, padding: 6, textAlign: 'center' } }
@@ -692,8 +694,9 @@ const WidgetDesigner = () => {
 												/>
 											</div>
 											<div style={ { flex: 1, minWidth: 0 } }>
-												<label className="captlc-field__label" style={ { fontSize: 10 } }>{ __( 'Custom Image URL', 'captain-live-chat' ) }</label>
+												<label className="captlc-field__label" htmlFor="captlc-wd-image-url" style={ { fontSize: 10 } }>{ __( 'Custom Image URL', 'captain-live-chat' ) }</label>
 												<input
+													id="captlc-wd-image-url"
 													type="url"
 													className="captlc-input-field"
 													placeholder="https://example.com/avatar.jpg"

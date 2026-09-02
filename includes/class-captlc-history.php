@@ -24,6 +24,35 @@ class CAPTLC_History {
 		add_action( 'wp_ajax_captlc_get_thread_messages', array( $this, 'get_thread_messages' ) );
 		add_action( 'wp_ajax_captlc_get_older_thread_messages', array( $this, 'get_older_thread_messages' ) );
 		add_action( 'wp_ajax_captlc_export_history', array( $this, 'export_history' ) );
+		add_action( 'wp_ajax_captlc_permanently_delete_thread', array( $this, 'permanently_delete_thread' ) );
+	}
+
+	/**
+	 * Permanently erases a thread and its messages — unlike the Inbox's
+	 * "Remove from Inbox" (a soft delete), this is irreversible and also
+	 * removes the thread from History. Confirmed client-side before this
+	 * call is made; kept admin-only and separate from the Inbox's delete
+	 * action on purpose, so permanent erasure is always a deliberate,
+	 * harder-to-reach step.
+	 *
+	 * @return void
+	 */
+	public function permanently_delete_thread() {
+		check_ajax_referer( CAPTLC_Ajax::NONCE_ACTION, 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'captain-live-chat' ) ), 403 );
+		}
+
+		$thread_id = isset( $_POST['thread_id'] ) ? absint( $_POST['thread_id'] ) : 0;
+
+		if ( ! $thread_id ) {
+			wp_send_json_error( array( 'message' => __( 'Missing thread.', 'captain-live-chat' ) ) );
+		}
+
+		CAPTLC_DB::hard_delete_thread( $thread_id );
+
+		wp_send_json_success();
 	}
 
 	/**

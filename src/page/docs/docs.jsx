@@ -242,6 +242,40 @@ const DOCS = [
 			},
 		],
 	},
+	{
+		key: 'mcp',
+		icon: '🔌',
+		title: __( 'MCP — Connecting AI Assistants', 'captain-live-chat' ),
+		desc: __( 'Let tools like Claude or Cursor manage your live chat through natural language.', 'captain-live-chat' ),
+		badge_color: '#6366f1',
+		badge_label: __( 'Admin Only', 'captain-live-chat' ),
+		intro: __( 'MCP exposes Captain Live Chat\u2019s features \u2014 threads, replies, canned responses, knowledge base, and more \u2014 as WordPress Abilities, using the native Abilities API built into WordPress core. AI assistants connect through a separate bridge plugin you choose, so you\u2019re never locked into one specific AI tool.', 'captain-live-chat' ),
+		note: __( 'This page requires WordPress 6.9 or newer (Abilities API) and is only visible to Administrators. Everything else in the plugin works normally without it.', 'captain-live-chat' ),
+		note_type: 'warning',
+		steps: [
+			{
+				title: __( 'Open the MCP page', 'captain-live-chat' ),
+				body: __( 'Go to MCP in the sidebar menu. If your site is running WordPress 6.9+, you\u2019ll see the AI Access switch and a list of abilities grouped by category (Conversations, AI Auto-Reply, Content, Configuration, Insights).', 'captain-live-chat' ),
+			},
+			{
+				title: __( 'Check the AI Access switch', 'captain-live-chat' ),
+				body: __( 'This master switch is on by default. Turn it off any time to fully block AI clients from this plugin, regardless of which abilities below are individually enabled.', 'captain-live-chat' ),
+			},
+			{
+				title: __( 'Review individual abilities', 'captain-live-chat' ),
+				body: __( 'Read-only abilities (marked READ-ONLY) are on by default \u2014 they\u2019re safe for an assistant to use freely. Abilities marked DESTRUCTIVE (like deleting a thread) are off by default; turn them on only if you want an AI assistant to be able to take that action.', 'captain-live-chat' ),
+				tip: __( 'Every ability still requires an administrator account to execute \u2014 there\u2019s no lower-privilege tier.', 'captain-live-chat' ),
+			},
+			{
+				title: __( 'Install an MCP bridge plugin', 'captain-live-chat' ),
+				body: __( 'Captain Live Chat only registers Abilities \u2014 it doesn\u2019t run its own MCP server. Install any general-purpose, Abilities-API-aware bridge plugin (for example, the official WordPress MCP Adapter) once for your whole site; it will pick up these abilities automatically, alongside any other plugin\u2019s abilities.', 'captain-live-chat' ),
+			},
+			{
+				title: __( 'Connect your AI client', 'captain-live-chat' ),
+				body: __( 'Follow your chosen bridge plugin\u2019s own instructions to connect Claude Desktop, Cursor, or another MCP client to your site. From there you can ask it things like \u201cshow me today\u2019s unread chats\u201d or \u201cclose thread #42.\u201d', 'captain-live-chat' ),
+			},
+		],
+	},
 ];
 
 // ─── Guide List Item (left sidebar) ──────────────────────────────────────────
@@ -259,7 +293,7 @@ const Step = ( { step, index } ) => (
 	<div className="captlc-docs-step">
 		<div className="captlc-docs-step-num">{ index + 1 }</div>
 		<div className="captlc-docs-step-body">
-			<h4 className="captlc-docs-step-title">{ step.title }</h4>
+			<h3 className="captlc-docs-step-title">{ step.title }</h3>
 			<p className="captlc-docs-step-desc">{ step.body }</p>
 
 			{ step.tip && (
@@ -276,7 +310,7 @@ const Step = ( { step, index } ) => (
 const DocDetail = ( { doc, onBack } ) => (
 	<div className="captlc-docs-detail">
 		<div className="captlc-docs-detail-breadcrumb">
-			<button className="captlc-docs-back-btn" onClick={ onBack }>← { __( 'All Guides', 'captain-live-chat' ) }</button>
+			<button className="captlc-docs-back-btn" onClick={ onBack }><span className="captlc-dir-arrow" aria-hidden="true">←</span> { __( 'All Guides', 'captain-live-chat' ) }</button>
 			<span className="captlc-docs-detail-badge" style={ { background: doc.badge_color + '18', color: doc.badge_color } }>
 				{ doc.badge_label }
 			</span>

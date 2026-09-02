@@ -66,7 +66,7 @@ const Help = () => {
 					<span className="captlc-help-card__icon"><IconDoc /></span>
 					<h3>{ __( 'Documentation', 'captain-live-chat' ) }</h3>
 					<p>{ __( 'Read our full plugin documentation to learn all available features.', 'captain-live-chat' ) }</p>
-					<span className="captlc-help-card__link">{ __( 'View Docs', 'captain-live-chat' ) } →</span>
+					<span className="captlc-help-card__link">{ __( 'View Docs', 'captain-live-chat' ) } <span className="captlc-dir-arrow" aria-hidden="true">→</span></span>
 				</Link>
 
 				<a
@@ -78,7 +78,7 @@ const Help = () => {
 					<span className="captlc-help-card__icon"><IconSupport /></span>
 					<h3>{ __( 'Support', 'captain-live-chat' ) }</h3>
 					<p>{ __( 'Open a support ticket and our team will get back to you quickly.', 'captain-live-chat' ) }</p>
-					<span className="captlc-help-card__link">{ __( 'Get Support', 'captain-live-chat' ) } →</span>
+					<span className="captlc-help-card__link">{ __( 'Get Support', 'captain-live-chat' ) } <span className="captlc-dir-arrow" aria-hidden="true">→</span></span>
 				</a>
 
 				<a
@@ -90,7 +90,7 @@ const Help = () => {
 					<span className="captlc-help-card__icon"><IconStar /></span>
 					<h3>{ __( 'Rate Us', 'captain-live-chat' ) }</h3>
 					<p>{ __( 'Enjoying the plugin? Leave us a 5-star review on WordPress.org!', 'captain-live-chat' ) }</p>
-					<span className="captlc-help-card__link">{ __( 'Rate Plugin', 'captain-live-chat' ) } →</span>
+					<span className="captlc-help-card__link">{ __( 'Rate Plugin', 'captain-live-chat' ) } <span className="captlc-dir-arrow" aria-hidden="true">→</span></span>
 				</a>
 			</div>
 

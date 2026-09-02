@@ -322,8 +322,9 @@ const Profile = () => {
 						</div>
 
 						<div className="captlc-field captlc-profile__avatar-availability-select">
-							<label className="captlc-field__label">{ __( 'Availability', 'captain-live-chat' ) }</label>
+							<label className="captlc-field__label" htmlFor="captlc-profile-availability">{ __( 'Availability', 'captain-live-chat' ) }</label>
 							<select
+								id="captlc-profile-availability"
 								className="captlc-select"
 								value={ availabilityMode }
 								onChange={ ( e ) => {
@@ -358,8 +359,9 @@ const Profile = () => {
 						<h2 className="captlc-card__title">{ __( 'Profile Details', 'captain-live-chat' ) }</h2>
 						<div className="captlc-profile__form-row">
 							<div className="captlc-field">
-								<label className="captlc-field__label">{ __( 'Company Name', 'captain-live-chat' ) }</label>
+								<label className="captlc-field__label" htmlFor="captlc-profile-company">{ __( 'Company Name', 'captain-live-chat' ) }</label>
 								<Input
+									id="captlc-profile-company"
 									value={ companyName }
 									onChange={ ( e ) => setCompanyName( e.target.value ) }
 									onBlur={ () => scheduleSave() }
@@ -368,8 +370,9 @@ const Profile = () => {
 							</div>
 
 							<div className="captlc-field">
-								<label className="captlc-field__label">{ __( 'Country', 'captain-live-chat' ) }</label>
+								<label className="captlc-field__label" htmlFor="captlc-profile-country">{ __( 'Country', 'captain-live-chat' ) }</label>
 								<select
+									id="captlc-profile-country"
 									className="captlc-select"
 									value={ country }
 									onChange={ ( e ) => { setCountry( e.target.value ); saveNow( { country: e.target.value } ); } }
@@ -382,8 +385,9 @@ const Profile = () => {
 							</div>
 
 							<div className="captlc-field captlc-field--full">
-								<label className="captlc-field__label">{ __( 'Address', 'captain-live-chat' ) }</label>
+								<label className="captlc-field__label" htmlFor="captlc-profile-address">{ __( 'Address', 'captain-live-chat' ) }</label>
 								<textarea
+									id="captlc-profile-address"
 									className="captlc-input-field"
 									rows={ 2 }
 									value={ address }
@@ -394,8 +398,9 @@ const Profile = () => {
 							</div>
 
 							<div className="captlc-field">
-								<label className="captlc-field__label">{ __( 'Preferred Chat Language', 'captain-live-chat' ) }</label>
+								<label className="captlc-field__label" htmlFor="captlc-profile-language">{ __( 'Preferred Chat Language', 'captain-live-chat' ) }</label>
 								<select
+									id="captlc-profile-language"
 									className="captlc-select"
 									value={ preferredLanguage }
 									onChange={ ( e ) => { setPreferredLanguage( e.target.value ); saveNow( { preferredLanguage: e.target.value } ); } }

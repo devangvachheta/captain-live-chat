@@ -159,7 +159,7 @@
 	width: 10px;
 	height: 10px;
 	border-radius: 50%;
-	margin-right: 6px;
+	margin-inline-end: 6px;
 
 	&--open   { background: var(--captlc-success-text); }
 	&--closed { background: var(--captlc-text-muted); }
@@ -223,5 +223,5 @@
 	font-weight: 700;
 	color: var(--captlc-text-primary);
 	min-width: 32px;
-	text-align: right;
+	text-align: end;
 }

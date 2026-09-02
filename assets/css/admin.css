@@ -16,6 +16,7 @@
 
 #wpcontent {
 	padding-left: 0 !important;
+	padding-right: 0 !important; /* RTL: WP core applies padding-right instead of padding-left */
 }
 
 /* ── Full-height mount point ────────────────────────────────────────────── */

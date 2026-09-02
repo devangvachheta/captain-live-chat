@@ -33,6 +33,7 @@ const History = () => {
 	const [ exporting, setExporting ] = useState( false );
 	const [ page, setPage ]           = useState( 1 );
 	const [ totalPages, setTotalPages ] = useState( 1 );
+	const [ deletingId, setDeletingId ] = useState( null );
 
 	const PER_PAGE = 20;
 
@@ -114,6 +115,24 @@ const History = () => {
 			.finally( () => setExporting( false ) );
 	};
 
+	const permanentlyDelete = ( thread, e ) => {
+		e.stopPropagation();
+		if ( ! window.confirm( __( 'Permanently erase this conversation? This removes it from History for good and cannot be undone.', 'captain-live-chat' ) ) ) return;
+
+		setDeletingId( thread.id );
+		ajax( 'captlc_permanently_delete_thread', { thread_id: thread.id } )
+			.then( ( res ) => {
+				if ( res?.success ) {
+					setThreads( ( prev ) => prev.filter( ( t ) => t.id !== thread.id ) );
+					if ( expanded === thread.id ) setExpanded( null );
+				} else {
+					window.alert( res?.data?.message || __( 'Could not delete the conversation.', 'captain-live-chat' ) );
+				}
+			} )
+			.catch( () => window.alert( __( 'Network error — could not delete the conversation.', 'captain-live-chat' ) ) )
+			.finally( () => setDeletingId( null ) );
+	};
+
 	return (
 		<div className="captlc-history">
 			<div className="captlc-main__header">
@@ -135,8 +154,9 @@ const History = () => {
 			<div className="captlc-card captlc-history__filters">
 				<div className="captlc-history__filter-row">
 					<div className="captlc-field captlc-field--grow">
-						<label className="captlc-field__label">{ __( 'Search', 'captain-live-chat' ) }</label>
+						<label className="captlc-field__label" htmlFor="captlc-history-search">{ __( 'Search', 'captain-live-chat' ) }</label>
 						<Input
+							id="captlc-history-search"
 							placeholder={ __( 'Visitor name or email…', 'captain-live-chat' ) }
 							value={ search }
 							onChange={ ( e ) => setSearch( e.target.value ) }
@@ -144,8 +164,9 @@ const History = () => {
 					</div>
 
 					<div className="captlc-field">
-						<label className="captlc-field__label">{ __( 'Status', 'captain-live-chat' ) }</label>
+						<label className="captlc-field__label" htmlFor="captlc-history-status">{ __( 'Status', 'captain-live-chat' ) }</label>
 						<select
+							id="captlc-history-status"
 							className="captlc-select"
 							value={ status }
 							onChange={ ( e ) => setStatus( e.target.value ) }
@@ -157,8 +178,9 @@ const History = () => {
 					</div>
 
 					<div className="captlc-field">
-						<label className="captlc-field__label">{ __( 'From', 'captain-live-chat' ) }</label>
+						<label className="captlc-field__label" htmlFor="captlc-history-from">{ __( 'From', 'captain-live-chat' ) }</label>
 						<input
+							id="captlc-history-from"
 							type="date"
 							className="captlc-input-field"
 							value={ dateFrom }
@@ -167,8 +189,9 @@ const History = () => {
 					</div>
 
 					<div className="captlc-field">
-						<label className="captlc-field__label">{ __( 'To', 'captain-live-chat' ) }</label>
+						<label className="captlc-field__label" htmlFor="captlc-history-to">{ __( 'To', 'captain-live-chat' ) }</label>
 						<input
+							id="captlc-history-to"
 							type="date"
 							className="captlc-input-field"
 							value={ dateTo }
@@ -215,6 +238,11 @@ const History = () => {
 												<span className={ `captlc-history__badge captlc-history__badge--${ t.status }` }>
 													{ t.status }
 												</span>
+												{ t.deleted_at && (
+													<span className="captlc-history__badge captlc-history__badge--removed">
+														{ __( 'Removed from Inbox', 'captain-live-chat' ) }
+													</span>
+												) }
 											</td>
 											<td>{ [ t.browser, t.device ].filter( Boolean ).join( ' / ' ) || '—' }</td>
 											<td>{ t.created_at ? t.created_at.slice( 0, 10 ) : '—' }</td>
@@ -254,6 +282,17 @@ const History = () => {
 															</div>
 														) ) }
 													</div>
+
+													<div className="captlc-history__detail-actions">
+														<button
+															type="button"
+															className="captlc-history__delete-btn"
+															onClick={ ( e ) => permanentlyDelete( t, e ) }
+															disabled={ deletingId === t.id }
+														>
+															🗑 { deletingId === t.id ? __( 'Deleting…', 'captain-live-chat' ) : __( 'Delete Permanently', 'captain-live-chat' ) }
+														</button>
+													</div>
 												</td>
 											</tr>
 										) }
@@ -270,7 +309,9 @@ const History = () => {
 									className="captlc-secondary-button"
 									disabled={ page <= 1 }
 									onClick={ () => setPage( ( p ) => p - 1 ) }
-								>← { __( 'Prev', 'captain-live-chat' ) }</button>
+								>
+									<span className="captlc-dir-arrow" aria-hidden="true">←</span> { __( 'Prev', 'captain-live-chat' ) }
+								</button>
 
 								<span className="captlc-history__page-info">
 									{ page } / { totalPages }
@@ -281,7 +322,9 @@ const History = () => {
 									className="captlc-secondary-button"
 									disabled={ page >= totalPages }
 									onClick={ () => setPage( ( p ) => p + 1 ) }
-								>{ __( 'Next', 'captain-live-chat' ) } →</button>
+								>
+									{ __( 'Next', 'captain-live-chat' ) } <span className="captlc-dir-arrow" aria-hidden="true">→</span>
+								</button>
 							</div>
 						) }
 					</>

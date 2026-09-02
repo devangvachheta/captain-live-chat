@@ -96,7 +96,7 @@
 	font-size: 13px;
 
 	th {
-		text-align: left;
+		text-align: start;
 		padding: 12px 16px;
 		font-size: 11px;
 		font-weight: 700;
@@ -146,6 +146,12 @@
 		background: var(--captlc-bg-component);
 		color: var(--captlc-text-muted);
 	}
+
+	&--removed {
+		background: var(--captlc-warning-bg);
+		color: var(--captlc-warning-text);
+		margin-inline-start: 6px;
+	}
 }
 
 .captlc-history__chevron {
@@ -157,6 +163,38 @@
 .captlc-history__detail-row td {
 	padding: 0;
 	background: var(--captlc-bg-secondary);
+}
+
+.captlc-history__detail-actions {
+	display: flex;
+	justify-content: flex-end;
+	padding: 10px 24px 16px;
+	border-top: 1px solid var(--captlc-border);
+}
+
+.captlc-history__delete-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 7px 14px;
+	border-radius: $rs_small;
+	border: 1px solid var(--captlc-error-text);
+	background: var(--captlc-error-bg);
+	color: var(--captlc-error-text);
+	font-size: 12.5px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: $transition;
+
+	&:hover:not(:disabled) {
+		background: var(--captlc-error-text);
+		color: #fff;
+	}
+
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
 }
 
 .captlc-history__messages {

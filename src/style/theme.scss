@@ -33,7 +33,7 @@
 	// Text
 	--captlc-text-primary:     #2C3338;
 	--captlc-text-secondary:   #6b7280;
-	--captlc-text-muted:       #a7a7a7;
+	--captlc-text-muted:       #6e6e6e;
 	--captlc-text-inverse:     #ffffff;
 
 	// Borders
@@ -179,6 +179,8 @@
 .wp-core-ui [data-captlc-theme="dark"] input[type="text"],
 .wp-core-ui [data-captlc-theme="dark"] input[type="email"],
 .wp-core-ui [data-captlc-theme="dark"] input[type="date"],
+.wp-core-ui [data-captlc-theme="dark"] input[type="url"],
+.wp-core-ui [data-captlc-theme="dark"] input[type="password"],
 .wp-core-ui [data-captlc-theme="dark"] textarea {
 	background: var(--captlc-bg-input) !important;
 	color: var(--captlc-text-primary) !important;

@@ -65,7 +65,7 @@
 	.captlc-thread-item__badge {
 		position: absolute;
 		top: 6px;
-		right: 10px;
+		inset-inline-end: 10px;
 		min-width: 16px;
 		height: 16px;
 		font-size: 9px;
@@ -74,14 +74,14 @@
 
 /* ── Thread list ────────────────────────────────────────────────────── */
 .captlc-inbox__list {
-	border-right: 1px solid var(--captlc-border);
+	border-inline-end: 1px solid var(--captlc-border);
 	overflow-y: auto;
 	display: flex;
 	flex-direction: column;
 	background: var(--captlc-bg-secondary);
 
 	@media screen and (max-width: 900px) {
-		border-right: none;
+		border-inline-end: none;
 		border-bottom: 1px solid var(--captlc-border);
 		max-height: 260px;
 	}
@@ -158,7 +158,7 @@
 	border: none;
 	border-bottom: 1px solid var(--captlc-border);
 	color: var(--captlc-text-primary);
-	text-align: left;
+	text-align: start;
 	cursor: pointer;
 	font-family: inherit;
 	transition: $transition;
@@ -167,7 +167,7 @@
 	&:hover { background: var(--captlc-bg-hover); }
 	&.is-active {
 		background: var(--captlc-bg-active);
-		border-right: 3px solid var(--captlc-primary);
+		border-inline-end: 3px solid var(--captlc-primary);
 	}
 }
 
@@ -189,7 +189,7 @@
 .captlc-thread-item__dot {
 	position: absolute;
 	bottom: -1px;
-	right: -1px;
+	inset-inline-end: -1px;
 	width: 9px;
 	height: 9px;
 	border-radius: 50%;
@@ -358,14 +358,14 @@
 	background: var(--captlc-bg-card);
 	color: var(--captlc-text-primary);
 	border: 1px solid var(--captlc-border);
-	border-bottom-left-radius: 4px;
+	border-end-start-radius: 4px;
 }
 
 .captlc-msg--agent {
 	align-self: flex-end;
 	background: var(--captlc-primary);
 	color: #fff;
-	border-bottom-right-radius: 4px;
+	border-end-end-radius: 4px;
 }
 
 .captlc-msg__attachment {
@@ -447,6 +447,11 @@
 	border-radius: $rs_large;
 	margin: 12px 16px;
 	background: var(--captlc-bg-card);
+	transition: border-color 0.15s ease;
+
+	&:focus-within {
+		border-color: var(--captlc-primary);
+	}
 }
 
 .captlc-reply-textarea {
@@ -527,7 +532,7 @@
 	border: none;
 	border-bottom: 1px solid var(--captlc-border);
 	cursor: pointer;
-	text-align: left;
+	text-align: start;
 	font-family: inherit;
 	transition: $transition;
 
@@ -558,7 +563,7 @@
 .captlc-toast {
 	position: fixed;
 	bottom: 28px;
-	right: 28px;
+	inset-inline-end: 28px;
 	z-index: 9999;
 	display: flex;
 	align-items: center;
@@ -593,7 +598,7 @@
 	padding: 0;
 	line-height: 1;
 	opacity: 0.7;
-	margin-left: auto;
+	margin-inline-start: auto;
 	&:hover { opacity: 1; }
 }
 
@@ -642,6 +647,11 @@
 	border-bottom: 1px solid var(--captlc-border);
 	background: var(--captlc-bg-card);
 	min-height: 42px;
+	transition: box-shadow 0.15s ease;
+
+	&:focus-within {
+		box-shadow: inset 0 -2px 0 var(--captlc-primary);
+	}
 }
 
 .captlc-tag {
@@ -876,7 +886,7 @@
 .captlc-msg-menu {
 	position: absolute;
 	top: 100%;
-	right: 0;
+	inset-inline-end: 0;
 	margin-top: 4px;
 	min-width: 190px;
 	background: var(--captlc-bg-card);
@@ -888,8 +898,8 @@
 }
 
 .captlc-msg-row--visitor .captlc-msg-menu {
-	right: auto;
-	left: 0;
+	inset-inline-end: auto;
+	inset-inline-start: 0;
 }
 
 .captlc-msg-menu__item {
@@ -901,7 +911,7 @@
 	background: transparent;
 	border: none;
 	cursor: pointer;
-	text-align: left;
+	text-align: start;
 	font-family: inherit;
 	font-size: 13px;
 	color: var(--captlc-text-primary);
@@ -1082,7 +1092,7 @@
 .captlc-dropdown {
 	position: absolute;
 	top: 100%;
-	right: 0;
+	inset-inline-end: 0;
 	margin-top: 6px;
 	min-width: 200px;
 	max-height: 280px;
@@ -1096,14 +1106,14 @@
 }
 
 .captlc-dropdown--right {
-	right: 0;
-	left: auto;
+	inset-inline-end: 0;
+	inset-inline-start: auto;
 }
 
 .captlc-dropdown__item {
 	display: block;
 	width: 100%;
-	text-align: left;
+	text-align: start;
 	padding: 8px 10px;
 	background: transparent;
 	border: none;
@@ -1134,7 +1144,7 @@
 	position: relative;
 	width: 280px;
 	flex-shrink: 0;
-	border-left: 1px solid var(--captlc-border);
+	border-inline-start: 1px solid var(--captlc-border);
 	background: var(--captlc-bg-card);
 	overflow-y: auto;
 	padding: 24px 18px 18px;
@@ -1167,7 +1177,7 @@
 .captlc-contact-sidebar__close {
 	position: absolute;
 	top: 10px;
-	right: 10px;
+	inset-inline-end: 10px;
 	background: transparent;
 	border: none;
 	cursor: pointer;
@@ -1208,7 +1218,7 @@
 
 .captlc-sidebar-section {
 	width: 100%;
-	text-align: left;
+	text-align: start;
 	padding-top: 16px;
 	margin-top: 16px;
 	border-top: 1px solid var(--captlc-border);
@@ -1292,7 +1302,7 @@
 .captlc-sidebar-row__custom-remove {
 	position: absolute;
 	top: 4px;
-	right: 4px;
+	inset-inline-end: 4px;
 	width: 18px;
 	height: 18px;
 	display: inline-flex;
@@ -1392,7 +1402,7 @@
 @media (max-width: 900px) {
 	.captlc-contact-sidebar {
 		position: absolute;
-		right: 0;
+		inset-inline-end: 0;
 		top: 0;
 		bottom: 0;
 		z-index: 90;

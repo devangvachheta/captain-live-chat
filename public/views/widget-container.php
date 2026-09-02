@@ -69,23 +69,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 			
 			<!-- Bottom Tabs Menu (Chatway Style) -->
 			<div class="captlc-widget__footer-tabs">
-				<button type="button" class="captlc-widget__footer-tab is-active" data-tab="chat">
+				<button type="button" class="captlc-widget__footer-tab is-active" data-tab="chat" aria-pressed="true">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
 						<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
 					</svg>
-					<span>Chat</span>
+					<span><?php esc_html_e( 'Chat', 'captain-live-chat' ); ?></span>
 				</button>
-				<button type="button" class="captlc-widget__footer-tab" data-tab="faq">
+				<button type="button" class="captlc-widget__footer-tab" data-tab="faq" aria-pressed="false">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
 						<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
 					</svg>
-					<span>FAQ</span>
+					<span><?php esc_html_e( 'FAQ', 'captain-live-chat' ); ?></span>
 				</button>
 			</div>
 
+			<?php if ( ! empty( $show_branding ) ) : ?>
 			<div class="captlc-widget__branding">
-				Powered by <span style="font-weight:700;">Captain Live Chat</span>
+				<?php esc_html_e( 'Powered by', 'captain-live-chat' ); ?> <span style="font-weight:700;">Captain Live Chat</span>
 			</div>
+			<?php endif; ?>
 		</div>
 
 		<!-- SCREEN 2: Pre-chat Form -->
@@ -103,9 +105,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<button type="submit" class="captlc-widget__send-btn" id="captlc-prechat-submit" style="background:var(--captlcw-accent);"></button>
 			</form>
 
+			<?php if ( ! empty( $show_branding ) ) : ?>
 			<div class="captlc-widget__branding">
-				Powered by <span style="font-weight:700;">Captain Live Chat</span>
+				<?php esc_html_e( 'Powered by', 'captain-live-chat' ); ?> <span style="font-weight:700;">Captain Live Chat</span>
 			</div>
+			<?php endif; ?>
 		</div>
 
 		<!-- SCREEN 3: Active Chat conversation -->
@@ -200,9 +204,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</button>
 			</div>
 
+			<?php if ( ! empty( $show_branding ) ) : ?>
 			<div class="captlc-widget__branding">
-				Powered by <span style="font-weight:700;">Captain Live Chat</span>
+				<?php esc_html_e( 'Powered by', 'captain-live-chat' ); ?> <span style="font-weight:700;">Captain Live Chat</span>
 			</div>
+			<?php endif; ?>
 		</div>
 
 	</div>

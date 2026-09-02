@@ -40,6 +40,7 @@ class CAPTLC_Settings {
 			'quick_replies'    => array( 'Pricing', 'Support', 'Get a Demo' ),
 			'delete_data_on_uninstall'      => false,
 			'preserve_settings_on_uninstall' => false,
+			'show_branding'    => false,
 		);
 
 		$saved = get_option( self::OPTION_KEY, array() );
@@ -75,6 +76,7 @@ class CAPTLC_Settings {
 			'reminder_delay_hours'   => isset( $raw['reminder_delay_hours'] ) ? max( 1, min( 72, absint( $raw['reminder_delay_hours'] ) ) ) : 4,
 			'delete_data_on_uninstall'       => ! empty( $raw['delete_data_on_uninstall'] ) ? 1 : 0,
 			'preserve_settings_on_uninstall' => ! empty( $raw['preserve_settings_on_uninstall'] ) ? 1 : 0,
+			'show_branding'                  => ! empty( $raw['show_branding'] ) ? 1 : 0,
 		);
 
 		// Existing keys not covered by this form (e.g. offline_message,

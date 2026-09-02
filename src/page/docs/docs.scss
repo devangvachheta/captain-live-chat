@@ -28,7 +28,7 @@
 .captlc-docs-sidebar {
 	width: 230px;
 	min-width: 220px;
-	border-right: 1px solid var(--captlc-border);
+	border-inline-end: 1px solid var(--captlc-border);
 	padding: 20px 12px;
 	display: flex;
 	flex-direction: column;
@@ -167,8 +167,11 @@
 	opacity: 0;
 	transition: $transition;
 	flex-shrink: 0;
+	display: inline-block;
 
 	.captlc-docs-grid-card:hover & { opacity: 1; }
+
+	[dir="rtl"] & { transform: scaleX(-1); }
 }
 
 /* ── Detail View ─────────────────────────────────────────────────── */
@@ -328,7 +331,7 @@
 /* ── Responsive ──────────────────────────────────────────────────── */
 @media (max-width: 900px) {
 	.captlc-docs-layout { flex-direction: column; }
-	.captlc-docs-sidebar { width: 100%; min-width: unset; border-right: none; border-bottom: 1px solid var(--captlc-border); flex-direction: row; flex-wrap: wrap; padding: 12px; }
+	.captlc-docs-sidebar { width: 100%; min-width: unset; border-inline-end: none; border-bottom: 1px solid var(--captlc-border); flex-direction: row; flex-wrap: wrap; padding: 12px; }
 	.captlc-docs-sidebar-heading { display: none; }
 	.captlc-docs-guide-item { flex: 0 0 auto; }
 	.captlc-docs-content { padding: 18px; }

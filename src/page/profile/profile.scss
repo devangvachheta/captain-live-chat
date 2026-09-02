@@ -7,7 +7,7 @@
 /* ── Save status indicator (replaces Save/Cancel buttons) ── */
 .captlc-profile__save-indicator {
 	min-width: 70px;
-	text-align: right;
+	text-align: end;
 }
 
 .captlc-profile__save-status {
@@ -137,6 +137,7 @@
 
 	&:focus {
 		outline: none;
+		box-shadow: 0 0 0 2px var(--captlc-bg-primary), 0 0 0 4px var(--captlc-primary);
 	}
 }
 
@@ -150,7 +151,7 @@
 /* ── Availability, now living inside the avatar card ── */
 .captlc-profile__avatar-availability {
 	width: 100%;
-	text-align: left;
+	text-align: start;
 }
 
 .captlc-profile__status-action {
@@ -182,7 +183,7 @@
 	margin-top: 14px;
 	padding-top: 14px;
 	border-top: 1px solid var(--captlc-border);
-	text-align: left;
+	text-align: start;
 }
 
 /* ── Details form ── */
@@ -216,7 +217,7 @@
 	cursor: pointer;
 	color: inherit;
 	padding: 4px;
-	margin-left: auto;
+	margin-inline-start: auto;
 	font-size: 12px;
 	font-weight: bold;
 	opacity: 0.7;
@@ -262,6 +263,17 @@
 .captlc-team-access__row--head {
 	border-top-left-radius: $rs_medium;
 	border-top-right-radius: $rs_medium;
+	background: var(--captlc-bg-hover);
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	color: var(--captlc-text-muted);
+	padding: 8px 14px;
+
+	@media (max-width: 720px) {
+		display: none;
+	}
 }
 
 .captlc-team-access__row:last-child {
@@ -288,20 +300,6 @@
 			". email"
 			". pages";
 		row-gap: 6px;
-	}
-}
-
-.captlc-team-access__row--head {
-	background: var(--captlc-bg-hover);
-	font-size: 11px;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.03em;
-	color: var(--captlc-text-muted);
-	padding: 8px 14px;
-
-	@media (max-width: 720px) {
-		display: none;
 	}
 }
 

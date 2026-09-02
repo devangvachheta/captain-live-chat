@@ -108,7 +108,7 @@ class CAPTLC_DB {
 		return $wpdb->get_row(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name comes from $wpdb->prefix, not user input; all bound values are still parameterised.
-				"SELECT * FROM {$table} WHERE visitor_id = %s AND status != 'closed' ORDER BY id DESC LIMIT 1",
+				"SELECT * FROM {$table} WHERE visitor_id = %s AND status != 'closed' AND deleted_at IS NULL ORDER BY id DESC LIMIT 1",
 				$visitor_id
 			)
 		);
@@ -127,10 +127,10 @@ class CAPTLC_DB {
 
 		if ( $status ) {
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$sql = $wpdb->prepare( "SELECT * FROM {$table} WHERE status = %s ORDER BY updated_at DESC", $status );
+			$sql = $wpdb->prepare( "SELECT * FROM {$table} WHERE status = %s AND deleted_at IS NULL ORDER BY updated_at DESC", $status );
 		} else {
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$sql = "SELECT * FROM {$table} ORDER BY updated_at DESC";
+			$sql = "SELECT * FROM {$table} WHERE deleted_at IS NULL ORDER BY updated_at DESC";
 		}
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql already built via $wpdb->prepare() above; this branch has no user-supplied value to bind.
@@ -199,12 +199,34 @@ class CAPTLC_DB {
 	}
 
 	/**
-	 * Permanently deletes a thread and all of its messages.
+	 * Soft-deletes a thread — hides it from the Inbox and from being
+	 * matched as a visitor's ongoing conversation, but keeps the thread
+	 * and its messages in the database so History still shows it as a
+	 * permanent record. Use hard_delete_thread() to actually erase data.
 	 *
 	 * @param int $thread_id Thread ID.
 	 * @return void
 	 */
-	public static function delete_thread( $thread_id ) {
+	public static function soft_delete_thread( $thread_id ) {
+		global $wpdb;
+
+		$wpdb->update(
+			self::threads_table(),
+			array( 'deleted_at' => current_time( 'mysql' ) ),
+			array( 'id' => $thread_id ),
+			array( '%s' ),
+			array( '%d' )
+		);
+	}
+
+	/**
+	 * Permanently deletes a thread and all of its messages. Irreversible —
+	 * this also removes it from History, unlike soft_delete_thread().
+	 *
+	 * @param int $thread_id Thread ID.
+	 * @return void
+	 */
+	public static function hard_delete_thread( $thread_id ) {
 		global $wpdb;
 
 		$wpdb->delete( self::messages_table(), array( 'thread_id' => $thread_id ), array( '%d' ) );

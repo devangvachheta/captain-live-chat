@@ -19,6 +19,7 @@
 
 #wpcontent {
 	padding-left: 0 !important;
+	padding-right: 0 !important; /* RTL: WP core applies padding-right instead of padding-left */
 }
 
 /* ── App shell ────────────────────────────────────────────────────────── */
@@ -38,40 +39,23 @@
 }
 
 .captlc-app-main-content {
-	margin-left: var(--captlc-sidebar-w, 240px);
+	margin-inline-start: var(--captlc-sidebar-w, 240px);
 	padding: 16px 24px;
 	background-color: var(--captlc-bg-app);
-	transition: background-color 0.3s ease, margin-left 0.2s ease;
+	transition: background-color 0.3s ease, margin-inline-start 0.2s ease;
 	overflow-y: auto;
 	min-height: calc(100vh - var(--captlc-adminbar-h, 32px));
 	min-width: 0;
 }
 
 .captlc-app-main-content--collapsed {
-	margin-left: 64px;
-}
-
-/* ── Shared page header (title + primary action), used by Inbox, Settings, etc ── */
-.captlc-main__header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 14px;
-	flex-shrink: 0;
-}
-
-.captlc-main__title {
-	margin: 0;
-	font-size: 17px;
-	font-weight: 700;
-	color: var(--captlc-text-primary);
-	line-height: 1.2;
+	margin-inline-start: 64px;
 }
 
 @media screen and (max-width: 960px) {
 	.captlc-app-main-content,
 	.captlc-app-main-content--collapsed {
-		margin-left: 0;
+		margin-inline-start: 0;
 	}
 }
 
@@ -281,4 +265,13 @@
 		outline: none;
 		border-color: var(--captlc-primary);
 	}
+}
+
+/* ── RTL: mirror directional "next/prev" arrow glyphs (→ ←) ────────────── */
+.captlc-dir-arrow {
+	display: inline-block;
+}
+
+[dir="rtl"] .captlc-dir-arrow {
+	transform: scaleX(-1);
 }

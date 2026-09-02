@@ -165,7 +165,14 @@
 	line-height: 1;
 	flex-shrink: 0;
 
-	&:hover, &:focus { color: var(--captlc-text-secondary); outline: none; }
+	&:hover { color: var(--captlc-text-secondary); }
+
+	&:focus-visible {
+		color: var(--captlc-text-secondary);
+		outline: 2px solid var(--captlc-primary);
+		outline-offset: 2px;
+		border-radius: 2px;
+	}
 }
 
 // ── Daily reply limit — label left, input right, same row ─────────────────
@@ -240,7 +247,7 @@
 	border: none;
 	cursor: pointer;
 	font-family: inherit;
-	text-align: left;
+	text-align: start;
 	color: inherit;
 	transition: $transition;
 
@@ -337,13 +344,13 @@
 	align-items: center;
 
 	.captlc-input-field {
-		padding-right: 34px;
+		padding-inline-end: 34px;
 	}
 }
 
 .captlc-ai-row__show-btn {
 	position: absolute;
-	right: 8px;
+	inset-inline-end: 8px;
 	background: transparent;
 	border: none;
 	cursor: pointer;

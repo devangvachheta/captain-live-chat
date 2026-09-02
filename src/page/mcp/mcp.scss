@@ -1,0 +1,63 @@
+@use '/src/style/variables.scss' as *;
+
+.captlc-mcp__intro {
+	color: var(--captlc-text-secondary);
+	font-size: 14px;
+	max-width: 720px;
+	margin: 0 0 20px;
+}
+
+.captlc-card--warning {
+	background: var(--captlc-warning-bg);
+	border-color: var(--captlc-warning-border);
+}
+
+.captlc-mcp__group {
+	& + & {
+		margin-top: 24px;
+		padding-top: 24px;
+		border-top: 1px solid var(--captlc-border);
+	}
+}
+
+.captlc-mcp__group-title {
+	font-size: 13px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--captlc-text-secondary);
+	margin: 0 0 10px;
+}
+
+.captlc-mcp__badge {
+	display: inline-block;
+	margin-inline-start: 8px;
+	padding: 2px 8px;
+	border-radius: 999px;
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: 0.03em;
+	vertical-align: middle;
+}
+
+.captlc-mcp__badge--readonly {
+	background: var(--captlc-success-bg, #ecfdf5);
+	color: var(--captlc-success-text, #047857);
+}
+
+.captlc-mcp__badge--destructive {
+	background: var(--captlc-danger-bg);
+	color: var(--captlc-danger-text, #b91c1c);
+}
+
+.captlc-mcp__steps {
+	margin: 12px 0 0;
+	padding-inline-start: 20px;
+	color: var(--captlc-text-primary);
+	font-size: 13px;
+	line-height: 1.6;
+
+	li + li {
+		margin-top: 6px;
+	}
+}

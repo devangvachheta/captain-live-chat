@@ -759,9 +759,10 @@ class CAPTLC_Ajax {
 	}
 
 	/**
-	 * Permanently deletes a conversation (thread + all its messages).
-	 * Triggered from the inbox's right-click context menu — irreversible,
-	 * confirmed client-side before this call is made.
+	 * Removes a conversation from the Inbox. This is a soft delete — the
+	 * thread and its messages stay in the database and keep showing up in
+	 * History, which is the permanent record. Triggered from the inbox's
+	 * right-click context menu.
 	 *
 	 * @return void
 	 */
@@ -775,7 +776,7 @@ class CAPTLC_Ajax {
 			wp_send_json_error( array( 'message' => __( 'Missing thread.', 'captain-live-chat' ) ) );
 		}
 
-		CAPTLC_DB::delete_thread( $thread_id );
+		CAPTLC_DB::soft_delete_thread( $thread_id );
 
 		wp_send_json_success();
 	}

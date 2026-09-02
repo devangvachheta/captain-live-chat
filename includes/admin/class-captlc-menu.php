@@ -178,6 +178,16 @@ if ( ! class_exists( 'Captlc_Menu' ) ) {
 				'admin.php?page=captain-live-chat#/history'
 			);
 
+			// Admin-only — every MCP ability requires manage_options, so
+			// non-admin agents get no use out of this page either.
+			add_submenu_page(
+				'captain-live-chat',
+				__( 'MCP', 'captain-live-chat' ),
+				__( 'MCP', 'captain-live-chat' ),
+				'manage_options',
+				'admin.php?page=captain-live-chat#/mcp'
+			);
+
 			add_submenu_page(
 				'captain-live-chat',
 				__( 'Help', 'captain-live-chat' ),
@@ -230,6 +240,7 @@ if ( ! class_exists( 'Captlc_Menu' ) ) {
 				array(),
 				CAPTLC_VERSION
 			);
+			wp_style_add_data( 'captlc-admin-css', 'rtl', 'replace' );
 
 			wp_enqueue_style(
 				'captlc-admin-overrides',

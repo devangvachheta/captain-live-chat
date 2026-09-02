@@ -106,7 +106,7 @@ const Dashboard = () => {
 						<h3>{ __( 'Design your widget', 'captain-live-chat' ) }</h3>
 						<p>{ __( 'Pick colors, position, and the welcome text visitors see first.', 'captain-live-chat' ) }</p>
 						<Link to="/widget-settings" className="captlc-gs-step__link captlc-gs-step__link--purple">
-							{ __( 'Open Widget Designer', 'captain-live-chat' ) } →
+							{ __( 'Open Widget Designer', 'captain-live-chat' ) } <span className="captlc-dir-arrow" aria-hidden="true">→</span>
 						</Link>
 					</div>
 
@@ -116,7 +116,7 @@ const Dashboard = () => {
 						<h3>{ __( 'Add canned replies', 'captain-live-chat' ) }</h3>
 						<p>{ __( 'Save common answers as shortcuts so agents can reply in one click.', 'captain-live-chat' ) }</p>
 						<Link to="/canned-replies" className="captlc-gs-step__link captlc-gs-step__link--teal">
-							{ __( 'Manage Canned Replies', 'captain-live-chat' ) } →
+							{ __( 'Manage Canned Replies', 'captain-live-chat' ) } <span className="captlc-dir-arrow" aria-hidden="true">→</span>
 						</Link>
 					</div>
 
@@ -126,7 +126,7 @@ const Dashboard = () => {
 						<h3>{ __( 'Go to the Inbox', 'captain-live-chat' ) }</h3>
 						<p>{ __( 'Start replying to visitors in real time from the Inbox.', 'captain-live-chat' ) }</p>
 						<Link to="/inbox" className="captlc-gs-step__link captlc-gs-step__link--green">
-							{ __( 'Open Inbox', 'captain-live-chat' ) } →
+							{ __( 'Open Inbox', 'captain-live-chat' ) } <span className="captlc-dir-arrow" aria-hidden="true">→</span>
 						</Link>
 					</div>
 				</div>

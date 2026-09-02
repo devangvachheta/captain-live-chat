@@ -82,8 +82,9 @@ const ScheduleEditor = () => {
 			) }
 
 			<div className="captlc-schedule-editor__timezone">
-				<label className="captlc-field__label">{ __( 'Timezone', 'captain-live-chat' ) }</label>
+				<label className="captlc-field__label" htmlFor="captlc-schedule-editor-timezone">{ __( 'Timezone', 'captain-live-chat' ) }</label>
 				<input
+					id="captlc-schedule-editor-timezone"
 					type="text"
 					className="captlc-input-field captlc-schedule-editor__tz-input"
 					value={ schedule.timezone }

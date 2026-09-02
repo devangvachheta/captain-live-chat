@@ -102,7 +102,7 @@
 	background: transparent;
 	border: none;
 	cursor: pointer;
-	text-align: left;
+	text-align: start;
 	padding: 16px 2px;
 	font-size: 14px;
 	font-weight: 700;
@@ -114,7 +114,7 @@
 	color: var(--captlc-text-muted);
 	transition: transform 0.15s ease;
 	flex-shrink: 0;
-	margin-left: 12px;
+	margin-inline-start: 12px;
 }
 
 .captlc-faq-item.is-open .captlc-faq-item__caret {

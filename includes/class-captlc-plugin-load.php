@@ -77,6 +77,7 @@ if ( ! class_exists( 'Captlc_Plugin_Load' ) ) {
 			new CAPTLC_Faq();
 			new CAPTLC_Analytics();
 			new CAPTLC_Features();
+			new CAPTLC_MCP();
 
 			if ( is_admin() ) {
 				new Captlc_Menu();
@@ -106,6 +107,10 @@ if ( ! class_exists( 'Captlc_Plugin_Load' ) ) {
 			require_once CAPTLC_PATH . 'includes/class-captlc-features.php';
 			require_once CAPTLC_PATH . 'includes/admin/class-captlc-menu.php';
 			require_once CAPTLC_PATH . 'public/class-captlc-public.php';
+
+			// MCP feature: this is the only file linked in here — everything
+			// else it needs lives in includes/mcp/ and is required from it.
+			require_once CAPTLC_PATH . 'includes/mcp/class-captlc-mcp.php';
 		}
 	}
 

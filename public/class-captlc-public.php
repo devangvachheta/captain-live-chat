@@ -103,6 +103,8 @@ class CAPTLC_Public {
 			return;
 		}
 
+		$show_branding = class_exists( 'CAPTLC_Settings' ) ? ! empty( CAPTLC_Settings::get_settings()['show_branding'] ) : false;
+
 		include CAPTLC_PATH . 'public/views/widget-container.php';
 	}
 }

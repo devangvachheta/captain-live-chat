@@ -70,10 +70,12 @@ class CAPTLC_Activator {
 			created_at DATETIME NOT NULL,
 			updated_at DATETIME NOT NULL,
 			reminder_sent_at DATETIME NULL,
+			deleted_at DATETIME NULL,
 			PRIMARY KEY  (id),
 			KEY visitor_id (visitor_id),
 			KEY status (status),
-			KEY assigned_agent_id (assigned_agent_id)
+			KEY assigned_agent_id (assigned_agent_id),
+			KEY deleted_at (deleted_at)
 		) {$charset_collate};";
 
 		$sql_messages = "CREATE TABLE {$table_messages} (
@@ -114,6 +116,14 @@ class CAPTLC_Activator {
 	 * plugin's expected version — lets already-active installs pick up new
 	 * columns without needing to deactivate/reactivate the plugin.
 	 *
+	 * Guarded by a short-lived transient lock: the Inbox screen fires
+	 * several AJAX requests at once on page load, and each of them reaches
+	 * this check independently. Without the lock, more than one of them
+	 * can see the same stale db_version and run dbDelta() at the same
+	 * time, which then issues the same ALTER TABLE twice and fails with a
+	 * "Duplicate column/key" fatal error on whichever request loses the
+	 * race — even though the schema itself ends up correct either way.
+	 *
 	 * @return void
 	 */
 	public static function maybe_upgrade() {
@@ -121,7 +131,14 @@ class CAPTLC_Activator {
 			return;
 		}
 
+		if ( get_transient( 'captlc_db_upgrading' ) ) {
+			return;
+		}
+		set_transient( 'captlc_db_upgrading', 1, 60 );
+
 		self::create_tables();
+
+		delete_transient( 'captlc_db_upgrading' );
 	}
 
 	/**

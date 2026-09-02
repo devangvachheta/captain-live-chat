@@ -94,8 +94,8 @@ const LockIcon = () => (
 );
 
 // ── Field label with an inline "i" tooltip for extra context ─────────────
-const LabelWithInfo = ( { children, tip } ) => (
-	<label className="captlc-field__label captlc-field__label--with-info">
+const LabelWithInfo = ( { children, tip, htmlFor } ) => (
+	<label className="captlc-field__label captlc-field__label--with-info" htmlFor={ htmlFor }>
 		{ children }
 		<span className="captlc-field__info" tabIndex="0" title={ tip }>
 			<InfoIcon />
@@ -202,9 +202,10 @@ const ProviderRow = ( { provider, savedKey, savedKeyPreview, savedModel, isConne
 				<div className="captlc-ai-row__body">
 					<div className="captlc-ai-row__field-grid">
 						<div className="captlc-ai-row__field">
-							<label className="captlc-field__label">{ __( 'API Key', 'captain-live-chat' ) }</label>
+							<label className="captlc-field__label" htmlFor={ `captlc-ai-key-${ provider.id }` }>{ __( 'API Key', 'captain-live-chat' ) }</label>
 							<div className="captlc-ai-row__key-input">
 								<input
+									id={ `captlc-ai-key-${ provider.id }` }
 									type={ show ? 'text' : 'password' }
 									className="captlc-input-field"
 									placeholder={ isConnected && ! key ? ( savedKeyPreview || __( 'Saved — enter a new key to replace it', 'captain-live-chat' ) ) : provider.placeholder }
@@ -224,8 +225,8 @@ const ProviderRow = ( { provider, savedKey, savedKeyPreview, savedModel, isConne
 						</div>
 
 						<div className="captlc-ai-row__field captlc-ai-row__field--model">
-							<label className="captlc-field__label">{ __( 'Model', 'captain-live-chat' ) }</label>
-							<select className="captlc-select" value={ model } onChange={ ( e ) => setModel( e.target.value ) }>
+							<label className="captlc-field__label" htmlFor={ `captlc-ai-model-${ provider.id }` }>{ __( 'Model', 'captain-live-chat' ) }</label>
+							<select id={ `captlc-ai-model-${ provider.id }` } className="captlc-select" value={ model } onChange={ ( e ) => setModel( e.target.value ) }>
 								{ provider.models.map( ( m ) => <option key={ m } value={ m }>{ m }</option> ) }
 							</select>
 						</div>
@@ -234,7 +235,7 @@ const ProviderRow = ( { provider, savedKey, savedKeyPreview, savedModel, isConne
 					<div className="captlc-ai-row__footer">
 						<div className="captlc-ai-row__footer-left">
 							<a href={ provider.freeLink } target="_blank" rel="noopener noreferrer" className="captlc-ai-row__free-link">
-								{ __( 'Get free API key', 'captain-live-chat' ) } →
+								{ __( 'Get free API key', 'captain-live-chat' ) } <span className="captlc-dir-arrow" aria-hidden="true">→</span>
 							</a>
 							{ testResult && (
 								<span className={ `captlc-ai-row__test-result${ testResult.ok ? ' is-ok' : ' is-fail' }` }>
@@ -392,12 +393,19 @@ const KnowledgeBaseSection = () => {
 					ref={ fileInputRef }
 					accept=".pdf,.txt,application/pdf,text/plain"
 					onChange={ handleFilePick }
+					tabIndex={ -1 }
+					aria-hidden="true"
 					style={ { display: 'none' } }
 					id="captlc-kb-file"
 				/>
-				<label htmlFor="captlc-kb-file" className="captlc-secondary-button captlc-ai-row__small-btn captlc-ai-kb__upload-btn">
+				<button
+					type="button"
+					className="captlc-secondary-button captlc-ai-row__small-btn captlc-ai-kb__upload-btn"
+					onClick={ () => fileInputRef.current?.click() }
+					disabled={ uploading }
+				>
 					{ uploading ? __( 'Reading…', 'captain-live-chat' ) : __( 'Upload PDF / .txt', 'captain-live-chat' ) }
-				</label>
+				</button>
 			</div>
 
 			{ ! loading && entries.length > 0 && (
@@ -574,10 +582,11 @@ const AiSettings = () => {
 
 					<div className="captlc-ai-general__fields">
 						<div className="captlc-field captlc-ai-general__prompt-field">
-							<LabelWithInfo tip={ __( 'Optional — add extra instructions specific to your business (tone, topics to focus on, what to avoid). A baseline persona is already applied automatically, so the assistant never claims to be ChatGPT/another AI provider and won\'t reply with everything as a giant table.', 'captain-live-chat' ) }>
+							<LabelWithInfo htmlFor="captlc-ai-system-prompt" tip={ __( 'Optional — add extra instructions specific to your business (tone, topics to focus on, what to avoid). A baseline persona is already applied automatically, so the assistant never claims to be ChatGPT/another AI provider and won\'t reply with everything as a giant table.', 'captain-live-chat' ) }>
 								{ __( 'System Prompt', 'captain-live-chat' ) }
 							</LabelWithInfo>
 							<textarea
+								id="captlc-ai-system-prompt"
 								className="captlc-textarea"
 								rows="3"
 								placeholder={ __( 'e.g. Focus on pricing and shipping questions. Recommend booking a call for anything about custom orders.', 'captain-live-chat' ) }
@@ -588,10 +597,11 @@ const AiSettings = () => {
 
 						<div className="captlc-field captlc-ai-general__limit-field">
 							<div className="captlc-ai-general__limit-row">
-								<LabelWithInfo tip={ __( 'Set a number to cap how many AI replies go out per day (protects against a traffic spike or bots running up your API bill). Once reached, visitors get the offline-message fallback until it resets at midnight. Leave at 0 for unlimited.', 'captain-live-chat' ) }>
+								<LabelWithInfo htmlFor="captlc-ai-daily-limit" tip={ __( 'Set a number to cap how many AI replies go out per day (protects against a traffic spike or bots running up your API bill). Once reached, visitors get the offline-message fallback until it resets at midnight. Leave at 0 for unlimited.', 'captain-live-chat' ) }>
 									{ __( 'Daily reply limit', 'captain-live-chat' ) }
 								</LabelWithInfo>
 								<input
+									id="captlc-ai-daily-limit"
 									type="number"
 									min="0"
 									className="captlc-input-field captlc-ai-general__limit-input"

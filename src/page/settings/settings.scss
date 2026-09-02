@@ -13,7 +13,7 @@
 .captlc-checkbox-list--scroll {
 	max-height: 220px;
 	overflow-y: auto;
-	padding-right: 8px;
+	padding-inline-end: 8px;
 }
 
 .captlc-checkbox {
@@ -63,6 +63,11 @@
 		border-width: 0 2px 2px 0;
 		transform: rotate(45deg);
 	}
+}
+
+.captlc-checkbox input[type="checkbox"]:focus-visible + .captlc-checkbox__box {
+	outline: 2px solid var(--captlc-primary);
+	outline-offset: 2px;
 }
 
 .captlc-checkbox__label {
@@ -207,7 +212,7 @@
 	cursor: pointer;
 	font-size: 14px;
 	padding: 0;
-	margin-left: auto;
+	margin-inline-start: auto;
 	opacity: 0.7;
 
 	&:hover { opacity: 1; }

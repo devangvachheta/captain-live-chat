@@ -10,6 +10,7 @@ import Analytics from '../page/analytics/analytics.jsx';
 import Help from '../page/help/help.jsx';
 import Profile from '../page/profile/profile.jsx';
 import Docs from '../page/docs/docs.jsx';
+import Mcp from '../page/mcp/mcp.jsx';
 
 // Non-admin agents only see the optional pages (Analytics, Settings, AI
 // Agent, Widget Settings, Quick Reply, History) they've been granted on
@@ -34,6 +35,7 @@ const routes = [
 	{ path: '/help',            element: <Help /> },
 	{ path: '/profile',         element: <Profile /> },
 	{ path: '/docs',            element: <Docs /> },
+	{ path: '/mcp',             element: isAdmin ? <Mcp /> : <Navigate to="/inbox" replace /> },
 	{ path: '/schedule',        element: <Navigate to="/profile" replace /> },
 ];
 

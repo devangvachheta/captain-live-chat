@@ -84,7 +84,10 @@
 	}
 
 	input {
-		display: none;
+		position: absolute;
+		opacity: 0;
+		width: 0;
+		height: 0;
 	}
 }
 
@@ -113,6 +116,11 @@
 		border-width: 0 2px 2px 0;
 		transform: rotate(45deg);
 	}
+}
+
+.captlc-multiselect__option input:focus-visible + .captlc-multiselect__box {
+	outline: 2px solid var(--captlc-primary);
+	outline-offset: 2px;
 }
 
 .captlc-multiselect__label {

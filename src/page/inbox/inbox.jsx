@@ -73,7 +73,7 @@ const Inbox = () => {
 	const [ shortcutModalMsg, setShortcutModalMsg ] = useState( null ); // message being saved as a canned shortcut
 	const [ shortcutCode, setShortcutCode ] = useState( '' );
 	const [ savingShortcut, setSavingShortcut ] = useState( false );
-	const [ sidebarOpen, setSidebarOpen ] = useState( true );
+	const [ sidebarOpen, setSidebarOpen ] = useState( false );
 	const [ listCollapsed, setListCollapsed ] = useState( false );
 	const [ favoritesOnly, setFavoritesOnly ] = useState( false );
 	const [ assignMenuOpen, setAssignMenuOpen ] = useState( false );
@@ -411,7 +411,7 @@ const Inbox = () => {
 	};
 
 	const menuDeleteThread = ( thread ) => {
-		if ( ! window.confirm( __( 'Permanently delete this conversation? This cannot be undone.', 'captain-live-chat' ) ) ) return;
+		if ( ! window.confirm( __( 'Remove this conversation from the Inbox? It will still be kept in History.', 'captain-live-chat' ) ) ) return;
 		setThreads( ( prev ) => prev.filter( ( t ) => t.id !== thread.id ) );
 		if ( activeThread?.id === thread.id ) {
 			setActiveThread( null );
@@ -419,14 +419,15 @@ const Inbox = () => {
 		}
 		ajax( 'captlc_delete_thread', { thread_id: thread.id } )
 			.then( ( res ) => {
-				if ( ! res?.success ) showToast( res?.data?.message || __( 'Could not delete the conversation.', 'captain-live-chat' ) );
+				if ( ! res?.success ) showToast( res?.data?.message || __( 'Could not remove the conversation.', 'captain-live-chat' ) );
 			} )
-			.catch( () => showToast( __( 'Network error — could not delete the conversation.', 'captain-live-chat' ) ) );
+			.catch( () => showToast( __( 'Network error — could not remove the conversation.', 'captain-live-chat' ) ) );
 	};
 
 	const openThread = ( thread ) => {
 		setActiveThread( thread );
 		setMessages( [] );
+		setSidebarOpen( false );
 		lastMsgId.current = 0;
 		setIsTyping( false );
 		setHasMoreOlder( false );
@@ -734,7 +735,7 @@ const Inbox = () => {
 							aria-label={ listCollapsed ? __( 'Expand conversation list', 'captain-live-chat' ) : __( 'Collapse conversation list', 'captain-live-chat' ) }
 							onClick={ () => setListCollapsed( ( v ) => ! v ) }
 						>
-							{ listCollapsed ? '›' : '‹' }
+							<span className="captlc-dir-arrow" aria-hidden="true">{ listCollapsed ? '›' : '‹' }</span>
 						</button>
 					</div>
 					{ threadLoading && (
@@ -1219,7 +1220,7 @@ const Inbox = () => {
 				🚫 { contextMenu.thread.is_blocked ? __( 'Unblock', 'captain-live-chat' ) : __( 'Block', 'captain-live-chat' ) }
 			</button>
 			<button type="button" className="captlc-thread-ctx-menu__delete" onClick={ () => { menuDeleteThread( contextMenu.thread ); closeContextMenu(); } }>
-				🗑 { __( 'Delete', 'captain-live-chat' ) }
+				🗑 { __( 'Remove from Inbox', 'captain-live-chat' ) }
 			</button>
 		</div>
 	) }

@@ -101,8 +101,9 @@ const Schedule = () => {
 				{ schedule.enabled && (
 					<>
 						<div className="captlc-schedule__timezone">
-							<label className="captlc-field__label">{ __( 'Timezone', 'captain-live-chat' ) }</label>
+							<label className="captlc-field__label" htmlFor="captlc-schedule-timezone">{ __( 'Timezone', 'captain-live-chat' ) }</label>
 							<input
+								id="captlc-schedule-timezone"
 								type="text"
 								className="captlc-input-field captlc-schedule__tz-input"
 								value={ schedule.timezone }

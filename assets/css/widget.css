@@ -76,13 +76,22 @@
 }
 
 .captlc-widget .captlc-widget__toggle:hover,
-.captlc-widget .captlc-widget__toggle:focus,
 .captlc-widget .captlc-widget__toggle:active {
 	background: var(--captlcw-accent-hover) !important;
 	color: #fff !important;
 	border: none !important;
 	outline: none !important;
 	box-shadow: var(--captlcw-toggle-shadow) !important;
+	border-radius: 50% !important;
+}
+
+.captlc-widget .captlc-widget__toggle:focus-visible {
+	background: var(--captlcw-accent-hover) !important;
+	color: #fff !important;
+	border: none !important;
+	outline: 2px solid #fff !important;
+	outline-offset: 3px !important;
+	box-shadow: var(--captlcw-toggle-shadow), 0 0 0 4px rgba(0, 0, 0, 0.35) !important;
 	border-radius: 50% !important;
 }
 
@@ -234,15 +243,29 @@
 	outline: none !important;
 }
 
+/* RTL: mirror the "←" glyph so it visually points the correct "back" direction. */
+[dir="rtl"] .captlc-widget button.captlc-widget__back-btn {
+	transform: scaleX(-1);
+}
+
 .captlc-widget button.captlc-widget__back-btn:hover,
 .captlc-widget button.captlc-widget__back-btn:focus,
-.captlc-widget button.captlc-widget__back-btn:active,
-.captlc-widget button.captlc-widget__back-btn:focus-visible {
+.captlc-widget button.captlc-widget__back-btn:active {
 	opacity: 1 !important;
 	background: transparent !important;
 	color: #fff !important;
 	box-shadow: none !important;
 	outline: none !important;
+}
+
+.captlc-widget button.captlc-widget__back-btn:focus-visible {
+	opacity: 1 !important;
+	background: rgba(255, 255, 255, 0.18) !important;
+	color: #fff !important;
+	box-shadow: none !important;
+	outline: 2px solid #fff !important;
+	outline-offset: 1px !important;
+	border-radius: 4px;
 }
 
 .captlc-widget button.captlc-widget__panel-close {
@@ -251,7 +274,7 @@
 	color: #fff !important;
 	font-size: 14px !important;
 	cursor: pointer !important;
-	margin-left: auto !important;
+	margin-inline-start: auto !important;
 	opacity: 0.8 !important;
 	box-shadow: none !important;
 	outline: none !important;
@@ -259,13 +282,22 @@
 
 .captlc-widget button.captlc-widget__panel-close:hover,
 .captlc-widget button.captlc-widget__panel-close:focus,
-.captlc-widget button.captlc-widget__panel-close:active,
-.captlc-widget button.captlc-widget__panel-close:focus-visible {
+.captlc-widget button.captlc-widget__panel-close:active {
 	opacity: 1 !important;
 	background: transparent !important;
 	color: #fff !important;
 	box-shadow: none !important;
 	outline: none !important;
+}
+
+.captlc-widget button.captlc-widget__panel-close:focus-visible {
+	opacity: 1 !important;
+	background: rgba(255, 255, 255, 0.18) !important;
+	color: #fff !important;
+	box-shadow: none !important;
+	outline: 2px solid #fff !important;
+	outline-offset: 1px !important;
+	border-radius: 4px;
 }
 
 /* ── Welcome screen body ────────────────────────────────────────────────── */
@@ -534,14 +566,14 @@
 	align-self: flex-end;
 	background: var(--captlcw-bubble-visitor-bg);
 	color: var(--captlcw-bubble-visitor-text);
-	border-bottom-right-radius: 4px;
+	border-end-end-radius: 4px;
 }
 
 .captlc-widget .captlc-msg--agent {
 	align-self: flex-start;
 	background: var(--captlcw-bubble-agent-bg);
 	color: var(--captlcw-bubble-agent-text);
-	border-bottom-left-radius: 4px;
+	border-end-start-radius: 4px;
 }
 
 /* ── Typing indicator ──────────────────────────────────────────────────── */
@@ -555,7 +587,7 @@
 	background: var(--captlcw-bg-soft);
 	font-size: 11px;
 	color: var(--captlcw-text-muted);
-	text-align: right;
+	text-align: end;
 }
 
 .captlc-widget .captlc-typing-dots {
@@ -904,9 +936,15 @@
 	justify-content: center;
 }
 
-.captlc-widget .captlc-widget-emoji-picker__btn:hover {
+.captlc-widget .captlc-widget-emoji-picker__btn:hover,
+.captlc-widget .captlc-widget-emoji-picker__btn:focus-visible {
 	background: var(--captlcw-bg-soft);
 	transform: scale(1.2);
+}
+
+.captlc-widget .captlc-widget-emoji-picker__btn:focus-visible {
+	outline: 2px solid var(--captlcw-accent);
+	outline-offset: 1px;
 }
 
 /* ── Quick Reply buttons ─────────────────────────────────────────────── */
@@ -934,9 +972,15 @@
 	font-family: inherit;
 }
 
-.captlc-widget .captlc-widget-qr-btn:hover {
+.captlc-widget .captlc-widget-qr-btn:hover,
+.captlc-widget .captlc-widget-qr-btn:focus-visible {
 	background: var(--captlcw-accent);
 	color: #fff;
+}
+
+.captlc-widget .captlc-widget-qr-btn:focus-visible {
+	outline: 2px solid var(--captlcw-accent);
+	outline-offset: 2px;
 }
 
 /* ── Scope-wide general buttons reset to override parent theme focus leaks ── */

@@ -104,13 +104,14 @@ const CannedReplies = () => {
 
 				<form onSubmit={ handleSave } className="captlc-canned__form">
 					<div className="captlc-field">
-						<label className="captlc-field__label">
+						<label className="captlc-field__label" htmlFor="captlc-canned-shortcut">
 							{ __( 'Shortcut', 'captain-live-chat' ) }
 							<span className="captlc-field__hint-inline">{ __( '(e.g. hello, thanks, bye)', 'captain-live-chat' ) }</span>
 						</label>
 						<div className="captlc-canned__shortcut-wrap">
 							<span className="captlc-canned__slash">/</span>
 							<Input
+								id="captlc-canned-shortcut"
 								placeholder="hello"
 								value={ form.shortcut }
 								onChange={ ( e ) => setForm( ( f ) => ( { ...f, shortcut: e.target.value.replace( /\s/g, '' ) } ) ) }
@@ -119,8 +120,9 @@ const CannedReplies = () => {
 					</div>
 
 					<div className="captlc-field">
-						<label className="captlc-field__label">{ __( 'Reply text', 'captain-live-chat' ) }</label>
+						<label className="captlc-field__label" htmlFor="captlc-canned-text">{ __( 'Reply text', 'captain-live-chat' ) }</label>
 						<textarea
+							id="captlc-canned-text"
 							className="captlc-textarea"
 							rows="3"
 							placeholder={ __( 'Hi! How can I help you today?', 'captain-live-chat' ) }

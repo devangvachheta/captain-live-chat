@@ -476,10 +476,35 @@
 		} );
 	} );
 
-	// Keyboard: Escape closes the panel, same as clicking the close/toggle button.
+	// Keyboard: Escape closes the panel; Tab is trapped inside the dialog
+	// while it's open (panel is role="dialog" aria-modal="true").
 	widget.addEventListener( 'keydown', function ( e ) {
-		if ( 'Escape' === e.key && 'open' === widget.getAttribute( 'data-state' ) ) {
+		if ( 'open' !== widget.getAttribute( 'data-state' ) ) {
+			return;
+		}
+
+		if ( 'Escape' === e.key ) {
 			setWidgetOpen( false );
+			return;
+		}
+
+		if ( 'Tab' === e.key && panelEl ) {
+			var focusable = panelEl.querySelectorAll(
+				'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+			);
+			if ( ! focusable.length ) {
+				return;
+			}
+			var first = focusable[ 0 ];
+			var last  = focusable[ focusable.length - 1 ];
+
+			if ( e.shiftKey && document.activeElement === first ) {
+				e.preventDefault();
+				last.focus();
+			} else if ( ! e.shiftKey && document.activeElement === last ) {
+				e.preventDefault();
+				first.focus();
+			}
 		}
 	} );
 

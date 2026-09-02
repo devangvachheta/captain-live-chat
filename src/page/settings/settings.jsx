@@ -25,6 +25,7 @@ const Settings = () => {
 	const [ reminderDelayHours, setReminderDelayHours ]     = useState( initialSettings.reminder_delay_hours || 4 );
 	const [ deleteDataOnUninstall, setDeleteDataOnUninstall ]         = useState( !! initialSettings.delete_data_on_uninstall );
 	const [ preserveSettingsOnUninstall, setPreserveSettingsOnUninstall ] = useState( !! initialSettings.preserve_settings_on_uninstall );
+	const [ showBranding, setShowBranding ] = useState( !! initialSettings.show_branding );
 
 	const [ saving, setSaving ]   = useState( false );
 	const [ notice, setNotice ]   = useState( null ); // { type: 'success'|'error', message: string }
@@ -56,6 +57,7 @@ const Settings = () => {
 		body.append( 'reminder_delay_hours',   reminderDelayHours );
 		body.append( 'delete_data_on_uninstall',       deleteDataOnUninstall       ? '1' : '0' );
 		body.append( 'preserve_settings_on_uninstall', preserveSettingsOnUninstall ? '1' : '0' );
+		body.append( 'show_branding',                  showBranding                ? '1' : '0' );
 
 		fetch( captlc_data.ajax_url, {
 			method: 'POST',
@@ -169,6 +171,13 @@ const Settings = () => {
 						<h2 className="captlc-card__title">{ __( 'Notifications', 'captain-live-chat' ) }</h2>
 
 						<div className="captlc-toggle-list">
+							<label className="captlc-toggle-row captlc-toggle-row--stacked">
+								<div className="captlc-toggle-row__text">
+									<span className="captlc-toggle-row__label">{ __( 'Show "Powered by Captain Live Chat" badge', 'captain-live-chat' ) }</span>
+									<span className="captlc-toggle-row__desc">{ __( 'Optional — off by default. When enabled, a small credit badge is shown to your site visitors at the bottom of the chat widget.', 'captain-live-chat' ) }</span>
+								</div>
+								<Switcher checked={ showBranding } onChange={ ( e ) => setShowBranding( e.target.checked ) } />
+							</label>
 							<label className="captlc-toggle-row">
 								<Switcher checked={ soundEnabled } onChange={ ( e ) => setSoundEnabled( e.target.checked ) } />
 								<span>{ __( 'Sound notification', 'captain-live-chat' ) }</span>
@@ -190,8 +199,9 @@ const Settings = () => {
 							</label>
 							{ reminderEmailEnabled && (
 								<div className="captlc-field captlc-field--inline">
-									<label className="captlc-field__label">{ __( 'Remind after (hours)', 'captain-live-chat' ) }</label>
+									<label className="captlc-field__label" htmlFor="captlc-settings-reminder-hours">{ __( 'Remind after (hours)', 'captain-live-chat' ) }</label>
 									<input
+										id="captlc-settings-reminder-hours"
 										type="number"
 										min="1"
 										max="72"

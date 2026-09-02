@@ -72,6 +72,13 @@ const IconHelp = () => (
 		<line x1="12" y1="17" x2="12.01" y2="17"/>
 	</svg>
 );
+const IconMcp = () => (
+	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+		<path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2z"/>
+		<path d="M5 17l.75 2.25L8 20l-2.25.75L5 23l-.75-2.25L2 20l2.25-.75L5 17z"/>
+		<path d="M19 14l.6 1.8L21.4 16.4l-1.8.6L19 18.8l-.6-1.8-1.8-.6 1.8-.6L19 14z"/>
+	</svg>
+);
 // Single source-of-truth logo asset — lives at assets/img/logo.svg and is
 // also reused (via base64) for the WP admin-menu icon in
 // includes/admin/class-captlc-menu.php. Replace that one file to update the
@@ -298,6 +305,13 @@ const Navigation = () => {
 								<span className="captlc-nav-icon"><IconDocs /></span>
 								<span className="captlc-nav-label">{ __( 'Documentation', 'captain-live-chat' ) }</span>
 							</Link>
+
+							{ isAdmin && (
+								<Link to="/mcp" className={ linkClass( '/mcp' ) } onClick={ closeMobile }>
+									<span className="captlc-nav-icon"><IconMcp /></span>
+									<span className="captlc-nav-label">{ __( 'MCP', 'captain-live-chat' ) }</span>
+								</Link>
+							) }
 						</div>
 					) }
 
