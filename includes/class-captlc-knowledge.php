@@ -3,7 +3,7 @@
  * AI Knowledge Base — lets admins feed extra context (documents, web pages)
  * to the AI auto-reply so it can answer questions specific to the site.
  *
- * @since      1.0.0
+ * @since      0.0.1
  *
  * @package    captain-live-chat
  * @subpackage captain-live-chat/includes

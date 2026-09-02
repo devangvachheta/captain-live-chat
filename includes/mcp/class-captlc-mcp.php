@@ -15,7 +15,7 @@
  * keeps the site owner free to pick/swap bridges, and means this file
  * has no dependency on any one bridge's class names.
  *
- * @since   1.0.0
+ * @since   0.0.1
  * @package captain-live-chat
  * @subpackage captain-live-chat/includes/mcp
  */
@@ -52,7 +52,7 @@ class CAPTLC_MCP {
 	 * API is available — checked lazily on the hook, since core may load
 	 * after this constructor runs on 'plugins_loaded'.
 	 *
-	 * @since 1.0.0
+	 * @since 0.0.1
 	 */
 	public function __construct() {
 		add_action( 'wp_abilities_api_categories_init', array( 'CAPTLC_MCP_Categories', 'register' ) );

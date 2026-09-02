@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
 
 const PLUGIN_VERSION = ( typeof captlc_data !== 'undefined' && captlc_data?.captlc_version )
 	? captlc_data.captlc_version
-	: '1.0.0';
+	: '0.0.1';
 
 // ── Icon helpers ────────────────────────────────────────────────────────
 const IconInbox = () => (

@@ -2,7 +2,7 @@
 /**
  * The file that defines the load plugin.
  *
- * @since   1.0.0
+ * @since   0.0.1
  *
  * @package captain-live-chat
  * @subpackage captain-live-chat/includes
@@ -18,7 +18,7 @@ if ( ! class_exists( 'Captlc_Plugin_Load' ) ) {
 	/**
 	 * Class Captlc_Plugin_Load
 	 *
-	 * @since 1.0.0
+	 * @since 0.0.1
 	 */
 	class Captlc_Plugin_Load {
 
@@ -32,7 +32,7 @@ if ( ! class_exists( 'Captlc_Plugin_Load' ) ) {
 		/**
 		 * Initiator
 		 *
-		 * @since 1.0.0
+		 * @since 0.0.1
 		 */
 		public static function get_instance() {
 			if ( ! isset( self::$instance ) ) {
@@ -44,7 +44,7 @@ if ( ! class_exists( 'Captlc_Plugin_Load' ) ) {
 		/**
 		 * Define the core functionality of the plugin.
 		 *
-		 * @since 1.0.0
+		 * @since 0.0.1
 		 */
 		public function __construct() {
 			// Activator class must be loaded immediately, activation/deactivation
@@ -61,7 +61,7 @@ if ( ! class_exists( 'Captlc_Plugin_Load' ) ) {
 		/**
 		 * Files load plugin loaded.
 		 *
-		 * @since 1.0.0
+		 * @since 0.0.1
 		 * @return void
 		 */
 		public function captlc_init_plugin() {
@@ -89,7 +89,7 @@ if ( ! class_exists( 'Captlc_Plugin_Load' ) ) {
 		/**
 		 * Load the required dependencies for this plugin.
 		 *
-		 * @since 1.0.0
+		 * @since 0.0.1
 		 */
 		public function captlc_load_dependencies() {
 			require_once CAPTLC_PATH . 'includes/class-captlc-roles.php';

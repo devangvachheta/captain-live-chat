@@ -2,7 +2,7 @@
 /**
  * Registers the admin menu page and mounts the React app.
  *
- * @since      1.0.0
+ * @since      0.0.1
  *
  * @package    captain-live-chat
  * @subpackage captain-live-chat/includes/admin
@@ -17,14 +17,14 @@ if ( ! class_exists( 'Captlc_Menu' ) ) {
 	/**
 	 * Class Captlc_Menu
 	 *
-	 * @since 1.0.0
+	 * @since 0.0.1
 	 */
 	class Captlc_Menu {
 
 		/**
 		 * Constructor — registers hooks.
 		 *
-		 * @since 1.0.0
+		 * @since 0.0.1
 		 */
 		public function __construct() {
 			add_action( 'admin_menu', array( $this, 'captlc_admin_menu' ) );
@@ -39,7 +39,7 @@ if ( ! class_exists( 'Captlc_Menu' ) ) {
 		 * sidebar via captlc_data.plugin_url) — replace that one file to
 		 * update the logo everywhere it appears.
 		 *
-		 * @since 1.0.0
+		 * @since 0.0.1
 		 * @return string Data URI, or the dashicon fallback if the file is missing.
 		 */
 		private static function captlc_menu_icon() {
@@ -58,7 +58,7 @@ if ( ! class_exists( 'Captlc_Menu' ) ) {
 		/**
 		 * Registers the top level admin menu and submenus.
 		 *
-		 * @since 1.0.0
+		 * @since 0.0.1
 		 */
 		public function captlc_admin_menu() {
 			// Admins always get full access. Non-admin users who've been granted
@@ -181,7 +181,7 @@ if ( ! class_exists( 'Captlc_Menu' ) ) {
 		/**
 		 * Outputs the React app mount point.
 		 *
-		 * @since 1.0.0
+		 * @since 0.0.1
 		 */
 		public function captlc_menu_page_template() {
 			$is_admin = current_user_can( 'manage_options' );
@@ -198,7 +198,7 @@ if ( ! class_exists( 'Captlc_Menu' ) ) {
 		 * Enqueues the compiled React app and localizes plugin data.
 		 * Only loads on the plugin's own admin page.
 		 *
-		 * @since 1.0.0
+		 * @since 0.0.1
 		 * @param string $hook Current admin page hook suffix.
 		 * @return void
 		 */
