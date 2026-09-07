@@ -28,6 +28,10 @@ class CAPTLC_MCP_Categories {
 	 * @return void
 	 */
 	public static function register() {
+		if ( ! function_exists( 'wp_register_ability_category' ) ) {
+			return;
+		}
+
 		wp_register_ability_category(
 			self::CONVERSATIONS,
 			array(

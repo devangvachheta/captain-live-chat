@@ -104,6 +104,7 @@ class CAPTLC_Public {
 		}
 
 		$show_branding = class_exists( 'CAPTLC_Settings' ) ? ! empty( CAPTLC_Settings::get_settings()['show_branding'] ) : false;
+		$branding_text = class_exists( 'CAPTLC_Settings' ) ? CAPTLC_Settings::get_settings()['branding_text'] : __( 'Powered by Captain Live Chat', 'captain-live-chat' );
 
 		include CAPTLC_PATH . 'public/views/widget-container.php';
 	}

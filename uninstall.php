@@ -23,29 +23,29 @@ global $wpdb;
 // Both toggles live inside the captlc_settings option itself, so we must
 // read them first and decide, then act — deleting that option later would
 // destroy the very flags we're checking.
-$captlc_settings                = get_option( 'captlc_settings', array() );
-$delete_data_on_uninstall       = ! empty( $captlc_settings['delete_data_on_uninstall'] );
-$preserve_settings_on_uninstall = ! empty( $captlc_settings['preserve_settings_on_uninstall'] );
+$captlc_settings                       = get_option( 'captlc_settings', array() );
+$captlc_delete_data_on_uninstall       = ! empty( $captlc_settings['delete_data_on_uninstall'] );
+$captlc_preserve_settings_on_uninstall = ! empty( $captlc_settings['preserve_settings_on_uninstall'] );
 
 // Nothing to do if the admin never opted in to deletion.
-if ( ! $delete_data_on_uninstall ) {
+if ( ! $captlc_delete_data_on_uninstall ) {
 	return;
 }
 
 // ── Drop custom tables ──────────────────────────────────────────────────
-$tables = array(
+$captlc_tables = array(
 	$wpdb->prefix . 'captlc_threads',
 	$wpdb->prefix . 'captlc_messages',
 	$wpdb->prefix . 'captlc_agents',
 );
 
-foreach ( $tables as $table ) {
+foreach ( $captlc_tables as $captlc_table ) {
 	// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery
-	$wpdb->query( 'DROP TABLE IF EXISTS `' . esc_sql( $table ) . '`' );
+	$wpdb->query( 'DROP TABLE IF EXISTS `' . esc_sql( $captlc_table ) . '`' );
 }
 
 // ── Remove plugin options ───────────────────────────────────────────────
-$options = array(
+$captlc_options = array(
 	'captlc_settings',
 	'captlc_canned_replies',
 	'captlc_ai_providers',
@@ -60,14 +60,14 @@ $options = array(
 // specifically, so allowed roles/notification preferences etc. survive a
 // future reinstall even though everything else (threads, messages, canned
 // replies...) is still wiped.
-if ( $preserve_settings_on_uninstall ) {
-	$options = array_diff( $options, array( 'captlc_settings' ) );
+if ( $captlc_preserve_settings_on_uninstall ) {
+	$captlc_options = array_diff( $captlc_options, array( 'captlc_settings' ) );
 }
 
-foreach ( $options as $option ) {
-	delete_option( $option );
+foreach ( $captlc_options as $captlc_option ) {
+	delete_option( $captlc_option );
 	// Also remove from the site options table in multisite installs.
-	delete_site_option( $option );
+	delete_site_option( $captlc_option );
 }
 
 // ── Clear all plugin transients ─────────────────────────────────────────

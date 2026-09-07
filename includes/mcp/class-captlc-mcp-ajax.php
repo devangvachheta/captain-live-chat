@@ -91,12 +91,14 @@ class CAPTLC_MCP_Ajax {
 		}
 
 		if ( isset( $_POST['enabled'] ) ) {
-			CAPTLC_MCP_Settings::set_master_enabled( 'true' === wp_unslash( $_POST['enabled'] ) || '1' === wp_unslash( $_POST['enabled'] ) );
+			$enabled_raw = sanitize_text_field( wp_unslash( $_POST['enabled'] ) );
+			CAPTLC_MCP_Settings::set_master_enabled( 'true' === $enabled_raw || '1' === $enabled_raw );
 		}
 
 		if ( isset( $_POST['ability_name'], $_POST['ability_enabled'] ) ) {
 			$ability_name = sanitize_text_field( wp_unslash( $_POST['ability_name'] ) );
-			$enabled      = 'true' === wp_unslash( $_POST['ability_enabled'] ) || '1' === wp_unslash( $_POST['ability_enabled'] );
+			$enabled_raw  = sanitize_text_field( wp_unslash( $_POST['ability_enabled'] ) );
+			$enabled      = 'true' === $enabled_raw || '1' === $enabled_raw;
 
 			if ( 0 === strpos( $ability_name, 'captlc/' ) ) {
 				CAPTLC_MCP_Settings::set_ability_enabled( $ability_name, $enabled );

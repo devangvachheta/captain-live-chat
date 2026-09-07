@@ -25,6 +25,9 @@ class CAPTLC_MCP_Tools_Agents {
 	 * @return void
 	 */
 	public static function register() {
+		if ( ! function_exists( 'wp_register_ability' ) ) {
+			return;
+		}
 
 		wp_register_ability(
 			'captlc/agents-toggle-status',

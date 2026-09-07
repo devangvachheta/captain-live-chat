@@ -26,6 +26,7 @@ const Settings = () => {
 	const [ deleteDataOnUninstall, setDeleteDataOnUninstall ]         = useState( !! initialSettings.delete_data_on_uninstall );
 	const [ preserveSettingsOnUninstall, setPreserveSettingsOnUninstall ] = useState( !! initialSettings.preserve_settings_on_uninstall );
 	const [ showBranding, setShowBranding ] = useState( !! initialSettings.show_branding );
+	const [ brandingText, setBrandingText ] = useState( initialSettings.branding_text || __( 'Powered by Captain Live Chat', 'captain-live-chat' ) );
 
 	const [ saving, setSaving ]   = useState( false );
 	const [ notice, setNotice ]   = useState( null ); // { type: 'success'|'error', message: string }
@@ -58,6 +59,7 @@ const Settings = () => {
 		body.append( 'delete_data_on_uninstall',       deleteDataOnUninstall       ? '1' : '0' );
 		body.append( 'preserve_settings_on_uninstall', preserveSettingsOnUninstall ? '1' : '0' );
 		body.append( 'show_branding',                  showBranding                ? '1' : '0' );
+		body.append( 'branding_text',                  brandingText );
 
 		fetch( captlc_data.ajax_url, {
 			method: 'POST',
@@ -178,6 +180,22 @@ const Settings = () => {
 								</div>
 								<Switcher checked={ showBranding } onChange={ ( e ) => setShowBranding( e.target.checked ) } />
 							</label>
+							{ showBranding && (
+								<label className="captlc-toggle-row captlc-toggle-row--stacked">
+									<div className="captlc-toggle-row__text">
+										<span className="captlc-toggle-row__label">{ __( 'Badge text', 'captain-live-chat' ) }</span>
+										<span className="captlc-toggle-row__desc">{ __( 'Customize the text shown in the badge. Always displayed as plain text — no links or formatting are ever rendered here.', 'captain-live-chat' ) }</span>
+									</div>
+									<input
+										type="text"
+										className="captlc-input-field"
+										value={ brandingText }
+										maxLength={ 80 }
+										onChange={ ( e ) => setBrandingText( e.target.value ) }
+										placeholder={ __( 'Powered by Captain Live Chat', 'captain-live-chat' ) }
+									/>
+								</label>
+							) }
 							<label className="captlc-toggle-row">
 								<Switcher checked={ soundEnabled } onChange={ ( e ) => setSoundEnabled( e.target.checked ) } />
 								<span>{ __( 'Sound notification', 'captain-live-chat' ) }</span>

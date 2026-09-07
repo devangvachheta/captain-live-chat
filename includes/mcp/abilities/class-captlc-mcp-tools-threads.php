@@ -24,6 +24,9 @@ class CAPTLC_MCP_Tools_Threads {
 	 * @return void
 	 */
 	public static function register() {
+		if ( ! function_exists( 'wp_register_ability' ) ) {
+			return;
+		}
 
 		wp_register_ability(
 			'captlc/threads-list',

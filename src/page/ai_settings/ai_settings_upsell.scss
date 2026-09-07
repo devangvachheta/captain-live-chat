@@ -1,0 +1,28 @@
+.captlc-ai-upsell {
+	display: flex;
+	justify-content: center;
+	padding: 48px 24px;
+
+	&__card {
+		max-width: 520px;
+		text-align: center;
+		background: var(--captlc-a-surface, #fff);
+		border: 1px solid var(--captlc-a-border, #e2e2e2);
+		border-radius: 10px;
+		padding: 32px;
+
+		h2 {
+			margin: 0 0 12px;
+		}
+
+		p {
+			margin: 0 0 12px;
+			line-height: 1.6;
+		}
+	}
+
+	&__hint {
+		font-weight: 600;
+		opacity: 0.8;
+	}
+}

@@ -110,6 +110,15 @@ class CAPTLC_Ajax {
 	 * @return void
 	 */
 	private function maybe_ai_auto_reply( $thread_id, $message ) {
+		// AI Auto-Reply lives entirely in the separate AI Agent add-on
+		// (CAPTLC_AI is only defined when that plugin is installed and
+		// active). Without it, there's simply nothing to trigger here —
+		// visitors fall through to the offline-message behaviour below
+		// exactly as if the feature were toggled off.
+		if ( ! class_exists( 'CAPTLC_AI' ) ) {
+			return;
+		}
+
 		$general = (array) get_option( CAPTLC_AI::OPTION_GENERAL, array() );
 
 		if ( empty( $general['auto_reply_enabled'] ) || CAPTLC_DB::is_any_agent_online() ) {

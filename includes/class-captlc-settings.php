@@ -41,6 +41,7 @@ class CAPTLC_Settings {
 			'delete_data_on_uninstall'      => false,
 			'preserve_settings_on_uninstall' => false,
 			'show_branding'    => false,
+			'branding_text'    => __( 'Powered by Captain Live Chat', 'captain-live-chat' ),
 		);
 
 		$saved = get_option( self::OPTION_KEY, array() );
@@ -77,6 +78,12 @@ class CAPTLC_Settings {
 			'delete_data_on_uninstall'       => ! empty( $raw['delete_data_on_uninstall'] ) ? 1 : 0,
 			'preserve_settings_on_uninstall' => ! empty( $raw['preserve_settings_on_uninstall'] ) ? 1 : 0,
 			'show_branding'                  => ! empty( $raw['show_branding'] ) ? 1 : 0,
+			// sanitize_text_field() strips all HTML/tags, so no matter what a
+			// site owner types here, it can never become a clickable link or
+			// markup — always rendered as plain text (see widget-container.php).
+			'branding_text'                  => isset( $raw['branding_text'] ) && '' !== trim( (string) $raw['branding_text'] )
+				? sanitize_text_field( wp_unslash( $raw['branding_text'] ) )
+				: __( 'Powered by Captain Live Chat', 'captain-live-chat' ),
 		);
 
 		// Existing keys not covered by this form (e.g. offline_message,

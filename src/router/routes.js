@@ -4,7 +4,8 @@ import Inbox from '../page/inbox/inbox.jsx';
 import Settings from '../page/settings/settings.jsx';
 import CannedReplies from '../page/canned_replies/canned_replies.jsx';
 import History from '../page/history/history.jsx';
-import AiSettings from '../page/ai_settings/ai_settings.jsx';
+import AiSettingsUpsell from '../page/ai_settings/ai_settings_upsell.jsx';
+import ExtensionSlot from '../extensions/extension_slot.jsx';
 import WidgetDesigner from '../page/widget_designer/widget_designer.jsx';
 import Analytics from '../page/analytics/analytics.jsx';
 import Help from '../page/help/help.jsx';
@@ -28,7 +29,7 @@ const routes = [
 	{ path: '/widget-settings', element: <PageGate slug="widget-settings"><WidgetDesigner /></PageGate> },
 	{ path: '/widget-designer', element: <Navigate to="/widget-settings" replace /> }, // old URL — keep working for anyone with it bookmarked
 	{ path: '/canned-replies',  element: <PageGate slug="canned-replies"><CannedReplies /></PageGate> },
-	{ path: '/ai-settings',     element: <PageGate slug="ai-settings"><AiSettings /></PageGate> },
+	{ path: '/ai-settings',     element: <PageGate slug="ai-settings"><ExtensionSlot slug="ai-settings" fallback={ <AiSettingsUpsell /> } /></PageGate> },
 	{ path: '/analytics',       element: <PageGate slug="analytics"><Analytics /></PageGate> },
 	{ path: '/settings',        element: <PageGate slug="settings"><Settings /></PageGate> },
 	{ path: '/history',         element: <PageGate slug="history"><History /></PageGate> },

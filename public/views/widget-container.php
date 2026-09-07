@@ -85,7 +85,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 			<?php if ( ! empty( $show_branding ) ) : ?>
 			<div class="captlc-widget__branding">
-				<?php esc_html_e( 'Powered by', 'captain-live-chat' ); ?> <span style="font-weight:700;">Captain Live Chat</span>
+				<?php echo esc_html( $branding_text ); ?>
 			</div>
 			<?php endif; ?>
 		</div>
@@ -107,7 +107,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 			<?php if ( ! empty( $show_branding ) ) : ?>
 			<div class="captlc-widget__branding">
-				<?php esc_html_e( 'Powered by', 'captain-live-chat' ); ?> <span style="font-weight:700;">Captain Live Chat</span>
+				<?php echo esc_html( $branding_text ); ?>
 			</div>
 			<?php endif; ?>
 		</div>
@@ -206,7 +206,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 			<?php if ( ! empty( $show_branding ) ) : ?>
 			<div class="captlc-widget__branding">
-				<?php esc_html_e( 'Powered by', 'captain-live-chat' ); ?> <span style="font-weight:700;">Captain Live Chat</span>
+				<?php echo esc_html( $branding_text ); ?>
 			</div>
 			<?php endif; ?>
 		</div>

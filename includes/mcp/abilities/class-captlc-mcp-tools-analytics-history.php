@@ -22,6 +22,9 @@ class CAPTLC_MCP_Tools_Analytics_History {
 	 * @return void
 	 */
 	public static function register() {
+		if ( ! function_exists( 'wp_register_ability' ) ) {
+			return;
+		}
 
 		wp_register_ability(
 			'captlc/analytics-get',

@@ -30,7 +30,7 @@ const DOCS = [
 			},
 			{
 				title: __( 'Turn on AI Auto-Reply (optional)', 'captain-live-chat' ),
-				body: __( 'If you want visitors answered even when no agent is online, connect a free provider like Groq or Gemini under AI Agent.', 'captain-live-chat' ),
+				body: __( 'If you want visitors answered even when no agent is online, install the separate AI Agent add-on and connect a provider under AI Agent.', 'captain-live-chat' ),
 			},
 			{
 				title: __( 'Open the Inbox', 'captain-live-chat' ),
@@ -116,7 +116,7 @@ const DOCS = [
 		desc: __( 'Let AI answer visitors automatically when no agent is online.', 'captain-live-chat' ),
 		badge_color: '#f59e0b',
 		badge_label: __( 'API Key Required', 'captain-live-chat' ),
-		intro: __( 'AI Agent connects Captain Live Chat to an AI provider so visitors get an instant reply even outside your team\u2019s working hours. It only takes over when every agent is offline, and a human can jump into the conversation at any time.', 'captain-live-chat' ),
+		intro: __( 'AI Agent is a separate, optional add-on that connects Captain Live Chat to an AI provider so visitors get an instant reply even outside your team\u2019s working hours. It only takes over when every agent is offline, and a human can jump into the conversation at any time. Install the add-on to unlock this page.', 'captain-live-chat' ),
 		note: __( 'Groq and Google Gemini both offer a free tier with no credit card required — a good place to start.', 'captain-live-chat' ),
 		note_type: 'info',
 		steps: [

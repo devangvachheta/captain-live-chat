@@ -22,6 +22,9 @@ class CAPTLC_MCP_Tools_Tags_Notes {
 	 * @return void
 	 */
 	public static function register() {
+		if ( ! function_exists( 'wp_register_ability' ) ) {
+			return;
+		}
 
 		wp_register_ability(
 			'captlc/tags-get',

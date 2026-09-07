@@ -235,7 +235,7 @@ if ( ! class_exists( 'CAPTLC_Knowledge' ) ) {
 				wp_send_json_error( array( 'message' => __( 'Knowledge base is full. Delete a source before adding another.', 'captain-live-chat' ) ) );
 			}
 
-			if ( empty( $_FILES['captlc_knowledge_file'] ) ) {
+			if ( empty( $_FILES['captlc_knowledge_file'] ) || ! isset( $_FILES['captlc_knowledge_file']['tmp_name'], $_FILES['captlc_knowledge_file']['name'] ) ) {
 				wp_send_json_error( array( 'message' => __( 'No file received.', 'captain-live-chat' ) ) );
 			}
 
@@ -251,6 +251,7 @@ if ( ! class_exists( 'CAPTLC_Knowledge' ) ) {
 			// Determine the file's REAL type from its bytes + extension
 			// rather than trusting the browser-supplied `type` field, which
 			// is client input and easily spoofed.
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- wp_check_filetype_and_ext() is the WP-native way to validate an uploaded file; it needs the raw tmp_name/name to inspect the real file bytes and extension.
 			$checked   = wp_check_filetype_and_ext(
 				$_FILES['captlc_knowledge_file']['tmp_name'],
 				$_FILES['captlc_knowledge_file']['name'],

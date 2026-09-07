@@ -36,7 +36,7 @@ const FAQS = [
 	},
 	{
 		q: __( 'Can AI reply automatically?', 'captain-live-chat' ),
-		a: __( 'Yes — configure a provider and prompt under AI Agent. It can answer visitors automatically until a human agent takes over the conversation.', 'captain-live-chat' ),
+		a: __( 'Yes, with the separate AI Agent add-on installed — configure a provider and prompt under AI Agent. It can answer visitors automatically until a human agent takes over the conversation.', 'captain-live-chat' ),
 	},
 	{
 		q: __( 'Why is a conversation marked as offline?', 'captain-live-chat' ),

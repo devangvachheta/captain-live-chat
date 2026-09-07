@@ -1,152 +1,148 @@
 === Captain Live Chat ===
 Contributors: devangvachheta
 Tags: live chat, chat widget, customer service, support, real-time chat
-Requires at least: 6.2
+Requires at least: 6.9
 Tested up to: 7.1
-Stable tag: 0.0.1
+Stable tag: 0.0.2
 Requires PHP: 7.4
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Self-hosted live chat for WordPress with optional AI auto-reply. No subscription — your data stays in your database.
+Self-hosted live chat for WordPress. No subscription, no external servers — your conversations stay in your own database.
 
 == Description ==
 
-**Captain Live Chat** is a powerful, fully self-hosted live chat plugin for WordPress. Unlike cloud-based services such as Tawk.to, Zendesk, or Crisp, Captain Live Chat keeps every message in your own WordPress database. No monthly subscription. No data leaving your server — unless you choose to switch on the optional AI auto-reply feature, which sends the visitor's message to an AI provider you select (see "External Services" below).
+<strong>Captain Live Chat</strong> is a powerful, fully self-hosted live chat plugin for WordPress. Unlike cloud-based services such as Tawk.to, Zendesk, or Crisp, Captain Live Chat keeps every message in your own WordPress database. No monthly subscription, no external calls, no data leaving your server.
 
-= Why Captain Live Chat? =
+Whether you run a small business site, a support-heavy SaaS product, or an agency managing chat for multiple clients, Captain Live Chat gives you a lightweight, self-hosted inbox that works out of the box on any host.
 
-* ✅ **100% Self-Hosted** — All conversations stay in your WordPress database.
-* ✅ **No Subscription** — One plugin, unlimited conversations, forever.
-* ✅ **Lightweight** — No heavy external scripts. Shared-hosting friendly.
-* ✅ **Real-time Polling** — Messages appear within 3 seconds without WebSockets (works on all hosting).
-* ✅ **Modern Admin UI** — React-based dashboard with dark and light mode.
-* ✅ **Role & User Permissions** — Decide exactly who can act as a chat agent.
-* ✅ **Multiple Notifications** — Sound, browser, and email alerts for new messages.
-* ✅ **Typing Indicator** — Both visitor and agent see "typing…" in real time.
-* ✅ **Read Receipts** — Visitor sees "Seen" once the agent has read the message.
-* ✅ **Live Visitor Info** — See visitor's browser, device, and current page URL live.
-* ✅ **Auto-Away** — Agent is automatically set offline when the tab becomes inactive.
+<strong>💬 A Real Chat Widget, Not a Contact Form</strong>
 
-= Features =
+A floating chat bubble on the front end opens into a real-time conversation: pre-chat form, typing indicators, read receipts, and an offline fallback message when no agent is online.
 
-**Frontend Widget**
-* Floating chat button (bottom-right, fully responsive)
-* Pre-chat form: name, email, message
-* Live online/offline agent status indicator
-* Typing indicator (animated dots)
-* "Seen" read receipts
-* Offline fallback message
+<strong>📥 Facebook Messenger–Style Agent Inbox</strong>
 
-**Agent Dashboard**
-* Facebook Messenger-style inbox — thread list + chat panel side by side
-* Real-time message polling
-* Visitor info panel: name, email, browser, device, live current URL
-* Close chat, mark read, assign conversations
-* Agent online/offline toggle with 45-second heartbeat
-* Auto-away when browser tab is hidden
+A modern, React-based dashboard with a thread list and chat panel side by side. Agents can toggle online/offline, get a 45-second heartbeat, and go auto-away when their browser tab is hidden.
 
-**AI Auto-Reply (Optional)**
-* Automatically replies to visitors when no agent is online, using an AI provider you connect (Groq, OpenAI, OpenRouter, Google Gemini, or Anthropic — bring your own API key)
-* Custom system prompt to steer tone and topics
-* Knowledge base — add links or upload PDF/.txt documents so replies are grounded in your own content
-* Configurable daily reply limit
-* See "External Services" below for what is sent and to whom
+<strong>🔔 Notifications That Actually Reach Agents</strong>
 
-**Analytics & History**
-* Dashboard analytics: chat volume, response times, agent performance
-* Full conversation history with CSV export
-* Canned replies / quick responses for agents
+Sound, browser push, and rate-limited email notifications make sure a new visitor message doesn't sit unseen.
 
-**Settings**
-* Allow specific WordPress roles (Administrator, Editor, etc.) as agents
-* Or allow individual users regardless of role
-* Sound notification (Web Audio API — no extra file)
-* Browser push notification with one-click permission request
-* Email notification (rate-limited to prevent flooding)
-* Customise widget title and offline message
-* Polling interval control (default 3 seconds)
+<strong>👥 Role & User-Based Agent Permissions</strong>
 
-**Developer-Friendly**
-* WordPress Coding Standards throughout
-* BEM-style CSS naming, all classes prefixed `captlc-`
-* All inputs sanitized, all outputs escaped, nonce-verified endpoints
-* Transient-based rate limiting on visitor-facing endpoints
-* `uninstall.php` for opt-in clean data removal (toggle in Settings)
+Decide exactly who can act as a chat agent — by WordPress role (e.g. all Editors) or by picking individual users, regardless of role.
+
+<strong>📊 Built-in Analytics & History</strong>
+
+Track chat volume, response times, and agent performance from the dashboard, with full conversation history and CSV export.
+
+<strong>⚡ Lightweight & Shared-Hosting Friendly</strong>
+
+Real-time-feeling updates via AJAX polling (not WebSockets), so it works on shared hosting exactly as well as on managed WordPress hosting.
+
+<strong>Perfect for:</strong>
+
+* Small businesses that want live chat without a monthly subscription
+* Support teams who need conversation history and analytics in their own database
+* Agencies managing chat for multiple client sites
+* Any WordPress site that wants visitor data to stay on their own server
+
+== Key Features ==
+
+* 💬 <strong>Floating Chat Widget</strong> : Pre-chat form, typing indicator, read receipts, and an offline fallback message
+* 📥 <strong>Agent Inbox</strong> : Messenger-style thread list and chat panel, real-time polling, visitor info panel (browser, device, live current URL)
+* 👥 <strong>Role & User Permissions</strong> : Grant agent access by WordPress role or by individual user
+* 🔔 <strong>Notifications</strong> : Sound, browser push, and rate-limited email alerts for new messages
+* 🟢 <strong>Online Status & Auto-Away</strong> : 45-second heartbeat, automatic away when the browser tab is hidden
+* 📊 <strong>Analytics & History</strong> : Chat volume, response times, agent performance, full history with CSV export
+* 💡 <strong>Canned Replies</strong> : Quick, reusable responses for agents
+* 🎨 <strong>Widget Designer</strong> : Accent color, position, welcome message, and a live preview
+* 🔒 <strong>Self-Hosted</strong> : All conversations stay in your own WordPress database — no external calls
+* ⚡ <strong>Lightweight</strong> : AJAX polling instead of WebSockets — works on any shared host
 
 == Installation ==
 
-1. Upload the `captain-live-chat` folder to `/wp-content/plugins/`.
-2. Activate the plugin from the **Plugins** screen in WordPress.
-3. Go to **Live Chat → Settings** and configure who can act as an agent.
+1. Upload the <code>captain-live-chat</code> folder to <code>/wp-content/plugins/</code>, or install the plugin directly from the WordPress Plugins screen.
+2. Activate the plugin from the <strong>Plugins</strong> screen.
+3. Go to <strong>Live Chat → Settings</strong> and configure who can act as an agent.
 4. Visit your site and click the chat bubble (bottom-right) to start a test conversation.
-5. Return to **Live Chat → Dashboard**, enable "I am online", and reply.
+5. Return to <strong>Live Chat → Dashboard</strong>, enable "I am online", and reply.
 
-= Minimum Requirements =
+== Usage ==
 
-* WordPress 6.2 or greater
-* PHP 7.4 or greater
-* MySQL 5.6 or MariaDB 10.1 or greater
+After activation:
+
+1. <strong>Set up agents</strong> — Under Settings, allow specific WordPress roles or individual users as chat agents.
+2. <strong>Customize the widget</strong> — Use the Widget Designer to set accent color, position, and welcome message.
+3. <strong>Go online</strong> — Toggle "I am online" in the dashboard so visitors see an active agent.
+4. <strong>Reply in real time</strong> — New visitor messages appear in the Inbox within a few seconds via polling.
+5. <strong>Review performance</strong> — Check the Analytics tab for chat volume, response times, and history.
 
 == Frequently Asked Questions ==
 
 = Does this plugin require a paid subscription? =
+
 No. Captain Live Chat is 100% free and self-hosted. All data stays on your server.
 
 = Does it work on shared hosting? =
+
 Yes. The plugin uses AJAX polling (not WebSockets), which works on all shared hosting providers including Hostinger, Bluehost, SiteGround, and Kinsta.
 
 = Is data stored on your servers? =
-No. All chat data is stored exclusively in your WordPress database — Captain Live Chat itself never sends data to any server we operate. If you switch on the optional AI auto-reply feature, the visitor's message is sent to the AI provider you personally connect (using your own API key) so it can generate a reply. See "External Services" below for details. This feature is off by default.
 
-= Does the AI auto-reply feature send my visitors' data anywhere? =
-Only if you enable it and configure an AI provider yourself. When enabled, the visitor's message (and, optionally, your knowledge base content and system prompt) is sent to whichever provider you chose — Groq, OpenAI, OpenRouter, Google Gemini, or Anthropic — using your own API key. See "External Services" below for each provider's data-handling terms.
+Yes, entirely. All chat data is stored exclusively in your WordPress database. Captain Live Chat itself makes no external network calls and sends data to no third-party service.
+
+= Does Captain Live Chat send my visitors' data anywhere? =
+
+No. This plugin has no AI or third-party integrations of its own and makes no external network calls of any kind.
 
 = Can multiple agents reply to chats? =
+
 Yes. You can grant chat access by WordPress role (e.g. all Editors) or by selecting individual users.
 
 = Will my visitors' messages be safe? =
+
 All visitor inputs are sanitized server-side using WordPress functions. All AJAX endpoints are protected by nonces. Visitor-facing endpoints are rate-limited to prevent spam.
 
 = Can I change the widget colours? =
-The frontend widget uses CSS custom properties. You can override `--captlc-w-accent` (and related variables) in your theme's CSS.
+
+The frontend widget uses CSS custom properties. You can override <code>--captlc-w-accent</code> (and related variables) in your theme's CSS.
 
 = Does the widget show a "Powered by Captain Live Chat" credit to my visitors? =
-No, not unless you turn it on. It is off by default. If you'd like to help others discover the plugin, you can enable "Show 'Powered by Captain Live Chat' badge" under Settings → Notifications — entirely optional.
+
+No, not unless you turn it on. It is off by default. If you'd like to help others discover the plugin, you can enable "Show 'Powered by Captain Live Chat' badge" under Settings → Notifications — entirely optional, and you can customize the badge text to whatever you like. It's always rendered as plain text with no external link, regardless of what text you enter.
 
 = What happens to data when I uninstall? =
+
 By default, your data is kept so you don't lose anything if you reinstall later. If you want a clean removal, turn on "Delete data on uninstall" in Settings before deleting the plugin — this removes all plugin database tables, options, and transients when you click Delete on the Plugins screen. A "Preserve settings on uninstall" option is also available if you want your role/notification preferences to survive a future reinstall while everything else is wiped.
 
-== External Services ==
+= Can AI assistants manage my chats? =
 
-Captain Live Chat's core live-chat features (widget, inbox, notifications, analytics) run entirely on your own WordPress database and make no external calls.
-
-The plugin includes an **optional** AI auto-reply feature. It is **disabled by default** and only activates once you enable it and enter your own API key for a provider. When enabled, the visitor's message — and, depending on your settings, your custom system prompt and knowledge base content — is sent to the provider you selected so it can generate a reply. No data is sent to any of these services unless you turn this feature on.
-
-This plugin can connect to one of the following third-party AI services, depending on which provider you configure:
-
-* **Groq** — [Terms of Use](https://groq.com/terms-of-use) | [Privacy Policy](https://groq.com/privacy-policy)
-* **OpenAI** — [Terms of Use](https://openai.com/policies/) | [Privacy Policy](https://openai.com/policies/privacy-policy/)
-* **OpenRouter** — [Terms of Service](https://openrouter.ai/terms) | [Privacy Policy](https://openrouter.ai/privacy)
-* **Google Gemini API** — [Terms of Service](https://ai.google.dev/gemini-api/terms) | [Privacy Policy](https://policies.google.com/privacy)
-* **Anthropic (Claude)** — [Commercial Terms of Service](https://www.anthropic.com/legal/commercial-terms) | [Privacy Policy](https://www.anthropic.com/legal/privacy)
-
-Data sent: the visitor's chat message, and, if configured, your custom system prompt and knowledge base text. No data is sent unless you have enabled AI auto-reply and provided your own API key for the selected provider.
+Optionally, yes. On WordPress 6.9 or newer, the plugin registers a set of read/management actions as WordPress Abilities via core's Abilities API. With a separate MCP bridge plugin installed, AI assistants can use those abilities. This is entirely optional and unrelated to any third-party AI provider — the plugin itself makes no AI API calls.
 
 == Screenshots ==
 
 1. The floating chat widget on a live site — pre-chat greeting, quick replies, and the message thread.
 2. The agent Inbox — thread list, active conversation, and visitor info panel side by side.
-3. AI Auto-Reply settings — enable/disable, system prompt, daily reply limit, and Knowledge Base.
+3. Knowledge Base — add links or upload documents for your team's own reference.
 4. Analytics dashboard — chat volume, response time, and resolution rate at a glance.
 5. Widget Designer — accent color, position, welcome message, and a live preview.
 
+== External Services ==
+
+Captain Live Chat makes no external network calls of any kind. Every feature (widget, inbox, notifications, analytics, canned replies, knowledge base storage) runs entirely on your own WordPress database, and no visitor or site data is sent to any third-party server.
+
 == Changelog ==
+
+= 0.0.2 (07/09/2026) =
+* Removed: All direct third-party AI provider integration (AI Auto-Reply) has been removed from this plugin. Captain Live Chat now makes zero external network calls of any kind.
+* Changed: Minimum WordPress requirement raised to 6.9. The MCP/Abilities-API feature no longer carries a fallback path for older WordPress versions.
+* New: The optional "Powered by Captain Live Chat" badge text is now customizable (Settings → Notifications). Always rendered as plain text, regardless of what is entered — never a link or HTML.
 
 = 0.0.1 =
 * Initial release.
 
 == Upgrade Notice ==
 
-= 0.0.1 =
-Initial release.
+= 0.0.2 =
+Removes all third-party AI provider integration — the plugin now makes no external network calls. Requires WordPress 6.9+.

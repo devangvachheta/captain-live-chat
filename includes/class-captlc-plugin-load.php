@@ -71,7 +71,6 @@ if ( ! class_exists( 'Captlc_Plugin_Load' ) ) {
 			new CAPTLC_Notifications();
 			new CAPTLC_Canned_Replies();
 			new CAPTLC_History();
-			new CAPTLC_AI();
 			new CAPTLC_Knowledge();
 			new CAPTLC_Widget_Design();
 			new CAPTLC_Faq();
@@ -99,7 +98,11 @@ if ( ! class_exists( 'Captlc_Plugin_Load' ) ) {
 			require_once CAPTLC_PATH . 'includes/class-captlc-ajax.php';
 			require_once CAPTLC_PATH . 'includes/class-captlc-canned-replies.php';
 			require_once CAPTLC_PATH . 'includes/class-captlc-history.php';
-			require_once CAPTLC_PATH . 'includes/class-captlc-ai.php';
+			// AI Auto-Reply (class-captlc-ai.php) is not part of the free
+			// plugin — it ships in the separate "Captain Live Chat – AI
+			// Agent" add-on, which defines its own CAPTLC_AI class and
+			// hooks itself in independently when active. See the
+			// class_exists( 'CAPTLC_AI' ) guard in CAPTLC_Ajax::maybe_ai_auto_reply().
 			require_once CAPTLC_PATH . 'includes/class-captlc-knowledge.php';
 			require_once CAPTLC_PATH . 'includes/class-captlc-widget-design.php';
 			require_once CAPTLC_PATH . 'includes/class-captlc-faq.php';
