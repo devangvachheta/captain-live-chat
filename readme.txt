@@ -3,7 +3,7 @@ Contributors: devangvachheta
 Tags: live chat, chat widget, customer service, support, real-time chat
 Requires at least: 6.9
 Tested up to: 7.1
-Stable tag: 0.0.2
+Stable tag: 0.0.3
 Requires PHP: 7.4
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -67,6 +67,19 @@ Real-time-feeling updates via AJAX polling (not WebSockets), so it works on shar
 3. Go to <strong>Live Chat → Settings</strong> and configure who can act as an agent.
 4. Visit your site and click the chat bubble (bottom-right) to start a test conversation.
 5. Return to <strong>Live Chat → Dashboard</strong>, enable "I am online", and reply.
+
+== Source Code ==
+
+The admin dashboard is a React application built with <code>@wordpress/scripts</code> (npm + webpack). The published <code>build/index.js</code> and <code>build/index.css</code> are the compiled output of the human-readable source (JSX/SCSS), which is publicly available at:
+
+https://github.com/devangvachheta/captain-live-chat
+
+To rebuild from source:
+
+1. Clone the repository above (it includes the <code>src/</code> folder and <code>package.json</code>).
+2. Run <code>npm install</code> to install dependencies.
+3. Run <code>npm run build</code> to produce a fresh <code>build/index.js</code> and <code>build/index.css</code> from the <code>src/</code> source.
+4. For active development with automatic rebuilds, use <code>npm run start</code> instead.
 
 == Usage ==
 
@@ -133,6 +146,9 @@ Optionally, yes. On WordPress 6.9 or newer, the plugin registers a set of read/m
 Captain Live Chat makes no external network calls of any kind. Every feature (widget, inbox, notifications, analytics, canned replies, knowledge base storage) runs entirely on your own WordPress database, and no visitor or site data is sent to any third-party server.
 
 == Changelog ==
+
+= 0.0.3 (09/09/2026) =
+* New: Documented the public source-code repository for the compiled admin JS/CSS (https://github.com/devangvachheta/captain-live-chat), including build instructions.
 
 = 0.0.2 (07/09/2026) =
 * Removed: All direct third-party AI provider integration (AI Auto-Reply) has been removed from this plugin. Captain Live Chat now makes zero external network calls of any kind.
